@@ -1,0 +1,3 @@
+{
+  "extends": "@Prezzy/config/tsconfig.base.json"
+}
