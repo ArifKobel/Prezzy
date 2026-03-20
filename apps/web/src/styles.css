@@ -1,0 +1,36 @@
+@import "@Prezzy/ui/globals.css";
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+/* List marker follows text alignment (propagate from inner <p> to <li>) */
+li:has(> p[style*="center"]) { text-align: center; }
+li:has(> p[style*="right"]) { text-align: right; }
+
+/* react-moveable handle styling to match the design system */
+.prezzy-moveable .moveable-line {
+  background: var(--color-primary) !important;
+  opacity: 0.7;
+}
+.prezzy-moveable .moveable-control {
+  background: white !important;
+  border: 2px solid var(--color-primary) !important;
+  border-radius: 2px !important;
+  width: 8px !important;
+  height: 8px !important;
+  margin-top: -4px !important;
+  margin-left: -4px !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+.prezzy-moveable .moveable-rotation .moveable-control {
+  border-radius: 50% !important;
+  width: 14px !important;
+  height: 14px !important;
+  margin-top: -7px !important;
+  margin-left: -7px !important;
+}
+.prezzy-moveable .moveable-rotation-line {
+  background: var(--color-primary) !important;
+  opacity: 0.4;
+  width: 1px !important;
+  height: 20px !important;
+}
