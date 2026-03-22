@@ -1,0 +1,129 @@
+import { api } from "@Prezzy/backend/convex/_generated/api";
+import type { Id } from "@Prezzy/backend/convex/_generated/dataModel";
+import { useQuery } from "convex/react";
+import { Check, Send } from "lucide-react";
+import { useState } from "react";
+import {
+  deriveOptionAccents,
+  alpha,
+  resolveElementStyle,
+  type PresentationTheme,
+} from "@/lib/quiz-constants";
+
+export function WordCloudInteraction({
+  element,
+  participantId,
+  participantName,
+  submitResponse,
+  theme,
+}: {
+  element: { _id: string; props?: Record<string, any> | null };
+  participantId: string;
+  participantName: string;
+  submitResponse: (args: {
+    elementId: any;
+    participantId: string;
+    participantName: string;
+    value: string;
+  }) => Promise<any>;
+  theme?: PresentationTheme | null;
+}) {
+  const prompt = element.props?.prompt || "Share a word...";
+  const maxResponses = (element.props?.maxResponses as number) ?? 1;
+  const elementId = element._id as Id<"slideElements">;
+
+  const s = resolveElementStyle(element.props, theme);
+  const accentHex = s.accentColor || "#4e6073";
+  const text = s.textColor || "#2f3333";
+  const textFaint = alpha(text, 0.35);
+  const correctColor = s.accentColor ? deriveOptionAccents(s.accentColor)[1].bg : "#6b8e7b";
+
+  const responses = useQuery(api.interactive.listResponses, { elementId });
+  const myResponseCount =
+    responses?.filter((r) => r.participantId === participantId).length ?? 0;
+  const remaining = maxResponses - myResponseCount;
+  const limitReached = remaining <= 0;
+
+  const [value, setValue] = useState("");
+  const [justSent, setJustSent] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    const word = value.trim();
+    if (!word || submitting || limitReached) return;
+    setSubmitting(true);
+    try {
+      await submitResponse({
+        elementId,
+        participantId,
+        participantName,
+        value: word,
+      });
+      setValue("");
+      setJustSent(true);
+      setTimeout(() => setJustSent(false), 2000);
+    } catch {
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <div className="flex w-full max-w-md flex-col items-center gap-5">
+      <p className="font-sans text-xs font-medium uppercase tracking-[0.1em]" style={{ color: alpha(accentHex, 0.5) }}>
+        Word Cloud
+      </p>
+
+      <h2 className="text-center font-display text-lg font-bold" style={{ color: text }}>
+        {prompt}
+      </h2>
+
+      {limitReached ? (
+        <div className="flex w-full flex-col items-center gap-3 rounded-xl py-6" style={{ backgroundColor: alpha(correctColor, 0.1) }}>
+          <Check className="size-6" style={{ color: correctColor }} />
+          <p className="font-sans text-sm font-semibold" style={{ color: correctColor }}>
+            {myResponseCount === 1 ? "Response submitted!" : `All ${myResponseCount} responses submitted!`}
+          </p>
+          <p className="font-sans text-xs" style={{ color: textFaint }}>
+            Thanks for participating.
+          </p>
+        </div>
+      ) : (
+        <form onSubmit={handleSubmit} className="flex w-full flex-col gap-2.5">
+          <div className="relative">
+            <input
+              type="text"
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+              placeholder="Type a word..."
+              maxLength={30}
+              className="w-full rounded-xl bg-white px-4 py-3.5 pr-12 font-sans text-sm shadow-[0_2px_12px_rgba(47,51,51,0.04)] outline-none focus:shadow-[0_2px_16px_rgba(78,96,115,0.12)]"
+              style={{ color: text, ["--tw-placeholder-opacity" as any]: 0.25 }}
+            />
+            <button
+              type="submit"
+              disabled={!value.trim() || submitting}
+              className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg p-2 text-white transition-transform hover:scale-[1.05] disabled:opacity-30 disabled:hover:scale-100"
+              style={{ backgroundColor: accentHex }}
+            >
+              <Send className="size-4" />
+            </button>
+          </div>
+          {maxResponses > 1 && (
+            <p className="text-center font-sans text-xs" style={{ color: textFaint }}>
+              {justSent ? (
+                <span style={{ color: correctColor }}>Submitted!</span>
+              ) : (
+                <>{remaining} of {maxResponses} remaining</>
+              )}
+            </p>
+          )}
+          {maxResponses === 1 && justSent && (
+            <p className="text-center font-sans text-xs" style={{ color: correctColor }}>Submitted!</p>
+          )}
+        </form>
+      )}
+    </div>
+  );
+}
