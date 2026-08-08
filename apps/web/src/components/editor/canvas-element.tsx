@@ -66,7 +66,7 @@ export function CanvasElement({
         style={{
           position: "absolute", display: "block",
           left: `${liveX}%`, top: `${liveY}%`, width: `${liveW}%`,
-          ...(isRichText ? { minHeight: `${liveH}%` } : { height: `${liveH}%` }),
+          ...(isRichText && isEditing ? { minHeight: `${liveH}%` } : { height: `${liveH}%` }),
           transform: (() => {
             const rot = rotationOverride ?? el.props?.rotation;
             return rot ? `rotate(${rot}deg)` : undefined;
