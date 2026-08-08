@@ -4,8 +4,8 @@ import '@/styles.css'
 
 beforeAll(async () => {
   await Promise.all([
-    document.fonts.load('400 16px "Inter Variable"'),
-    document.fonts.load('700 48px "Manrope Variable"'),
+    document.fonts.load('400 16px "Cabinet Grotesk"'),
+    document.fonts.load('700 48px "Cabinet Grotesk"'),
   ])
   await document.fonts.ready
 })

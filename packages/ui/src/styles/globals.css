@@ -8,109 +8,113 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --surface: #f6f2ea;
-  --surface-container-lowest: #fffdf9;
-  --surface-container-low: #efe9dd;
-  --surface-container: #e9e1d3;
-  --surface-container-high: #ded4c2;
-  --surface-dim: #cfc4ae;
-  --on-surface: #231f1c;
-  --primary-dim: #1a4438;
-  --on-primary: #f2f7f3;
-  --secondary-container: #e4d9c6;
-  --tertiary-container: #f7efdd;
-  --outline-variant: #a89d8c;
-  --error-container: #b0512c;
+  --surface: #f6f3ed;
+  --surface-container-lowest: #fffdf8;
+  --surface-container-low: #efece4;
+  --surface-container: #eae6db;
+  --surface-container-high: #e1dcce;
+  --surface-dim: #d5cfc0;
+  --on-surface: #1b1e22;
+  --primary-dim: #a33418;
+  --on-primary: #fffdf8;
+  --secondary-container: #eae6db;
+  --tertiary-container: #f2eee3;
+  --outline-variant: #a5a093;
+  --error-container: #8f2c12;
 
-  --background: #f6f2ea;
-  --foreground: #231f1c;
-  --card: #fffdf9;
-  --card-foreground: #231f1c;
-  --popover: #fffdf9;
-  --popover-foreground: #231f1c;
-  --primary: #22574a;
-  --primary-foreground: #f2f7f3;
-  --secondary: #e4d9c6;
-  --secondary-foreground: #231f1c;
-  --muted: #efe9dd;
-  --muted-foreground: #5b534b;
-  --accent: #f7efdd;
-  --accent-foreground: #231f1c;
-  --destructive: #a8412a;
-  --border: rgb(168 157 140 / 26%);
-  --input: rgb(168 157 140 / 26%);
-  --ring: #22574a;
-  --radius: 0.75rem;
+  --background: #f6f3ed;
+  --foreground: #1b1e22;
+  --card: #fffdf8;
+  --card-foreground: #1b1e22;
+  --popover: #fffdf8;
+  --popover-foreground: #1b1e22;
+  --primary: #c8401f;
+  --primary-foreground: #fffdf8;
+  --secondary: #eae6db;
+  --secondary-foreground: #1b1e22;
+  --muted: #efece4;
+  --muted-foreground: #5f5c55;
+  --accent: #f2eee3;
+  --accent-foreground: #1b1e22;
+  --destructive: #8f2c12;
+  --border: rgb(27 30 34 / 15%);
+  --input: rgb(27 30 34 / 15%);
+  --ring: #c8401f;
+  --radius: 0rem;
 
-  --chart-1: #22574a;
-  --chart-2: #4e8f6f;
-  --chart-3: #b0512c;
-  --chart-4: #c9973f;
-  --chart-5: #6b6353;
+  --chart-1: #c8401f;
+  --chart-2: #1b1e22;
+  --chart-3: #c9973f;
+  --chart-4: #837d6f;
+  --chart-5: #a5a093;
 
-  --sidebar: #efe9dd;
-  --sidebar-foreground: #231f1c;
-  --sidebar-primary: #22574a;
-  --sidebar-primary-foreground: #f2f7f3;
-  --sidebar-accent: #f7efdd;
-  --sidebar-accent-foreground: #231f1c;
-  --sidebar-border: rgb(168 157 140 / 26%);
-  --sidebar-ring: #22574a;
+  --sidebar: #efece4;
+  --sidebar-foreground: #1b1e22;
+  --sidebar-primary: #c8401f;
+  --sidebar-primary-foreground: #fffdf8;
+  --sidebar-accent: #f2eee3;
+  --sidebar-accent-foreground: #1b1e22;
+  --sidebar-border: rgb(27 30 34 / 15%);
+  --sidebar-ring: #c8401f;
+
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0.1 0 0 0 0 0.1 0 0 0 0 0.12 0 0 0 0.04 0'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 .dark {
-  --surface: #191512;
-  --surface-container-lowest: #221d18;
-  --surface-container-low: #1e1a15;
-  --surface-container: #26211b;
-  --surface-container-high: #302a22;
-  --surface-dim: #120f0c;
-  --on-surface: #f2ece3;
-  --primary-dim: #588f7f;
-  --on-primary: #12241e;
-  --secondary-container: #322b22;
-  --tertiary-container: #3a3225;
-  --outline-variant: #6b6355;
+  --surface: #1b1e22;
+  --surface-container-lowest: #22262b;
+  --surface-container-low: #1e2226;
+  --surface-container: #262b30;
+  --surface-container-high: #2e343a;
+  --surface-dim: #14171a;
+  --on-surface: #f6f3ed;
+  --primary-dim: #e2603d;
+  --on-primary: #fffdf8;
+  --secondary-container: #262b30;
+  --tertiary-container: #2e343a;
+  --outline-variant: #5b6167;
   --error-container: #e0714f;
 
-  --background: #191512;
-  --foreground: #f2ece3;
-  --card: #221d18;
-  --card-foreground: #f2ece3;
-  --popover: #221d18;
-  --popover-foreground: #f2ece3;
-  --primary: #6fae9b;
-  --primary-foreground: #12241e;
-  --secondary: #322b22;
-  --secondary-foreground: #f2ece3;
-  --muted: #26211b;
-  --muted-foreground: #b0a698;
-  --accent: #3a3225;
-  --accent-foreground: #f2ece3;
+  --background: #1b1e22;
+  --foreground: #f6f3ed;
+  --card: #22262b;
+  --card-foreground: #f6f3ed;
+  --popover: #22262b;
+  --popover-foreground: #f6f3ed;
+  --primary: #d94e2a;
+  --primary-foreground: #fffdf8;
+  --secondary: #262b30;
+  --secondary-foreground: #f6f3ed;
+  --muted: #262b30;
+  --muted-foreground: #a29e93;
+  --accent: #2e343a;
+  --accent-foreground: #f6f3ed;
   --destructive: #e0714f;
-  --border: rgb(255 255 255 / 12%);
-  --input: rgb(255 255 255 / 16%);
-  --ring: #6fae9b;
+  --border: rgb(246 243 237 / 12%);
+  --input: rgb(246 243 237 / 16%);
+  --ring: #d94e2a;
 
-  --chart-1: #6fae9b;
-  --chart-2: #8fc7a8;
-  --chart-3: #e0714f;
-  --chart-4: #d9ab5e;
-  --chart-5: #9a9182;
+  --chart-1: #d94e2a;
+  --chart-2: #f6f3ed;
+  --chart-3: #c9973f;
+  --chart-4: #837d6f;
+  --chart-5: #5b6167;
 
-  --sidebar: #1e1a15;
-  --sidebar-foreground: #f2ece3;
-  --sidebar-primary: #6fae9b;
-  --sidebar-primary-foreground: #12241e;
-  --sidebar-accent: #3a3225;
-  --sidebar-accent-foreground: #f2ece3;
-  --sidebar-border: rgb(255 255 255 / 12%);
-  --sidebar-ring: #6fae9b;
+  --sidebar: #1e2226;
+  --sidebar-foreground: #f6f3ed;
+  --sidebar-primary: #d94e2a;
+  --sidebar-primary-foreground: #fffdf8;
+  --sidebar-accent: #2e343a;
+  --sidebar-accent-foreground: #f6f3ed;
+  --sidebar-border: rgb(246 243 237 / 12%);
+  --sidebar-ring: #d94e2a;
+
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.03 0'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 @theme inline {
-  --font-sans: "Inter Variable", sans-serif;
-  --font-display: "Manrope Variable", sans-serif;
+  --font-sans: "Cabinet Grotesk", sans-serif;
+  --font-display: "Cabinet Grotesk", sans-serif;
 
   --color-surface: var(--surface);
   --color-surface-container-lowest: var(--surface-container-lowest);
@@ -181,6 +185,7 @@
   }
   body {
     @apply font-sans bg-background text-foreground;
+    background-image: var(--grain);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;

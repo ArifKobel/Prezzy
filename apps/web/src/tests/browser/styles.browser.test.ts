@@ -27,19 +27,19 @@ describe('browser test stylesheet', () => {
   it('exposes the design tokens from the shared globals.css', () => {
     const root = getComputedStyle(document.documentElement)
     expect(root.getPropertyValue('--color-primary').trim()).not.toBe('')
-    expect(root.getPropertyValue('--font-sans')).toContain('Inter Variable')
-    expect(root.getPropertyValue('--font-display')).toContain('Manrope Variable')
+    expect(root.getPropertyValue('--font-sans')).toContain('Cabinet Grotesk')
+    expect(root.getPropertyValue('--font-display')).toContain('Cabinet Grotesk')
   })
 
-  it('loads the self-hosted variable fonts so text metrics are real', () => {
-    expect(document.fonts.check('400 14px "Inter Variable"')).toBe(true)
-    expect(document.fonts.check('700 48px "Manrope Variable"')).toBe(true)
+  it('loads the self-hosted variable font so text metrics are real', () => {
+    expect(document.fonts.check('400 14px "Cabinet Grotesk"')).toBe(true)
+    expect(document.fonts.check('700 48px "Cabinet Grotesk"')).toBe(true)
   })
 
-  it('renders body text with the loaded Inter face rather than a fallback', () => {
+  it('renders body text with the loaded Cabinet Grotesk face rather than a fallback', () => {
     const el = mount('font-sans text-sm')
     el.textContent = 'metrics'
-    expect(getComputedStyle(el).fontFamily).toContain('Inter Variable')
+    expect(getComputedStyle(el).fontFamily).toContain('Cabinet Grotesk')
     expect(el.getBoundingClientRect().height).toBeGreaterThan(0)
   })
 })
