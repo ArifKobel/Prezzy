@@ -1,10 +1,10 @@
 import { ForbiddenException, Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { eq } from "drizzle-orm";
-import { DRIZZLE } from "../db/db.constants";
-import type { Database } from "../db/db.types";
-import { type PresentationRow, presentations, slideElements, slides } from "../db/schema";
-import type { RealtimeTarget } from "../events/realtime-target";
-import type { ElementContext, SlideContext } from "./access.types";
+import { DRIZZLE } from "@/db/db.constants";
+import type { Database } from "@/db/db.types";
+import { type PresentationRow, presentations, slideElements, slides } from "@/db/schema";
+import type { RealtimeTarget } from "@/events/realtime-target";
+import type { ElementContext, SlideContext } from "@/access/access.types";
 
 @Injectable()
 export class AccessService {

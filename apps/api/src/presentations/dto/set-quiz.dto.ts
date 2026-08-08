@@ -1,5 +1,5 @@
 import { IsIn, IsString } from "class-validator";
-import type { QuizPhase } from "../../shared";
+import type { QuizPhase } from "@/shared";
 
 export class SetQuizDto {
   @IsString()

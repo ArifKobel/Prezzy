@@ -1,5 +1,5 @@
 import { Global, Module } from "@nestjs/common";
-import { PresenceService } from "./presence.service";
+import { PresenceService } from "@/presence/presence.service";
 
 @Global()
 @Module({

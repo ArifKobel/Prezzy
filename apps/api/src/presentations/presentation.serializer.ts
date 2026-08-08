@@ -1,5 +1,5 @@
-import type { PresentationRow } from "../db/schema";
-import type { Presentation } from "../shared";
+import type { PresentationRow } from "@/db/schema";
+import type { Presentation } from "@/shared";
 
 export const toPresentation = (row: PresentationRow): Presentation => ({
   id: row.id,

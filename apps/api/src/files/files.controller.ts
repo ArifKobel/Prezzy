@@ -7,8 +7,8 @@ import {
   UseInterceptors,
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
-import { env } from "../config/env";
-import { multerOptions } from "./multer-options";
+import { env } from "@/config/env";
+import { multerOptions } from "@/files/multer-options";
 
 @Controller("files")
 export class FilesController {

@@ -1,20 +1,20 @@
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { and, asc, eq, inArray } from "drizzle-orm";
-import { AccessService } from "../access/access.service";
-import { DRIZZLE } from "../db/db.constants";
-import type { Database } from "../db/db.types";
+import { AccessService } from "@/access/access.service";
+import { DRIZZLE } from "@/db/db.constants";
+import type { Database } from "@/db/db.types";
 import {
   type PresentationRow,
   audienceResponses,
   presentations,
   slideElements,
   slides,
-} from "../db/schema";
-import { EventsService } from "../events/events.service";
-import { PresenceService } from "../presence/presence.service";
-import type { LeaderboardEntry, Presentation } from "../shared";
-import type { SetQuizDto } from "./dto/set-quiz.dto";
-import { toPresentation } from "./presentation.serializer";
+} from "@/db/schema";
+import { EventsService } from "@/events/events.service";
+import { PresenceService } from "@/presence/presence.service";
+import type { LeaderboardEntry, Presentation } from "@/shared";
+import type { SetQuizDto } from "@/presentations/dto/set-quiz.dto";
+import { toPresentation } from "@/presentations/presentation.serializer";
 
 @Injectable()
 export class LiveSessionService {

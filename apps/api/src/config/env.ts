@@ -1,11 +1,7 @@
-import { existsSync } from "node:fs";
 import { resolve } from "node:path";
 import { config } from "dotenv";
 
-const appRoot = resolve(__dirname, "..", "..");
-const envPath = resolve(appRoot, ".env");
-
-config({ path: existsSync(envPath) ? envPath : undefined });
+config({ path: process.env.ENV_FILE });
 
 function required(name: string): string {
   const value = process.env[name];
@@ -21,4 +17,5 @@ export const env = {
   port,
   webOrigin: process.env.WEB_ORIGIN ?? "http://localhost:3000",
   publicUrl: process.env.PUBLIC_URL ?? `http://localhost:${port}`,
+  uploadDir: resolve(process.env.UPLOAD_DIR ?? "uploads"),
 };

@@ -1,4 +1,4 @@
-import type { PresentationRow, SlideElementRow, SlideRow } from "../db/schema";
+import type { PresentationRow, SlideElementRow, SlideRow } from "@/db/schema";
 
 export interface SlideContext {
   slide: SlideRow;

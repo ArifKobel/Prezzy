@@ -3,9 +3,8 @@ import { ValidationPipe } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import type { NestExpressApplication } from "@nestjs/platform-express";
 import cookieParser from "cookie-parser";
-import { AppModule } from "./app.module";
-import { env } from "./config/env";
-import { UPLOADS_DIR } from "./files/multer-options";
+import { AppModule } from "@/app.module";
+import { env } from "@/config/env";
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -13,7 +12,7 @@ async function bootstrap(): Promise<void> {
   app.use(cookieParser());
   app.enableCors({ origin: env.webOrigin, credentials: true });
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
-  app.useStaticAssets(UPLOADS_DIR, { prefix: "/uploads/" });
+  app.useStaticAssets(env.uploadDir, { prefix: "/uploads/" });
   await app.listen(env.port);
 }
 

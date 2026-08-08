@@ -1,4 +1,4 @@
-import type { ElementType } from "../shared";
+import type { ElementType } from "@/shared";
 
 export const ELEMENT_TYPES: ElementType[] = [
   "heading",

@@ -1,6 +1,6 @@
 import { Type } from "class-transformer";
 import { IsOptional, IsString, MinLength, ValidateNested } from "class-validator";
-import { ThemeDto } from "./theme.dto";
+import { ThemeDto } from "@/presentations/dto/theme.dto";
 
 export class UpdatePresentationDto {
   @IsOptional()

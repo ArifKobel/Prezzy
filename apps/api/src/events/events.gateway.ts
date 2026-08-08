@@ -6,8 +6,8 @@ import {
   WebSocketGateway,
 } from "@nestjs/websockets";
 import type { Server, Socket } from "socket.io";
-import { env } from "../config/env";
-import { EventsService } from "./events.service";
+import { env } from "@/config/env";
+import { EventsService } from "@/events/events.service";
 
 @WebSocketGateway({ cors: { origin: env.webOrigin, credentials: true } })
 export class EventsGateway implements OnGatewayInit {

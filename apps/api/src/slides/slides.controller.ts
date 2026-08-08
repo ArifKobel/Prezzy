@@ -1,9 +1,9 @@
 import { Body, Controller, Delete, HttpCode, Param, Patch, Post, UseGuards } from "@nestjs/common";
-import { AuthGuard } from "../auth/auth.guard";
-import { CurrentUser } from "../auth/current-user.decorator";
-import type { Slide, User } from "../shared";
-import { UpdateSlideDto } from "./dto/update-slide.dto";
-import { SlidesService } from "./slides.service";
+import { AuthGuard } from "@/auth/auth.guard";
+import { CurrentUser } from "@/auth/current-user.decorator";
+import type { Slide, User } from "@/shared";
+import { UpdateSlideDto } from "@/slides/dto/update-slide.dto";
+import { SlidesService } from "@/slides/slides.service";
 
 @Controller("slides")
 @UseGuards(AuthGuard)

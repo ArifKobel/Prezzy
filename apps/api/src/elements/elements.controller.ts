@@ -1,10 +1,10 @@
 import { Body, Controller, Delete, HttpCode, Param, Patch, Post, UseGuards } from "@nestjs/common";
-import { AuthGuard } from "../auth/auth.guard";
-import { CurrentUser } from "../auth/current-user.decorator";
-import type { SlideElement, User } from "../shared";
-import { ReorderElementDto } from "./dto/reorder-element.dto";
-import { UpdateElementDto } from "./dto/update-element.dto";
-import { ElementsService } from "./elements.service";
+import { AuthGuard } from "@/auth/auth.guard";
+import { CurrentUser } from "@/auth/current-user.decorator";
+import type { SlideElement, User } from "@/shared";
+import { ReorderElementDto } from "@/elements/dto/reorder-element.dto";
+import { UpdateElementDto } from "@/elements/dto/update-element.dto";
+import { ElementsService } from "@/elements/elements.service";
 
 @Controller("elements")
 @UseGuards(AuthGuard)

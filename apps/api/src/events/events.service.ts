@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import type { Server } from "socket.io";
-import type { RealtimeTarget } from "./realtime-target";
+import type { RealtimeTarget } from "@/events/realtime-target";
 
 @Injectable()
 export class EventsService {

@@ -1,10 +1,10 @@
 import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, UseGuards } from "@nestjs/common";
-import { AuthGuard } from "../auth/auth.guard";
-import { CurrentUser } from "../auth/current-user.decorator";
-import type { Presentation, User } from "../shared";
-import { CreatePresentationDto } from "./dto/create-presentation.dto";
-import { UpdatePresentationDto } from "./dto/update-presentation.dto";
-import { PresentationsService } from "./presentations.service";
+import { AuthGuard } from "@/auth/auth.guard";
+import { CurrentUser } from "@/auth/current-user.decorator";
+import type { Presentation, User } from "@/shared";
+import { CreatePresentationDto } from "@/presentations/dto/create-presentation.dto";
+import { UpdatePresentationDto } from "@/presentations/dto/update-presentation.dto";
+import { PresentationsService } from "@/presentations/presentations.service";
 
 @Controller("presentations")
 @UseGuards(AuthGuard)

@@ -2,16 +2,15 @@ import { BadRequestException } from "@nestjs/common";
 import type { MulterOptions } from "@nestjs/platform-express/multer/interfaces/multer-options.interface";
 import { randomUUID } from "node:crypto";
 import { mkdirSync } from "node:fs";
-import { extname, join } from "node:path";
+import { extname } from "node:path";
 import { diskStorage } from "multer";
+import { env } from "@/config/env";
 
-export const UPLOADS_DIR = join(process.cwd(), "uploads");
-
-mkdirSync(UPLOADS_DIR, { recursive: true });
+mkdirSync(env.uploadDir, { recursive: true });
 
 export const multerOptions: MulterOptions = {
   storage: diskStorage({
-    destination: UPLOADS_DIR,
+    destination: env.uploadDir,
     filename: (_request, file, callback) => {
       callback(null, `${randomUUID()}${extname(file.originalname).toLowerCase()}`);
     },

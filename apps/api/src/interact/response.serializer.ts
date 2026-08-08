@@ -1,5 +1,5 @@
-import type { AudienceResponseRow } from "../db/schema";
-import type { AudienceResponse } from "../shared";
+import type { AudienceResponseRow } from "@/db/schema";
+import type { AudienceResponse } from "@/shared";
 
 export const toResponse = (row: AudienceResponseRow): AudienceResponse => ({
   id: row.id,

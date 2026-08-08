@@ -2,15 +2,15 @@ import { ConflictException, Inject, Injectable, UnauthorizedException } from "@n
 import { compare, hash } from "bcryptjs";
 import { eq } from "drizzle-orm";
 import { type JwtPayload, sign, verify } from "jsonwebtoken";
-import { env } from "../config/env";
-import { DRIZZLE } from "../db/db.constants";
-import type { Database } from "../db/db.types";
-import { type UserRow, users } from "../db/schema";
-import { PASSWORD_SALT_ROUNDS, SESSION_MAX_AGE_MS } from "./auth.constants";
-import type { ChangePasswordDto } from "./dto/change-password.dto";
-import type { LoginDto } from "./dto/login.dto";
-import type { SignupDto } from "./dto/signup.dto";
-import type { UpdateProfileDto } from "./dto/update-profile.dto";
+import { env } from "@/config/env";
+import { DRIZZLE } from "@/db/db.constants";
+import type { Database } from "@/db/db.types";
+import { type UserRow, users } from "@/db/schema";
+import { PASSWORD_SALT_ROUNDS, SESSION_MAX_AGE_MS } from "@/auth/auth.constants";
+import type { ChangePasswordDto } from "@/auth/dto/change-password.dto";
+import type { LoginDto } from "@/auth/dto/login.dto";
+import type { SignupDto } from "@/auth/dto/signup.dto";
+import type { UpdateProfileDto } from "@/auth/dto/update-profile.dto";
 
 @Injectable()
 export class AuthService {

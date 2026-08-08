@@ -1,13 +1,13 @@
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { and, asc, eq } from "drizzle-orm";
-import { AccessService } from "../access/access.service";
-import { DRIZZLE } from "../db/db.constants";
-import type { Database } from "../db/db.types";
-import { type SlideRow, slideElements, slides } from "../db/schema";
-import { EventsService } from "../events/events.service";
-import type { ElementProps, Slide } from "../shared";
-import type { CreateSlideFromLayoutDto } from "./dto/create-slide-from-layout.dto";
-import { toSlide } from "./slide.serializer";
+import { AccessService } from "@/access/access.service";
+import { DRIZZLE } from "@/db/db.constants";
+import type { Database } from "@/db/db.types";
+import { type SlideRow, slideElements, slides } from "@/db/schema";
+import { EventsService } from "@/events/events.service";
+import type { ElementProps, Slide } from "@/shared";
+import type { CreateSlideFromLayoutDto } from "@/slides/dto/create-slide-from-layout.dto";
+import { toSlide } from "@/slides/slide.serializer";
 
 @Injectable()
 export class SlidesService {

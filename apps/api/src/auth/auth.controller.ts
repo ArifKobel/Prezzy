@@ -1,16 +1,16 @@
 import { Body, Controller, Get, HttpCode, Patch, Post, Res, UseGuards } from "@nestjs/common";
 import type { Response } from "express";
-import { AuthGuard } from "./auth.guard";
-import { AuthService } from "./auth.service";
-import { CurrentUser } from "./current-user.decorator";
-import { ChangePasswordDto } from "./dto/change-password.dto";
-import { LoginDto } from "./dto/login.dto";
-import { SignupDto } from "./dto/signup.dto";
-import { UpdateProfileDto } from "./dto/update-profile.dto";
-import { OptionalAuthGuard } from "./optional-auth.guard";
-import { clearSessionCookie, setSessionCookie } from "./session-cookie";
-import { toUser } from "./user.serializer";
-import type { User } from "../shared";
+import { AuthGuard } from "@/auth/auth.guard";
+import { AuthService } from "@/auth/auth.service";
+import { CurrentUser } from "@/auth/current-user.decorator";
+import { ChangePasswordDto } from "@/auth/dto/change-password.dto";
+import { LoginDto } from "@/auth/dto/login.dto";
+import { SignupDto } from "@/auth/dto/signup.dto";
+import { UpdateProfileDto } from "@/auth/dto/update-profile.dto";
+import { OptionalAuthGuard } from "@/auth/optional-auth.guard";
+import { clearSessionCookie, setSessionCookie } from "@/auth/session-cookie";
+import { toUser } from "@/auth/user.serializer";
+import type { User } from "@/shared";
 
 @Controller("auth")
 export class AuthController {

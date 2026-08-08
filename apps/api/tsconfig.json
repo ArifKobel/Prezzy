@@ -21,8 +21,9 @@
     "noFallthroughCasesInSwitch": true,
     "outDir": "./dist",
     "rootDir": "./src",
-    "baseUrl": "./",
+    "baseUrl": ".",
     "paths": {
+      "@/*": ["src/*"],
       "@Prezzy/shared": ["../../packages/shared/src/index.ts"]
     }
   },

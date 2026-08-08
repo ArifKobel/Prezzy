@@ -1,7 +1,7 @@
 import { Body, Controller, Get, HttpCode, Param, Post } from "@nestjs/common";
-import type { Presentation } from "../shared";
-import { HeartbeatDto } from "./dto/heartbeat.dto";
-import { InteractService } from "./interact.service";
+import type { Presentation } from "@/shared";
+import { HeartbeatDto } from "@/interact/dto/heartbeat.dto";
+import { InteractService } from "@/interact/interact.service";
 
 @Controller("join")
 export class JoinController {

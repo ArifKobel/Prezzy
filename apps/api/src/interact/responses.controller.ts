@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Param, Post } from "@nestjs/common";
-import type { AudienceResponse } from "../shared";
-import { SubmitResponseDto } from "./dto/submit-response.dto";
-import { ResponsesService } from "./responses.service";
+import type { AudienceResponse } from "@/shared";
+import { SubmitResponseDto } from "@/interact/dto/submit-response.dto";
+import { ResponsesService } from "@/interact/responses.service";
 
 @Controller()
 export class ResponsesController {

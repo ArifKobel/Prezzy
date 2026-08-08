@@ -1,8 +1,8 @@
 import { type CanActivate, type ExecutionContext, Injectable, UnauthorizedException } from "@nestjs/common";
-import { SESSION_COOKIE } from "./auth.constants";
-import { AuthService } from "./auth.service";
-import type { AuthenticatedRequest } from "./authenticated-request";
-import { toUser } from "./user.serializer";
+import { SESSION_COOKIE } from "@/auth/auth.constants";
+import { AuthService } from "@/auth/auth.service";
+import type { AuthenticatedRequest } from "@/auth/authenticated-request";
+import { toUser } from "@/auth/user.serializer";
 
 @Injectable()
 export class AuthGuard implements CanActivate {

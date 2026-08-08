@@ -1,5 +1,5 @@
-import type { UserRow } from "../db/schema";
-import type { User } from "../shared";
+import type { UserRow } from "@/db/schema";
+import type { User } from "@/shared";
 
 export const toUser = (row: UserRow): User => ({
   id: row.id,

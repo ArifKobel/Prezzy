@@ -1,7 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
-  Bell, FolderOpen, HelpCircle, LayoutDashboard,
-  LayoutTemplate, LogOut, Plus, Settings, Store,
+  FolderOpen, LayoutDashboard, LayoutTemplate, LogOut, Plus, Settings,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useLogout, useMe } from "@/lib/api/auth";
@@ -40,7 +39,6 @@ export function DashboardShell({ activePage, children }: {
           </Link>
           <div className="flex items-center gap-1">
             <NavLink to="/dashboard" label="Dashboard" />
-            <span className="cursor-not-allowed px-3 py-1 font-sans text-sm text-muted-foreground/50">Marketplace</span>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -50,8 +48,6 @@ export function DashboardShell({ activePage, children }: {
           >
             Create New
           </button>
-          <button className="flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:text-foreground"><Bell className="size-4" /></button>
-          <button className="flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:text-foreground"><HelpCircle className="size-4" /></button>
           <UserMenu name={user?.name} email={user?.email} onSignOut={() => logout()} />
         </div>
       </nav>
@@ -74,7 +70,6 @@ export function DashboardShell({ activePage, children }: {
             </SidebarSection>
             <SidebarSection label="Library">
               <SidebarLink to="/presentations" icon={<FolderOpen className="size-4" />} label="My Presentations" active={activePage === "presentations"} />
-              <SidebarLink icon={<Store className="size-4" />} label="Marketplace" disabled />
             </SidebarSection>
             <SidebarSection label="Management">
               <SidebarLink to="/settings" icon={<Settings className="size-4" />} label="Settings" active={activePage === "settings"} />
@@ -118,18 +113,15 @@ function SidebarSection({ label, children }: { label: string; children: React.Re
   );
 }
 
-function SidebarLink({ to, icon, label, active, disabled }: { to?: string; icon: React.ReactNode; label: string; active?: boolean; disabled?: boolean }) {
+function SidebarLink({ to, icon, label, active }: { to: string; icon: React.ReactNode; label: string; active?: boolean }) {
   const navigate = useNavigate();
   return (
     <button
-      disabled={disabled}
-      onClick={to ? () => navigate({ to }) : undefined}
+      onClick={() => navigate({ to })}
       className={`flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 font-sans text-sm transition-colors ${
         active
           ? "bg-surface-container-lowest font-medium text-foreground shadow-[0_2px_8px_rgba(47,51,51,0.04)]"
-          : disabled
-            ? "cursor-not-allowed text-muted-foreground/40"
-            : "text-muted-foreground hover:bg-surface-container hover:text-foreground"
+          : "text-muted-foreground hover:bg-surface-container hover:text-foreground"
       }`}
     >
       {icon}

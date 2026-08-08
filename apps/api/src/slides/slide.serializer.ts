@@ -1,5 +1,5 @@
-import type { SlideRow } from "../db/schema";
-import type { Slide } from "../shared";
+import type { SlideRow } from "@/db/schema";
+import type { Slide } from "@/shared";
 
 export const toSlide = (row: SlideRow): Slide => ({
   id: row.id,

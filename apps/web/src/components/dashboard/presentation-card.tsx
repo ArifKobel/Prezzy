@@ -10,12 +10,12 @@ export function PresentationCard({ presentation: p }: { presentation: Presentati
   return (
     <button
       onClick={() => navigate({ to: "/editor/$presentationId", params: { presentationId: p.id } })}
-      className="group flex flex-col rounded-xl bg-surface-container-lowest text-left shadow-[0_12px_40px_rgba(47,51,51,0.04)] transition-all hover:scale-[1.02] hover:shadow-[0_12px_40px_rgba(47,51,51,0.08)]"
+      className="group flex h-full flex-col rounded-xl bg-surface-container-lowest text-left shadow-[0_12px_40px_rgba(47,51,51,0.04)] transition-all hover:scale-[1.02] hover:shadow-[0_12px_40px_rgba(47,51,51,0.08)]"
     >
       <div className="aspect-[16/10] overflow-hidden rounded-t-xl bg-surface-container">
         <PresentationThumbnail presentationId={p.id} />
       </div>
-      <div className="px-4 py-3">
+      <div className="mt-auto px-4 py-3">
         <p className="font-display text-sm font-medium text-foreground">{p.title}</p>
         {timeAgo && <p className="mt-0.5 font-sans text-[11px] text-muted-foreground">Edited {timeAgo}</p>}
       </div>

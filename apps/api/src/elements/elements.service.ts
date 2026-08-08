@@ -1,16 +1,16 @@
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { asc, eq } from "drizzle-orm";
-import { AccessService } from "../access/access.service";
-import { mergeDefined } from "../common/merge";
-import { DRIZZLE } from "../db/db.constants";
-import type { Database } from "../db/db.types";
-import { type SlideElementRow, slideElements, slides } from "../db/schema";
-import { EventsService } from "../events/events.service";
-import type { ElementProps, SlideElement } from "../shared";
-import type { CreateElementDto } from "./dto/create-element.dto";
-import type { ReorderAction } from "./dto/reorder-element.dto";
-import type { UpdateElementDto } from "./dto/update-element.dto";
-import { toElement } from "./element.serializer";
+import { AccessService } from "@/access/access.service";
+import { mergeDefined } from "@/common/merge";
+import { DRIZZLE } from "@/db/db.constants";
+import type { Database } from "@/db/db.types";
+import { type SlideElementRow, slideElements, slides } from "@/db/schema";
+import { EventsService } from "@/events/events.service";
+import type { ElementProps, SlideElement } from "@/shared";
+import type { CreateElementDto } from "@/elements/dto/create-element.dto";
+import type { ReorderAction } from "@/elements/dto/reorder-element.dto";
+import type { UpdateElementDto } from "@/elements/dto/update-element.dto";
+import { toElement } from "@/elements/element.serializer";
 
 @Injectable()
 export class ElementsService {

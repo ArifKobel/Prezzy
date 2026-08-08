@@ -1,9 +1,9 @@
 import { Body, Controller, Get, Param, Post, UseGuards } from "@nestjs/common";
-import { AuthGuard } from "../auth/auth.guard";
-import { CurrentUser } from "../auth/current-user.decorator";
-import type { SlideElement, User } from "../shared";
-import { CreateElementDto } from "./dto/create-element.dto";
-import { ElementsService } from "./elements.service";
+import { AuthGuard } from "@/auth/auth.guard";
+import { CurrentUser } from "@/auth/current-user.decorator";
+import type { SlideElement, User } from "@/shared";
+import { CreateElementDto } from "@/elements/dto/create-element.dto";
+import { ElementsService } from "@/elements/elements.service";
 
 @Controller("slides")
 export class SlideElementsController {

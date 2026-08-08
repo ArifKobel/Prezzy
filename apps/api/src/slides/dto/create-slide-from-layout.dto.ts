@@ -1,6 +1,6 @@
 import { Type } from "class-transformer";
 import { IsArray, IsNumber, IsOptional, ValidateNested } from "class-validator";
-import { LayoutElementDto } from "./layout-element.dto";
+import { LayoutElementDto } from "@/slides/dto/layout-element.dto";
 
 export class CreateSlideFromLayoutDto {
   @IsOptional()

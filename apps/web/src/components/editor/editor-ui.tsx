@@ -20,14 +20,6 @@ export function ToolbarBtn({ icon, label, onClick, disabled, className }: {
   );
 }
 
-export function IconBtn({ children }: { children: React.ReactNode }) {
-  return (
-    <button className="flex size-7 items-center justify-center rounded-md text-muted-foreground transition-all hover:bg-surface-container hover:text-foreground">
-      {children}
-    </button>
-  );
-}
-
 export function TabBtn({ label, active, onClick, className }: { label: string; active?: boolean; onClick?: () => void; className?: string }) {
   return (
     <button type="button" onClick={onClick} className={cn("px-3 py-2 font-sans text-[10px] font-medium uppercase tracking-widest transition-colors", active ? "border-b-2 border-primary text-foreground" : "border-b-2 border-transparent text-muted-foreground hover:text-foreground", className)}>

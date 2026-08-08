@@ -1,8 +1,8 @@
 import { Type } from "class-transformer";
 import { IsIn, IsNumber, IsOptional, ValidateNested } from "class-validator";
-import type { ElementType } from "../../shared";
-import { ELEMENT_TYPES } from "../element-types";
-import { ElementPropsDto } from "./element-props.dto";
+import type { ElementType } from "@/shared";
+import { ELEMENT_TYPES } from "@/elements/element-types";
+import { ElementPropsDto } from "@/elements/dto/element-props.dto";
 
 export class CreateElementDto {
   @IsIn(ELEMENT_TYPES)

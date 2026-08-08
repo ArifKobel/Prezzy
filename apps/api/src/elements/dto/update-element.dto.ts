@@ -1,6 +1,6 @@
 import { Type } from "class-transformer";
 import { IsNumber, IsOptional, ValidateNested } from "class-validator";
-import { ElementPropsDto } from "./element-props.dto";
+import { ElementPropsDto } from "@/elements/dto/element-props.dto";
 
 export class UpdateElementDto {
   @IsOptional()

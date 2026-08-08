@@ -1,13 +1,13 @@
 import { ConflictException, Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { and, count, desc, eq } from "drizzle-orm";
-import { AccessService } from "../access/access.service";
-import { DRIZZLE } from "../db/db.constants";
-import type { Database } from "../db/db.types";
-import { audienceResponses } from "../db/schema";
-import { EventsService } from "../events/events.service";
-import type { AudienceResponse } from "../shared";
-import type { SubmitResponseDto } from "./dto/submit-response.dto";
-import { toResponse } from "./response.serializer";
+import { AccessService } from "@/access/access.service";
+import { DRIZZLE } from "@/db/db.constants";
+import type { Database } from "@/db/db.types";
+import { audienceResponses } from "@/db/schema";
+import { EventsService } from "@/events/events.service";
+import type { AudienceResponse } from "@/shared";
+import type { SubmitResponseDto } from "@/interact/dto/submit-response.dto";
+import { toResponse } from "@/interact/response.serializer";
 
 const DEFAULT_TIMER_SECONDS = 20;
 const DEFAULT_MAX_RESPONSES = 1;

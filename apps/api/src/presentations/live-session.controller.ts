@@ -1,10 +1,10 @@
 import { Body, Controller, Delete, Get, Param, Post, UseGuards } from "@nestjs/common";
-import { AuthGuard } from "../auth/auth.guard";
-import { CurrentUser } from "../auth/current-user.decorator";
-import type { LeaderboardEntry, Presentation, User } from "../shared";
-import { SetLiveSlideDto } from "./dto/set-live-slide.dto";
-import { SetQuizDto } from "./dto/set-quiz.dto";
-import { LiveSessionService } from "./live-session.service";
+import { AuthGuard } from "@/auth/auth.guard";
+import { CurrentUser } from "@/auth/current-user.decorator";
+import type { LeaderboardEntry, Presentation, User } from "@/shared";
+import { SetLiveSlideDto } from "@/presentations/dto/set-live-slide.dto";
+import { SetQuizDto } from "@/presentations/dto/set-quiz.dto";
+import { LiveSessionService } from "@/presentations/live-session.service";
 
 @Controller("presentations")
 @UseGuards(AuthGuard)

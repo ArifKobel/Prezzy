@@ -1,16 +1,16 @@
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { desc, eq } from "drizzle-orm";
-import { AccessService } from "../access/access.service";
-import { mergeDefined } from "../common/merge";
-import { DRIZZLE } from "../db/db.constants";
-import type { Database } from "../db/db.types";
-import { presentations, slides } from "../db/schema";
-import { EventsService } from "../events/events.service";
-import type { Presentation, PresentationTheme } from "../shared";
-import type { CreatePresentationDto } from "./dto/create-presentation.dto";
-import type { UpdatePresentationDto } from "./dto/update-presentation.dto";
-import { generateJoinCode } from "./join-code";
-import { toPresentation } from "./presentation.serializer";
+import { AccessService } from "@/access/access.service";
+import { mergeDefined } from "@/common/merge";
+import { DRIZZLE } from "@/db/db.constants";
+import type { Database } from "@/db/db.types";
+import { presentations, slides } from "@/db/schema";
+import { EventsService } from "@/events/events.service";
+import type { Presentation, PresentationTheme } from "@/shared";
+import type { CreatePresentationDto } from "@/presentations/dto/create-presentation.dto";
+import type { UpdatePresentationDto } from "@/presentations/dto/update-presentation.dto";
+import { generateJoinCode } from "@/presentations/join-code";
+import { toPresentation } from "@/presentations/presentation.serializer";
 
 @Injectable()
 export class PresentationsService {

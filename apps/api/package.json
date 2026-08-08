@@ -3,8 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "nest start --watch",
-    "build": "nest build",
+    "dev": "nest start --watch --exec \"tsc-alias && node\"",
+    "build": "nest build && tsc-alias",
     "start": "node dist/main",
     "db:push": "drizzle-kit push",
     "check-types": "tsc --noEmit"
@@ -38,6 +38,7 @@
     "@types/multer": "^2.0.0",
     "@types/node": "^22.10.2",
     "drizzle-kit": "^0.31.6",
+    "tsc-alias": "^1.8.16",
     "typescript": "^5.9.3"
   }
 }

@@ -1,8 +1,8 @@
 import { Controller, Get, Param, UseGuards } from "@nestjs/common";
-import { AuthGuard } from "../auth/auth.guard";
-import { CurrentUser } from "../auth/current-user.decorator";
-import type { SlideElement, User } from "../shared";
-import { ElementsService } from "./elements.service";
+import { AuthGuard } from "@/auth/auth.guard";
+import { CurrentUser } from "@/auth/current-user.decorator";
+import type { SlideElement, User } from "@/shared";
+import { ElementsService } from "@/elements/elements.service";
 
 @Controller("presentations")
 @UseGuards(AuthGuard)

@@ -10,7 +10,7 @@ import {
   unique,
   uuid,
 } from "drizzle-orm/pg-core";
-import type { ElementProps, ElementType, PresentationTheme, QuizPhase } from "../shared";
+import type { ElementProps, ElementType, PresentationTheme, QuizPhase } from "@/shared";
 
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),

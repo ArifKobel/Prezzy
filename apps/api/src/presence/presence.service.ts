@@ -1,9 +1,9 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { and, count, eq, gte, sql } from "drizzle-orm";
-import { DRIZZLE } from "../db/db.constants";
-import type { Database } from "../db/db.types";
-import { participants } from "../db/schema";
-import { PRESENCE_TIMEOUT_MS } from "./presence.constants";
+import { DRIZZLE } from "@/db/db.constants";
+import type { Database } from "@/db/db.types";
+import { participants } from "@/db/schema";
+import { PRESENCE_TIMEOUT_MS } from "@/presence/presence.constants";
 
 @Injectable()
 export class PresenceService {

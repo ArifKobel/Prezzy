@@ -1,8 +1,8 @@
 import { Module } from "@nestjs/common";
-import { AuthController } from "./auth.controller";
-import { AuthGuard } from "./auth.guard";
-import { AuthService } from "./auth.service";
-import { OptionalAuthGuard } from "./optional-auth.guard";
+import { AuthController } from "@/auth/auth.controller";
+import { AuthGuard } from "@/auth/auth.guard";
+import { AuthService } from "@/auth/auth.service";
+import { OptionalAuthGuard } from "@/auth/optional-auth.guard";
 
 @Module({
   controllers: [AuthController],
