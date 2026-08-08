@@ -6,7 +6,7 @@ import {
 } from "@/lib/quiz-constants";
 import type { SlideElement } from "@/components/slide-canvas";
 
-const DEFAULT_CLOUD_PALETTE = ["#4e6073", "#5a7a9a", "#7a9ab5", "#6b8e7b", "#8b7355", "#7a6b8e", "#5e8a8a", "#8a6b6b"];
+const DEFAULT_CLOUD_PALETTE = ["#22574a", "#a48246", "#6d3622", "#518fb8", "#44315e", "#4e7956", "#8e5775", "#8e8780"];
 
 function hashStr(s: string): number {
   let h = 0;

@@ -64,7 +64,7 @@ export function PropertiesPanel({
           )}
 
           <div className="mt-auto pt-2">
-            <button onClick={() => { actions.removeElement({ id: selectedEl.id }); actions.deselect(); }} className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-destructive/20 bg-destructive/5 px-3 py-2 font-sans text-[11px] font-medium text-destructive transition-all hover:bg-destructive/10">
+            <button onClick={() => actions.deleteElement(selectedEl.id)} className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-destructive/20 bg-destructive/5 px-3 py-2 font-sans text-[11px] font-medium text-destructive transition-all hover:bg-destructive/10">
               <X className="size-3" /> Delete Element
             </button>
           </div>

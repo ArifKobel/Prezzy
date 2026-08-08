@@ -3,82 +3,82 @@ import { IsArray, IsBoolean, IsNumber, IsOptional, IsString } from "class-valida
 export class ElementPropsDto {
   @IsOptional()
   @IsString()
-  content?: string;
+  content?: string | null;
 
   @IsOptional()
   @IsString()
-  src?: string;
+  src?: string | null;
 
   @IsOptional()
   @IsString()
-  color?: string;
+  color?: string | null;
 
   @IsOptional()
   @IsString()
-  objectFit?: string;
+  objectFit?: string | null;
 
   @IsOptional()
   @IsNumber()
-  borderRadius?: number;
+  borderRadius?: number | null;
 
   @IsOptional()
   @IsNumber()
-  opacity?: number;
+  opacity?: number | null;
 
   @IsOptional()
   @IsNumber()
-  rotation?: number;
+  rotation?: number | null;
 
   @IsOptional()
   @IsBoolean()
-  flipX?: boolean;
+  flipX?: boolean | null;
 
   @IsOptional()
   @IsBoolean()
-  flipY?: boolean;
+  flipY?: boolean | null;
 
   @IsOptional()
   @IsString()
-  shapeType?: string;
+  shapeType?: string | null;
 
   @IsOptional()
   @IsString()
-  question?: string;
+  question?: string | null;
 
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
-  options?: string[];
+  options?: string[] | null;
 
   @IsOptional()
   @IsNumber()
-  correctOption?: number;
+  correctOption?: number | null;
 
   @IsOptional()
   @IsNumber()
-  timerSeconds?: number;
+  timerSeconds?: number | null;
 
   @IsOptional()
   @IsBoolean()
-  timeScoring?: boolean;
+  timeScoring?: boolean | null;
 
   @IsOptional()
   @IsString()
-  accentColor?: string;
+  accentColor?: string | null;
 
   @IsOptional()
   @IsString()
-  backgroundColor?: string;
+  backgroundColor?: string | null;
 
   @IsOptional()
   @IsString()
-  textColor?: string;
+  textColor?: string | null;
 
   @IsOptional()
   @IsString()
-  prompt?: string;
+  prompt?: string | null;
 
   @IsOptional()
   @IsNumber()
-  maxResponses?: number;
+  maxResponses?: number | null;
 }

@@ -13,7 +13,6 @@ export function ElementMoveable({
   rotation,
   onInteractionStart,
   onInteractionEnd,
-  onGeometryChange,
   onGeometryCommit,
   onRotationChange,
   onRotationCommit,
@@ -27,7 +26,6 @@ export function ElementMoveable({
   rotation: number;
   onInteractionStart: () => void;
   onInteractionEnd: () => void;
-  onGeometryChange: (id: string, geo: Geo) => void;
   onGeometryCommit: (id: string, geo: Geo) => void;
   onRotationChange: (id: string, rotation: number) => void;
   onRotationCommit: (id: string, rotation: number) => void;
@@ -92,7 +90,6 @@ export function ElementMoveable({
           targetNode.style.height = `${g.height}%`;
           targetNode.style.transform = rotation ? `rotate(${rotation}deg)` : "";
 
-          onGeometryChange(elementId, g);
           onGeometryCommit(elementId, g);
         }
         startGeo.current = null;

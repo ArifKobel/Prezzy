@@ -74,8 +74,8 @@ function AudiencePage() {
   if (presentation === undefined) {
     return (
       <Shell>
-        <Loader2 className="size-6 animate-spin text-[#4e6073]" />
-        <p className="font-sans text-sm text-[#2f3333]/40">Connecting...</p>
+        <Loader2 className="size-6 animate-spin text-primary" />
+        <p className="font-sans text-sm text-muted-foreground">Connecting...</p>
       </Shell>
     );
   }

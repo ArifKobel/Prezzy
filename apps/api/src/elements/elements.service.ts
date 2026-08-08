@@ -1,7 +1,7 @@
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { asc, eq } from "drizzle-orm";
 import { AccessService } from "@/access/access.service";
-import { mergeDefined } from "@/common/merge";
+import { mergePatch } from "@/common/merge";
 import { DRIZZLE } from "@/db/db.constants";
 import type { Database } from "@/db/db.types";
 import { type SlideElementRow, slideElements, slides } from "@/db/schema";
@@ -37,7 +37,7 @@ export class ElementsService {
       .from(slideElements)
       .innerJoin(slides, eq(slides.id, slideElements.slideId))
       .where(eq(slides.presentationId, presentationId))
-      .orderBy(asc(slides.order), asc(slideElements.createdAt));
+      .orderBy(asc(slides.order), asc(slides.createdAt), asc(slideElements.createdAt));
     return rows.map((row) => toElement(row.element));
   }
 
@@ -47,7 +47,7 @@ export class ElementsService {
       .select()
       .from(slides)
       .where(eq(slides.presentationId, presentationId))
-      .orderBy(asc(slides.order))
+      .orderBy(asc(slides.order), asc(slides.createdAt))
       .limit(1);
     if (!first) return [];
     return this.listBySlide(first.id);
@@ -65,7 +65,7 @@ export class ElementsService {
         y: dto.y,
         width: dto.width,
         height: dto.height,
-        props: dto.props ? ({ ...dto.props } as ElementProps) : null,
+        props: dto.props ? mergePatch<ElementProps>(null, dto.props) : null,
         zIndex,
       })
       .returning();
@@ -83,7 +83,9 @@ export class ElementsService {
         ...(dto.y === undefined ? {} : { y: dto.y }),
         ...(dto.width === undefined ? {} : { width: dto.width }),
         ...(dto.height === undefined ? {} : { height: dto.height }),
-        ...(dto.props === undefined ? {} : { props: mergeDefined<ElementProps>(element.props, dto.props) }),
+        ...(dto.props === undefined
+          ? {}
+          : { props: mergePatch<ElementProps>(element.props, dto.props) }),
       })
       .where(eq(slideElements.id, id))
       .returning();

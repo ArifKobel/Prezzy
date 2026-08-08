@@ -84,20 +84,27 @@ export function RichTextElement({
   });
 
   useEffect(() => {
-    if (editor) {
-      setActiveEditorInstance(editor);
-      setRefreshFakeSelRects(() => updateFakeSelRects(editor));
-      setActiveEditor(editor);
-      const pending = getPendingCommandFn();
-      if (pending) {
-        const fn = pending;
-        setPendingCommandFn(null);
-        setTimeout(() => { fn(editor); editor.commands.focus("end"); }, 0);
-      } else {
+    if (!editor) return;
+    setActiveEditorInstance(editor);
+    setRefreshFakeSelRects(() => updateFakeSelRects(editor));
+    setActiveEditor(editor);
+
+    let pendingTimeout: ReturnType<typeof setTimeout> | undefined;
+    const pending = getPendingCommandFn();
+    if (pending) {
+      setPendingCommandFn(null);
+      pendingTimeout = setTimeout(() => {
+        if (editor.isDestroyed) return;
+        pending(editor);
         editor.commands.focus("end");
-      }
+      }, 0);
+    } else {
+      editor.commands.focus("end");
     }
+
     return () => {
+      if (pendingTimeout !== undefined) clearTimeout(pendingTimeout);
+      setPendingCommandFn(null);
       setActiveEditorInstance(null);
       setSavedSelection(null);
       setRefreshFakeSelRects(null);
@@ -121,7 +128,7 @@ export function RichTextElement({
         <div
           key={i}
           className="pointer-events-none absolute z-10"
-          style={{ left: r.x, top: r.y, width: r.w, height: r.h, background: "oklch(0.425 0.044 228 / 0.2)", borderRadius: "2px" }}
+          style={{ left: r.x, top: r.y, width: r.w, height: r.h, background: "color-mix(in oklab, var(--color-primary) 22%, transparent)", borderRadius: "2px" }}
         />
       ))}
       <EditorContent editor={editor} className="h-full w-full" />

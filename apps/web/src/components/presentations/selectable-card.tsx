@@ -17,8 +17,8 @@ export function SelectableCard({ presentation: p, isSelected, anySelected, onTog
     <div
       className={`group relative flex flex-col overflow-hidden rounded-xl bg-surface-container-lowest transition-all duration-200 ${
         isSelected
-          ? "ring-2 ring-primary shadow-[0_12px_40px_rgba(78,96,115,0.12)]"
-          : "shadow-[0_12px_40px_rgba(47,51,51,0.04)] hover:shadow-[0_12px_40px_rgba(47,51,51,0.1)]"
+          ? "ring-2 ring-primary shadow-[0_12px_40px_rgb(34_87_74_/_0.12)]"
+          : "shadow-[0_12px_40px_rgb(35_31_28_/_0.04)] hover:shadow-[0_12px_40px_rgb(35_31_28_/_0.1)]"
       }`}
     >
       <button

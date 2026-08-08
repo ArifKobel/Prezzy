@@ -10,7 +10,7 @@ export function PresentationCard({ presentation: p }: { presentation: Presentati
   return (
     <button
       onClick={() => navigate({ to: "/editor/$presentationId", params: { presentationId: p.id } })}
-      className="group flex h-full flex-col rounded-xl bg-surface-container-lowest text-left shadow-[0_12px_40px_rgba(47,51,51,0.04)] transition-all hover:scale-[1.02] hover:shadow-[0_12px_40px_rgba(47,51,51,0.08)]"
+      className="group flex h-full flex-col rounded-xl bg-surface-container-lowest text-left shadow-[0_12px_40px_rgb(35_31_28_/_0.04)] transition-all hover:scale-[1.02] hover:shadow-[0_12px_40px_rgb(35_31_28_/_0.08)]"
     >
       <div className="aspect-[16/10] overflow-hidden rounded-t-xl bg-surface-container">
         <PresentationThumbnail presentationId={p.id} />

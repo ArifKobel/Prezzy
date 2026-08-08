@@ -6,7 +6,6 @@ export function snapPos(
   rawX: number, rawY: number, w: number, h: number,
   movingIds: Set<string>,
   allEls: Array<{ id: string } & Geo> | undefined,
-  localGeo: Map<string, Geo>,
 ): SnapResult {
   const xSnaps: [number, number][] = [
     [0, 0], [50 - w / 2, 50], [100 - w, 100],
@@ -15,9 +14,8 @@ export function snapPos(
     [0, 0], [50 - h / 2, 50], [100 - h, 100],
   ];
 
-  allEls?.forEach((el) => {
-    if (movingIds.has(el.id)) return;
-    const g = localGeo.get(el.id) ?? el;
+  allEls?.forEach((g) => {
+    if (movingIds.has(g.id)) return;
     const r = g.x + g.width, b = g.y + g.height;
     const cx = g.x + g.width / 2, cy = g.y + g.height / 2;
     xSnaps.push([g.x, g.x], [r - w, r], [cx - w / 2, cx], [r, r], [g.x - w, g.x]);

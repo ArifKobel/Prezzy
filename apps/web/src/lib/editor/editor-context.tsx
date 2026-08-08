@@ -1,6 +1,5 @@
 import type { ElementProps, ElementType } from "@Prezzy/shared";
 import { createContext, useContext } from "react";
-import type { Geo } from "@/lib/editor/snap";
 
 export interface EditorActions {
   updatePosition: (args: { id: string; x: number; y: number }) => void;
@@ -8,17 +7,16 @@ export interface EditorActions {
   updateProps: (args: { id: string; props: ElementProps }) => void;
   updateImageSrc: (args: { id: string; src: string }) => void;
   removeElement: (args: { id: string }) => void;
+  deleteElement: (id: string) => void;
   triggerImageUpload: (id: string) => void;
   showImageUrlDialog: (id: string, currentSrc?: string) => void;
   handleImageUpload: (file: File, id: string) => void;
   addElement: (type: ElementType) => void;
   deselect: () => void;
-  setLocalGeometry: (id: string, geo: Geo) => void;
 }
 
 export interface EditorState {
   activeSlideId: string | null;
-  localGeometry: Map<string, Geo>;
   uploadingImageId: string | null;
   hasInteractiveElement: boolean;
 }

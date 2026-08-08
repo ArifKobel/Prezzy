@@ -50,15 +50,15 @@ export function LiveQuizElement({
   const timedOutRef = useRef(false);
 
   const accent = style?.accentColor;
-  const bg = style?.backgroundColor || "#faf9f8";
-  const text = style?.textColor || "#2f3333";
+  const bg = style?.backgroundColor || "#f6f2ea";
+  const text = style?.textColor || "#231f1c";
   const textMuted = alpha(text, 0.3);
   const textSub = alpha(text, 0.5);
   const textFaint = alpha(text, 0.2);
   const surfaceMuted = alpha(text, 0.06);
   const optionAccents = deriveOptionAccents(accent);
   const barFills = deriveBarFills(accent);
-  const correctColor = accent ? optionAccents[1].bg : "#6b8e7b";
+  const correctColor = accent ? optionAccents[1].bg : "#4e8f6f";
   const correctColorDim = alpha(correctColor, 0.7);
 
   useEffect(() => {

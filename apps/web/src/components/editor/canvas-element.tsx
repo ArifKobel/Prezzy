@@ -2,6 +2,7 @@ import type { ElementProps, SlideElement } from "@Prezzy/shared";
 import { ContextMenu, ContextMenuTrigger } from "@Prezzy/ui/components/context-menu";
 import { cn } from "@Prezzy/ui/lib/utils";
 import { ImagePlus, Link, Upload } from "lucide-react";
+import { useCallback } from "react";
 
 import { ImageElement } from "@/components/elements/image-element";
 import { ShapeElement } from "@/components/elements/shape-element";
@@ -10,11 +11,10 @@ import { QuizElement, WordCloudElement, LeaderboardElement, QRCodeElement } from
 import { RichTextElement } from "@/components/editor/rich-text-element";
 import { ElementContextMenu } from "@/components/editor/element-context-menu";
 import type { EditorInstance } from "@/lib/editor/editor-state";
-import type { Geo } from "@/lib/editor/snap";
 
 export function CanvasElement({
   el, isSelected, isEditing, multiSelected,
-  geoOverride, dragOverride, liveContent, rotationOverride, uploadingImageId,
+  dragOverride, rotationOverride, uploadingImageId,
   registerRef, onPointerDown, onSelect, onStartEditing, onStopEditing,
   onPersistContent, setActiveEditor, onImageUpload, onTriggerImageUpload,
   onShowImageUrlDialog, onDuplicate, onDelete,
@@ -24,9 +24,7 @@ export function CanvasElement({
   isSelected: boolean;
   isEditing: boolean;
   multiSelected: boolean;
-  geoOverride: Geo | undefined;
   dragOverride: { x: number; y: number } | undefined;
-  liveContent: string;
   rotationOverride: number | undefined;
   uploadingImageId: string | null;
   registerRef: (id: string, node: HTMLElement | null) => void;
@@ -45,11 +43,17 @@ export function CanvasElement({
   updateImageSrc: (args: { id: string; src: string }) => void;
   reorderElement: (args: { id: string; action: "front" | "forward" | "backward" | "back" }) => void;
 }) {
-  const liveX = dragOverride?.x ?? (geoOverride?.x ?? el.x);
-  const liveY = dragOverride?.y ?? (geoOverride?.y ?? el.y);
-  const liveW = geoOverride?.width ?? el.width;
-  const liveH = geoOverride?.height ?? el.height;
+  const liveX = dragOverride?.x ?? el.x;
+  const liveY = dragOverride?.y ?? el.y;
+  const liveW = el.width;
+  const liveH = el.height;
+  const liveContent = el.props?.content ?? "";
   const isRichText = el.type === "heading" || el.type === "text";
+
+  const setNodeRef = useCallback(
+    (node: HTMLElement | null) => { registerRef(el.id, node); },
+    [registerRef, el.id],
+  );
 
   function persistContent(html: string) {
     onPersistContent(el.id, html);
@@ -58,7 +62,7 @@ export function CanvasElement({
   return (
     <ContextMenu>
       <ContextMenuTrigger
-        ref={(node: HTMLElement | null) => registerRef(el.id, node)}
+        ref={setNodeRef}
         style={{
           position: "absolute", display: "block",
           left: `${liveX}%`, top: `${liveY}%`, width: `${liveW}%`,

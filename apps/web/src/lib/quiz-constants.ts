@@ -62,15 +62,15 @@ export function alpha(hex: string, ratio: number): string {
 }
 
 
-const DEFAULT_ACCENT = "#4e6073";
+const DEFAULT_ACCENT = "#22574a";
 
 const DEFAULT_OPTION_HUES = [
-  "#4e6073",
-  "#6b8e7b",
-  "#8b7355",
-  "#7a6b8e",
-  "#5e8a8a",
-  "#8a6b6b",
+  "#22574a",
+  "#a48246",
+  "#6d3622",
+  "#518fb8",
+  "#44315e",
+  "#4e7956",
 ];
 
 
@@ -80,7 +80,7 @@ export function deriveOptionAccents(
   accentColor?: string,
 ): Array<{ bg: string; fg: string }> {
   if (!accentColor) {
-    return DEFAULT_OPTION_HUES.map((bg) => ({ bg, fg: "#f4f8ff" }));
+    return DEFAULT_OPTION_HUES.map((bg) => ({ bg, fg: "#f2f7f3" }));
   }
 
   const [h, s, l] = hexToHsl(accentColor);
@@ -89,7 +89,7 @@ export function deriveOptionAccents(
 
   return OPTION_HUE_OFFSETS.map((offset) => ({
     bg: hslToHex((h + offset) % 360, bgS, bgL),
-    fg: "#f4f8ff",
+    fg: "#f2f7f3",
   }));
 }
 
@@ -116,7 +116,7 @@ export function timerColor(ratio: number, accentColor?: string): string {
 }
 
 export function timerTextColor(ratio: number, accentColor?: string): string {
-  const accent = accentColor || "#2f3333";
+  const accent = accentColor || "#231f1c";
   if (ratio > 0.5) return accent;
   if (ratio > 0.2) return "#8b7355";
   return "#fe8b70";
@@ -162,7 +162,7 @@ export function resolveElementStyle(
 
 export function deriveCloudPalette(accentColor?: string): string[] {
   if (!accentColor) {
-    return ["#4e6073", "#5a7a9a", "#7a9ab5", "#6b8e7b", "#8b7355", "#7a6b8e", "#5e8a8a", "#8a6b6b"];
+    return ["#22574a", "#a48246", "#6d3622", "#518fb8", "#44315e", "#4e7956", "#8e5775", "#8e8780"];
   }
   const [h, s] = hexToHsl(accentColor);
   const basS = Math.max(20, Math.min(45, s));

@@ -20,12 +20,12 @@ export function QuizElement({
   const correctOption = el.props?.correctOption as number | undefined;
 
   const s = resolveElementStyle(el.props, theme);
-  const bg = s.backgroundColor || "#faf9f8";
-  const text = s.textColor || "#2f3333";
+  const bg = s.backgroundColor || "#f6f2ea";
+  const text = s.textColor || "#231f1c";
   const textMuted = alpha(text, 0.3);
   const textFaint = alpha(text, 0.25);
   const optionAccents = deriveOptionAccents(s.accentColor);
-  const correctColor = s.accentColor ? optionAccents[1].bg : "#6b8e7b";
+  const correctColor = s.accentColor ? optionAccents[1].bg : "#4e8f6f";
 
   return (
     <div className="flex h-full w-full flex-col overflow-hidden rounded-xl px-[6%] py-[5%]" style={{ backgroundColor: bg }}>
@@ -44,7 +44,7 @@ export function QuizElement({
                 "flex items-center gap-[0.6em] rounded-xl px-[0.9em] py-[0.55em]",
                 isCorrect
                   ? ""
-                  : "bg-white shadow-[0_2px_12px_rgba(47,51,51,0.04)]",
+                  : "bg-white shadow-[0_2px_12px_rgb(35_31_28_/_0.04)]",
               )}
               style={isCorrect ? { backgroundColor: alpha(correctColor, 0.1) } : undefined}
             >

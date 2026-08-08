@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import type { Server } from "socket.io";
 import type { RealtimeTarget } from "@/events/realtime-target";
+import { currentSocketId } from "@/events/socket-id-context";
 
 @Injectable()
 export class EventsService {
@@ -32,9 +33,10 @@ export class EventsService {
 
   private broadcast(target: RealtimeTarget, event: string, payload: Record<string, unknown>): void {
     if (!this.server) return;
-    this.server.to(`presentation:${target.presentationId}`).emit(event, payload);
+    const emitter = this.server.except(currentSocketId() ?? []);
+    emitter.to(`presentation:${target.presentationId}`).emit(event, payload);
     if (target.joinCode) {
-      this.server.to(`join:${target.joinCode}`).emit(event, payload);
+      emitter.to(`join:${target.joinCode}`).emit(event, payload);
     }
   }
 }

@@ -1,7 +1,7 @@
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { desc, eq } from "drizzle-orm";
 import { AccessService } from "@/access/access.service";
-import { mergeDefined } from "@/common/merge";
+import { mergePatch } from "@/common/merge";
 import { DRIZZLE } from "@/db/db.constants";
 import type { Database } from "@/db/db.types";
 import { presentations, slides } from "@/db/schema";
@@ -56,7 +56,7 @@ export class PresentationsService {
         ...(dto.title === undefined ? {} : { title: dto.title }),
         ...(dto.theme === undefined
           ? {}
-          : { theme: mergeDefined<PresentationTheme>(existing.theme, dto.theme) }),
+          : { theme: mergePatch<PresentationTheme>(existing.theme, dto.theme) }),
         updatedAt: new Date(),
       })
       .where(eq(presentations.id, id))

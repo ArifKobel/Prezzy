@@ -40,13 +40,13 @@ export function QuizInteraction({
   const elementId = element.id;
 
   const s = resolveElementStyle(element.props, theme);
-  const accentHex = s.accentColor || "#4e6073";
-  const text = s.textColor || "#2f3333";
+  const accentHex = s.accentColor || "#22574a";
+  const text = s.textColor || "#231f1c";
   const textMuted = alpha(text, 0.4);
   const textFaint = alpha(text, 0.35);
   const surfaceMuted = alpha(text, 0.06);
   const optionAccents = deriveOptionAccents(s.accentColor);
-  const correctColor = s.accentColor ? optionAccents[1].bg : "#6b8e7b";
+  const correctColor = s.accentColor ? optionAccents[1].bg : "#4e8f6f";
 
   const phase = quizState?.elementId === element.id ? quizState.phase : null;
   const startedAt = quizState?.startedAt ?? 0;
@@ -208,7 +208,7 @@ export function QuizInteraction({
                   boxShadow: revealed && isThisCorrect
                     ? `0 4px 20px ${alpha(correctColor, 0.3)}`
                     : !revealed
-                      ? "0 2px 12px rgba(47,51,51,0.04)"
+                      ? "0 2px 12px rgb(35 31 28 / 0.04)"
                       : undefined,
                 }}
               >

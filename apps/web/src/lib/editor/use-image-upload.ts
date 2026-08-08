@@ -1,10 +1,10 @@
 import { useRef, useState } from "react";
 
-import { useUpdateElementImageSrc } from "@/lib/api/elements";
+import { useElementMutations } from "@/lib/editor/use-element-mutations";
 import { uploadImage } from "@/lib/api/files";
 
 export function useImageUpload() {
-  const updateImageSrc = useUpdateElementImageSrc();
+  const { updateImageSrc } = useElementMutations();
 
   const [uploadingImageId, setUploadingImageId] = useState<string | null>(null);
   const [imageUrlInput, setImageUrlInput]       = useState("");

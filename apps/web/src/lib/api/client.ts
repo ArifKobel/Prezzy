@@ -1,4 +1,5 @@
 import { env } from "@Prezzy/env/web";
+import { getSocketId } from "@/lib/api/socket";
 
 export class ApiError extends Error {
   status: number;
@@ -12,10 +13,17 @@ export async function apiFetch<T>(
   path: string,
   options: { method?: string; body?: unknown; nullOn404?: boolean } = {},
 ): Promise<T> {
+  const method = options.method ?? "GET";
+  const headers: Record<string, string> = {};
+  if (options.body !== undefined) headers["Content-Type"] = "application/json";
+  if (method !== "GET") {
+    const socketId = getSocketId();
+    if (socketId) headers["x-socket-id"] = socketId;
+  }
   const res = await fetch(`${env.VITE_API_URL}/api${path}`, {
-    method: options.method ?? "GET",
+    method,
     credentials: "include",
-    headers: options.body !== undefined ? { "Content-Type": "application/json" } : undefined,
+    headers,
     body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
   });
   if (res.status === 404 && options.nullOn404) return null as T;

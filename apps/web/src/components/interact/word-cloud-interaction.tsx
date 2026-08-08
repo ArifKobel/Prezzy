@@ -32,10 +32,10 @@ export function WordCloudInteraction({
   const elementId = element.id;
 
   const s = resolveElementStyle(element.props, theme);
-  const accentHex = s.accentColor || "#4e6073";
-  const text = s.textColor || "#2f3333";
+  const accentHex = s.accentColor || "#22574a";
+  const text = s.textColor || "#231f1c";
   const textFaint = alpha(text, 0.35);
-  const correctColor = s.accentColor ? deriveOptionAccents(s.accentColor)[1].bg : "#6b8e7b";
+  const correctColor = s.accentColor ? deriveOptionAccents(s.accentColor)[1].bg : "#4e8f6f";
 
   const { data: responses } = useResponses(elementId);
   const myResponseCount =
@@ -97,7 +97,7 @@ export function WordCloudInteraction({
               onChange={(e) => setValue(e.target.value)}
               placeholder="Type a word..."
               maxLength={30}
-              className="w-full rounded-xl bg-white px-4 py-3.5 pr-12 font-sans text-sm shadow-[0_2px_12px_rgba(47,51,51,0.04)] outline-none focus:shadow-[0_2px_16px_rgba(78,96,115,0.12)]"
+              className="w-full rounded-xl bg-white px-4 py-3.5 pr-12 font-sans text-sm shadow-[0_2px_12px_rgb(35_31_28_/_0.04)] outline-none focus:shadow-[0_2px_16px_rgb(34_87_74_/_0.12)]"
               style={{ color: text, ["--tw-placeholder-opacity" as any]: 0.25 }}
             />
             <button

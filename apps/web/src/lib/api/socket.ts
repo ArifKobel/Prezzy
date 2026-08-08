@@ -12,6 +12,10 @@ export function getSocket(): Socket {
   return socket;
 }
 
+export function getSocketId(): string | null {
+  return socket?.connected ? (socket.id ?? null) : null;
+}
+
 export function useRealtime(room: string | null) {
   const queryClient = useQueryClient();
 

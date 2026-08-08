@@ -29,6 +29,12 @@ import { usePresentationElements } from "@/lib/api/presentations";
 import { useReorderSlides } from "@/lib/api/slides";
 import type { PresentationTheme } from "@/lib/quiz-constants";
 
+function sameSlideSet(a: Slide[], b: Slide[]): boolean {
+  if (a.length !== b.length) return false;
+  const ids = new Set(a.map((s) => s.id));
+  return b.every((s) => ids.has(s.id));
+}
+
 function SortableThumbnail({
   slide,
   index,
@@ -127,19 +133,15 @@ export function SlideRail({
   }, [allElements]);
 
   const [localSlides, setLocalSlides] = useState(slides);
-  const pendingReorder = useRef(false);
+  const serverSlides = useRef(slides);
+  const pendingReorders = useRef(0);
 
   useEffect(() => {
-    if (!pendingReorder.current) {
-      setLocalSlides(slides);
-    } else {
-      const serverIds = slides.map((s) => s.id).join(",");
-      const localIds = localSlides.map((s) => s.id).join(",");
-      if (serverIds === localIds) {
-        pendingReorder.current = false;
-      }
-    }
-  }, [slides, localSlides]);
+    serverSlides.current = slides;
+    setLocalSlides((prev) =>
+      pendingReorders.current > 0 && sameSlideSet(prev, slides) ? prev : slides,
+    );
+  }, [slides]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -157,14 +159,17 @@ export function SlideRail({
 
       const reordered = arrayMove(localSlides, oldIndex, newIndex);
       setLocalSlides(reordered);
-      pendingReorder.current = true;
+      pendingReorders.current += 1;
 
-      await reorder({
-        presentationId: slides[0].presentationId,
-        slideIds: reordered.map((s) => s.id),
-      });
+      try {
+        await reorder({ presentationId, slideIds: reordered.map((s) => s.id) });
+      } catch {
+        setLocalSlides(serverSlides.current);
+      } finally {
+        pendingReorders.current -= 1;
+      }
     },
-    [localSlides, slides, reorder],
+    [localSlides, presentationId, reorder],
   );
 
   const slideIds = localSlides.map((s) => s.id);

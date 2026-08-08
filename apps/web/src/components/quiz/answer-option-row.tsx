@@ -14,7 +14,7 @@ export function AnswerOptionRow({
   textColor: string;
 }) {
   return (
-    <div className="flex items-center gap-[0.6em] rounded-xl bg-white px-[0.9em] py-[0.6em] shadow-[0_2px_12px_rgba(47,51,51,0.04)]">
+    <div className="flex items-center gap-[0.6em] rounded-xl bg-white px-[0.9em] py-[0.6em] shadow-[0_2px_12px_rgb(35_31_28_/_0.04)]">
       <span
         className="grid size-[1.6em] shrink-0 place-items-center rounded-lg font-display text-[0.5em] font-bold leading-[1.7]"
         style={{ backgroundColor: accentBg, color: accentFg }}

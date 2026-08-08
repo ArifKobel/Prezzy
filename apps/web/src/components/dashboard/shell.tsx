@@ -44,7 +44,7 @@ export function DashboardShell({ activePage, children }: {
         <div className="flex items-center gap-2">
           <button
             onClick={handleCreateNew}
-            className="flex items-center gap-1.5 rounded-md bg-[linear-gradient(135deg,var(--color-primary),var(--color-primary-dim))] px-4 py-1.5 font-sans text-xs font-medium text-primary-foreground shadow-[0_4px_12px_rgba(78,96,115,0.25)] transition-all hover:scale-[1.02] active:scale-[0.99]"
+            className="flex items-center gap-1.5 rounded-md bg-[linear-gradient(135deg,var(--color-primary),var(--color-primary-dim))] px-4 py-1.5 font-sans text-xs font-medium text-primary-foreground shadow-[0_4px_12px_rgb(34_87_74_/_0.25)] transition-all hover:scale-[1.02] active:scale-[0.99]"
           >
             Create New
           </button>
@@ -120,7 +120,7 @@ function SidebarLink({ to, icon, label, active }: { to: string; icon: React.Reac
       onClick={() => navigate({ to })}
       className={`flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 font-sans text-sm transition-colors ${
         active
-          ? "bg-surface-container-lowest font-medium text-foreground shadow-[0_2px_8px_rgba(47,51,51,0.04)]"
+          ? "bg-surface-container-lowest font-medium text-foreground shadow-[0_2px_8px_rgb(35_31_28_/_0.04)]"
           : "text-muted-foreground hover:bg-surface-container hover:text-foreground"
       }`}
     >
@@ -155,7 +155,7 @@ function UserMenu({ name, email, onSignOut }: { name?: string; email?: string; o
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-50 mt-2 w-56 rounded-xl bg-surface-container-lowest p-1.5 shadow-[0_12px_40px_rgba(47,51,51,0.12)]">
+        <div className="absolute right-0 top-full z-50 mt-2 w-56 rounded-xl bg-surface-container-lowest p-1.5 shadow-[0_12px_40px_rgb(35_31_28_/_0.12)]">
           <div className="px-3 py-2.5">
             <p className="font-sans text-sm font-medium text-foreground">{name}</p>
             {email && <p className="mt-0.5 font-sans text-[11px] text-muted-foreground">{email}</p>}

@@ -18,7 +18,6 @@ import {
   setActiveEditorInstance, setEnterEditForSelection,
   type EditorInstance,
 } from "@/lib/editor/editor-state";
-import type { Geo } from "@/lib/editor/snap";
 
 import { RichToolbar } from "@/components/editor/toolbar";
 import { ElementMoveable } from "@/components/editor/element-moveable";
@@ -38,14 +37,11 @@ import {
 } from "@/lib/editor/editor-context";
 import { useHistory } from "@/lib/editor/history";
 import { useElementDrag } from "@/lib/editor/use-element-drag";
+import { useElementMutations } from "@/lib/editor/use-element-mutations";
 import { useImageUpload } from "@/lib/editor/use-image-upload";
 import { useMarquee } from "@/lib/editor/use-marquee";
 import { useZoomPan } from "@/lib/editor/use-zoom-pan";
-import {
-  useCreateElement, useRemoveElement, useReorderElement, useSlideElements,
-  useUpdateElementContent, useUpdateElementGeometry, useUpdateElementImageSrc,
-  useUpdateElementPosition, useUpdateElementProps,
-} from "@/lib/api/elements";
+import { useSlideElements } from "@/lib/api/elements";
 import {
   usePresentation, useUpdatePresentationTheme, useUpdatePresentationTitle,
 } from "@/lib/api/presentations";
@@ -74,25 +70,31 @@ function EditorPage() {
   const removeSlide    = useRemoveSlide();
 
   const [activeSlideId, setActiveSlideId] = useState<string | null>(null);
+  const pendingSlideId = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!slides || slides.length === 0) { setActiveSlideId(null); return; }
-    if (!slides.some((s) => s.id === activeSlideId)) setActiveSlideId(slides[0].id);
+    if (!slides) return;
+    if (activeSlideId && slides.some((s) => s.id === activeSlideId)) {
+      pendingSlideId.current = null;
+      return;
+    }
+    if (pendingSlideId.current !== null && pendingSlideId.current === activeSlideId) return;
+    setActiveSlideId(slides.length > 0 ? slides[0].id : null);
   }, [slides, activeSlideId]);
 
   const activeSlide = slides?.find((s) => s.id === activeSlideId) ?? null;
 
-  function switchSlide(id: string) {
+  function switchSlide(id: string, isNew = false) {
+    pendingSlideId.current = isNew ? id : null;
     setActiveSlideId(id);
     setSelectedIds(new Set());
     setEditingId(null);
-    setLocalGeometry(new Map());
-    setLocalContent(new Map());
   }
 
   function handleAddSlide() {
     createSlide({ presentationId: pid, afterOrder: activeSlide?.order })
-      .then((slide) => switchSlide(slide.id));
+      .then((slide) => switchSlide(slide.id, true))
+      .catch(console.error);
   }
 
   function handlePickLayout(layoutId: string) {
@@ -102,7 +104,8 @@ function EditorPage() {
 
     if (layout.slots.length === 0) {
       createSlide({ presentationId: pid, afterOrder: activeSlide?.order })
-        .then((slide) => switchSlide(slide.id));
+        .then((slide) => switchSlide(slide.id, true))
+        .catch(console.error);
     } else {
       createFromLayout({
         presentationId: pid,
@@ -115,14 +118,15 @@ function EditorPage() {
           height: slot.height,
           props: slot.props,
         })),
-      }).then((slide) => switchSlide(slide.id));
+      }).then((slide) => switchSlide(slide.id, true)).catch(console.error);
     }
   }
 
   function handleDuplicate() {
     if (!activeSlideId) return;
     duplicateSlide({ slideId: activeSlideId })
-      .then((slide) => switchSlide(slide.id));
+      .then((slide) => switchSlide(slide.id, true))
+      .catch(console.error);
   }
 
   function handleDeleteSlide() {
@@ -136,14 +140,10 @@ function EditorPage() {
   const updateTitle = useUpdatePresentationTitle();
   const updateTheme = useUpdatePresentationTheme();
 
-  const createElement   = useCreateElement();
-  const updatePosition  = useUpdateElementPosition();
-  const updateGeometry  = useUpdateElementGeometry();
-  const updateContent   = useUpdateElementContent();
-  const updateImageSrc  = useUpdateElementImageSrc();
-  const updateProps     = useUpdateElementProps();
-  const removeElement   = useRemoveElement();
-  const reorderElement  = useReorderElement();
+  const {
+    createElement, removeElement, reorderElement,
+    updatePosition, updateGeometry, updateContent, updateImageSrc, updateProps,
+  } = useElementMutations();
 
   const { data: elements } = useSlideElements(activeSlideId);
 
@@ -172,16 +172,27 @@ function EditorPage() {
   const [selectedIds, setSelectedIds]     = useState<Set<string>>(new Set());
   const [editingId, setEditingId]         = useState<string | null>(null);
   const [activeEditor, setActiveEditorState] = useState<EditorInstance | null>(null);
-  const [localGeometry, setLocalGeometry] = useState<Map<string, Geo>>(new Map());
-  const [localContent, setLocalContent]   = useState<Map<string, string>>(new Map());
+  const [elementNodes, setElementNodes]   = useState<Map<string, HTMLElement>>(new Map());
   const [liveRotation, setLiveRotation]   = useState<{ id: string; rotation: number } | null>(null);
   const [showThemePanel, setShowThemePanel] = useState(false);
   const [showLayoutPicker, setShowLayoutPicker] = useState(false);
 
   const canvasRef       = useRef<HTMLDivElement>(null);
   const canvasAreaRef   = useRef<HTMLDivElement>(null);
-  const elementRefsMap  = useRef<Map<string, HTMLElement>>(new Map());
   const moveableActive  = useRef(false);
+
+  const registerElementRef = useCallback((id: string, node: HTMLElement | null) => {
+    setElementNodes((prev) => {
+      if (node) {
+        if (prev.get(id) === node) return prev;
+        return new Map(prev).set(id, node);
+      }
+      if (!prev.has(id)) return prev;
+      const next = new Map(prev);
+      next.delete(id);
+      return next;
+    });
+  }, []);
 
   useEffect(() => { if (liveRotation) setLiveRotation(null); }, [elements]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -199,13 +210,13 @@ function EditorPage() {
   } = useImageUpload();
 
   const { dragPositions, snapLines, handleElementPointerDown } = useElementDrag({
-    canvasRef, elements, localGeometry, setLocalGeometry,
+    canvasRef, elements,
     selectedIds, setSelectedIds, editingId, setEditingId,
-    moveableActive, updatePosition, pushHistory: history.push,
+    moveableActive, updatePosition, pushHistory: history.push, liveId: history.liveId,
   });
 
   const { marquee, didMarqueeRef, handleMarqueePointerDown } = useMarquee({
-    canvasRef, canvasAreaRef, elements, localGeometry, setSelectedIds,
+    canvasRef, canvasAreaRef, elements, setSelectedIds,
   });
 
   useEffect(() => {
@@ -221,7 +232,7 @@ function EditorPage() {
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [selectedIds, editingId, removeElement, showImageUrlDialog]);
+  }, [selectedIds, editingId, elements, removeElement, showImageUrlDialog]);
 
   const INTERACTIVE_TYPES = new Set(["quiz", "wordcloud", "leaderboard", "qrcode"]);
   const hasInteractiveElement = elements?.some((el) => INTERACTIVE_TYPES.has(el.type)) ?? false;
@@ -253,51 +264,61 @@ function EditorPage() {
       const elId = created.id;
       setSelectedIds(new Set([elId]));
       history.push({
-        undo: () => { removeElement({ id: elId }); setSelectedIds(new Set()); },
-        redo: () => { createElement(createArgs).then((recreated) => setSelectedIds(new Set([recreated.id]))); },
+        undo: async () => {
+          await removeElement({ id: history.liveId(elId) });
+          setSelectedIds(new Set());
+        },
+        redo: async () => {
+          const recreated = await createElement(createArgs);
+          history.aliasId(elId, recreated.id);
+          setSelectedIds(new Set([recreated.id]));
+        },
       });
-    });
+    }).catch(console.error);
   }
 
   function deleteElements(ids: Set<string>) {
     if (ids.size === 0) return;
     const deleted = [...ids].map((id) => elements?.find((e) => e.id === id)).filter(Boolean) as SlideElement[];
-    ids.forEach((id) => removeElement({ id }));
+    if (deleted.length === 0) return;
+    for (const el of deleted) removeElement({ id: el.id });
     setSelectedIds(new Set());
-    if (deleted.length > 0) {
-      const recreatedIds: string[] = [];
-      history.push({
-        undo: async () => {
-          recreatedIds.length = 0;
-          for (const el of deleted) {
-            const recreated = await createElement({
-              slideId: el.slideId,
-              type: el.type,
-              x: el.x, y: el.y, width: el.width, height: el.height,
-              props: el.props ?? undefined,
-              zIndex: el.zIndex ?? undefined,
-            });
-            recreatedIds.push(recreated.id);
-          }
-        },
-        redo: () => {
-          for (const id of recreatedIds) removeElement({ id });
-          setSelectedIds(new Set());
-        },
-      });
-    }
+    history.push({
+      undo: async () => {
+        for (const el of deleted) {
+          const recreated = await createElement({
+            slideId: el.slideId,
+            type: el.type,
+            x: el.x, y: el.y, width: el.width, height: el.height,
+            props: el.props ?? undefined,
+            zIndex: el.zIndex ?? undefined,
+          });
+          history.aliasId(el.id, recreated.id);
+        }
+      },
+      redo: async () => {
+        for (const el of deleted) await removeElement({ id: history.liveId(el.id) });
+        setSelectedIds(new Set());
+      },
+    });
   }
 
   function persistContent(id: string, html: string) {
     const cleaned = html.replace(/(<p>(\s|<br[^>]*>)*<\/p>\s*)+$/, "").trim() || html;
-    setLocalContent((prev) => new Map(prev).set(id, cleaned));
+    const previous = elements?.find((e) => e.id === id)?.props?.content ?? "";
+    if (previous === cleaned) return;
     updateContent({ id, content: cleaned });
+    history.push({
+      undo: () => updateContent({ id: history.liveId(id), content: previous }),
+      redo: () => updateContent({ id: history.liveId(id), content: cleaned }),
+    });
   }
 
   function handleDuplicateElement(el: SlideElement) {
     if (!activeSlideId) return;
     createElement({ slideId: activeSlideId, type: el.type, x: el.x + 3, y: el.y + 3, width: el.width, height: el.height, props: el.props ?? undefined })
-      .then((created) => setSelectedIds(new Set([created.id])));
+      .then((created) => setSelectedIds(new Set([created.id])))
+      .catch(console.error);
   }
 
   const isEditingRichText = editingId !== null && elements?.some((el) =>
@@ -322,20 +343,19 @@ function EditorPage() {
     updateProps,
     updateImageSrc,
     removeElement,
+    deleteElement: (id: string) => deleteElements(new Set([id])),
     triggerImageUpload,
     showImageUrlDialog: (id: string, src?: string) => { setShowImageUrlDialog(id); setImageUrlInput(src ?? ""); },
     handleImageUpload,
     addElement: handleAddElement,
     deselect: () => setSelectedIds(new Set()),
-    setLocalGeometry: (id: string, geo: Geo) => setLocalGeometry((prev) => new Map(prev).set(id, geo)),
-  }), [updatePosition, updateGeometry, updateProps, updateImageSrc, removeElement, handleImageUpload]);
+  }), [updatePosition, updateGeometry, updateProps, updateImageSrc, removeElement, handleImageUpload, activeSlideId, elements, hasInteractiveElement]);
 
   const editorCtxState: EditorCtxState = useMemo(() => ({
     activeSlideId,
-    localGeometry,
     uploadingImageId,
     hasInteractiveElement,
-  }), [activeSlideId, localGeometry, uploadingImageId, hasInteractiveElement]);
+  }), [activeSlideId, uploadingImageId, hasInteractiveElement]);
 
   if (presentation === undefined || slides === undefined) {
     return <div className="flex h-full items-center justify-center bg-surface"><p className="font-sans text-sm text-muted-foreground">Loading…</p></div>;
@@ -434,15 +454,6 @@ function EditorPage() {
 
       </div>
 
-      {showRichToolbar && (
-        <div className="flex items-center border-b border-border bg-surface-container-lowest px-3 py-1">
-          <RichToolbar
-            editor={activeEditor}
-            contentHtml={selectedTextEl ? (localContent.get(selectedTextEl.id) ?? selectedTextEl.props?.content ?? "") : ""}
-          />
-        </div>
-      )}
-
       <div className="flex flex-1 overflow-hidden">
 
         <SlideRail slides={slides} activeSlideId={activeSlideId} presentationId={pid} onSwitchSlide={switchSlide} onAddSlide={handleAddSlide} theme={presentation.theme} />
@@ -455,6 +466,19 @@ function EditorPage() {
           }}
           onPointerDown={handleMarqueePointerDown}
         >
+          {showRichToolbar && (
+            <div
+              className="absolute left-1/2 top-4 z-50 w-max max-w-[calc(100%-2rem)] -translate-x-1/2 rounded-xl bg-surface-container-lowest/85 px-2 py-1.5 shadow-pop ring-1 ring-outline-variant/20 backdrop-blur-xl"
+              onClick={(e) => e.stopPropagation()}
+              onPointerDown={(e) => e.stopPropagation()}
+            >
+              <RichToolbar
+                editor={activeEditor}
+                contentHtml={selectedTextEl?.props?.content ?? ""}
+              />
+            </div>
+          )}
+
           <ContextMenu>
           <ContextMenuTrigger
             ref={canvasRef}
@@ -501,15 +525,10 @@ function EditorPage() {
                   isSelected={selectedIds.has(el.id)}
                   isEditing={editingId === el.id}
                   multiSelected={selectedIds.size > 1}
-                  geoOverride={localGeometry.get(el.id)}
                   dragOverride={dragPositions.get(el.id)}
-                  liveContent={localContent.get(el.id) ?? el.props?.content ?? ""}
                   rotationOverride={liveRotation?.id === el.id ? liveRotation.rotation : undefined}
                   uploadingImageId={uploadingImageId}
-                  registerRef={(id, node) => {
-                    if (node) elementRefsMap.current.set(id, node);
-                    else elementRefsMap.current.delete(id);
-                  }}
+                  registerRef={registerElementRef}
                   onPointerDown={handleElementPointerDown}
                   onSelect={(id) => setSelectedIds(new Set([id]))}
                   onStartEditing={(id) => setEditingId(id)}
@@ -536,24 +555,37 @@ function EditorPage() {
             ))}
             {selectedIds.size === 1 && (() => {
               const selId = [...selectedIds][0];
-              const targetNode = elementRefsMap.current.get(selId);
+              const targetNode = elementNodes.get(selId);
               const selEl = elements?.find((e) => e.id === selId);
               if (!targetNode || !selEl) return null;
+              const prevGeo = { x: selEl.x, y: selEl.y, width: selEl.width, height: selEl.height };
+              const prevRotation = selEl.props?.rotation ?? 0;
               return (
                 <ElementMoveable
                   targetNode={targetNode}
                   container={canvasRef.current}
                   elementId={selId}
                   effectiveScale={effectiveScale}
-                  geo={localGeometry.get(selId) ?? { x: selEl.x, y: selEl.y, width: selEl.width, height: selEl.height }}
+                  geo={prevGeo}
                   dragPosition={dragPositions.get(selId)}
-                  rotation={liveRotation?.id === selId ? liveRotation.rotation : (selEl.props?.rotation ?? 0)}
+                  rotation={liveRotation?.id === selId ? liveRotation.rotation : prevRotation}
                   onInteractionStart={() => { moveableActive.current = true; }}
                   onInteractionEnd={() => { moveableActive.current = false; }}
-                  onGeometryChange={(id, geo) => setLocalGeometry((prev) => new Map(prev).set(id, geo))}
-                  onGeometryCommit={(id, geo) => updateGeometry({ id, ...geo })}
+                  onGeometryCommit={(id, geo) => {
+                    updateGeometry({ id, ...geo });
+                    history.push({
+                      undo: () => updateGeometry({ id: history.liveId(id), ...prevGeo }),
+                      redo: () => updateGeometry({ id: history.liveId(id), ...geo }),
+                    });
+                  }}
                   onRotationChange={(id, rotation) => setLiveRotation({ id, rotation })}
-                  onRotationCommit={(id, rotation) => updateProps({ id, props: { rotation } })}
+                  onRotationCommit={(id, rotation) => {
+                    updateProps({ id, props: { rotation } });
+                    history.push({
+                      undo: () => updateProps({ id: history.liveId(id), props: { rotation: prevRotation } }),
+                      redo: () => updateProps({ id: history.liveId(id), props: { rotation } }),
+                    });
+                  }}
                 />
               );
             })()}
@@ -624,13 +656,7 @@ function EditorPage() {
             <span className="font-sans text-[10px] tracking-wide text-muted-foreground/60">
               {slides.length} slide{slides.length !== 1 ? "s" : ""}
             </span>
-            <div className="flex items-center gap-3">
-              <ClearResponsesButton presentationId={pid} />
-              <div className="flex items-center gap-1.5">
-                <div className="size-1.5 rounded-full bg-green-500" />
-                <span className="font-sans text-[10px] tracking-wide text-muted-foreground/60">CLOUD SYNCED</span>
-              </div>
-            </div>
+            <ClearResponsesButton presentationId={pid} />
           </div>
           </EditorStateProvider>
           </EditorActionsProvider>

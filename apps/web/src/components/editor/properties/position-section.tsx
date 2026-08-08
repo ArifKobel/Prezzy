@@ -1,23 +1,20 @@
 import type { SlideElement } from "@Prezzy/shared";
 import { Move } from "lucide-react";
-import { useEditorActions, useEditorCtxState } from "@/lib/editor/editor-context";
+import { useEditorActions } from "@/lib/editor/editor-context";
 import { PropNumberInput, SectionLabel } from "@/components/editor/editor-ui";
 import type { Geo } from "@/lib/editor/snap";
 
 export function PositionSection({ el }: { el: SlideElement }) {
-  const { updatePosition, updateGeometry, setLocalGeometry } = useEditorActions();
-  const { localGeometry } = useEditorCtxState();
-  const geo: Geo = localGeometry.get(el.id) ?? el;
+  const { updatePosition, updateGeometry } = useEditorActions();
+  const geo: Geo = { x: el.x, y: el.y, width: el.width, height: el.height };
 
   function updateAxis(axis: "x" | "y", v: number) {
     const next = { ...geo, [axis]: v };
-    setLocalGeometry(el.id, next);
     updatePosition({ id: el.id, x: next.x, y: next.y });
   }
 
   function updateSize(dim: "width" | "height", v: number) {
     const next = { ...geo, [dim]: v };
-    setLocalGeometry(el.id, next);
     updateGeometry({ id: el.id, ...next });
   }
 

@@ -1,50 +1,55 @@
 # Prezzy Design Notes
 
-Warm sand palette, editorial look. No hard borders, separation comes from surface tones and spacing.
+Warm sand palette with a deep green accent. Separation comes from surface tones and spacing, not from hard borders.
 
-## Colors & Surfaces
+All values live in `src/styles/globals.css` as CSS custom properties. Change them there, never in components.
 
-Base palette:
+## Colors
 
-| Token | Hex |
-| --- | --- |
-| surface | #faf9f8 |
-| surface-container-low | #f3f4f3 |
-| surface-container-lowest | #ffffff |
-| on-surface | #2f3333 |
-| primary | #4e6073 |
-| primary-dim | #425467 |
-| on-primary | #f4f8ff |
-| secondary-container | #ebe1d7 |
-| tertiary-container | #faf3e5 |
-| outline-variant | #aeb3b2 |
-| error-container | #fe8b70 |
+| Token | Light | Dark |
+| --- | --- | --- |
+| surface | #f6f2ea | #191512 |
+| surface-container-low | #efe9dd | #1e1a15 |
+| surface-container | #e9e1d3 | #26211b |
+| surface-container-lowest (cards) | #fffdf9 | #221d18 |
+| on-surface (text) | #231f1c | #f2ece3 |
+| muted-foreground | #5b534b | #b0a698 |
+| primary | #22574a | #6fae9b |
+| primary-dim (gradient end) | #1a4438 | #588f7f |
+| secondary-container | #e4d9c6 | #322b22 |
+| tertiary-container | #f7efdd | #3a3225 |
+| outline-variant | #a89d8c | — |
+| destructive | #a8412a | #e0714f |
 
 Rules:
 
-- Sections are separated by background shifts (`surface-container-low` on `surface`) or by spacing, not by 1px borders.
-- Never place two surfaces with the same token next to each other; step up or down one level.
-- Cards: `surface-container-lowest` on a darker surface, radius `xl` (0.75rem), no border.
-- Floating elements (navbars, popovers): surface at ~70-80% opacity + `backdrop-blur: 20px`.
-- Primary CTAs: 135° gradient from primary to primary-dim.
-- Shadows only where layering isn't enough: `0 12px 40px rgba(47,51,51,0.06)` (tinted with on-surface, not black).
-- If a border is unavoidable (inputs, a11y): `outline-variant` at 20% opacity. Inputs use a bottom-only border that switches to 1px primary on focus.
+- Sections are separated by background shifts or spacing, not by 1px borders. Borders are for inputs and other cases where an edge is functionally needed; they use `outline-variant` at 26%.
+- Never place two surfaces with the same token next to each other, step up or down one level.
+- Cards sit on `surface-container-lowest` over a darker surface, radius `xl`, no border.
+- Floating elements use a surface at 70-80% opacity with `backdrop-blur: 20px`.
+- Primary actions use a 135° gradient from `primary` to `primary-dim`.
+- Shadows come from `--shadow-card` and `--shadow-pop`, tinted with the text color rather than black. Do not write new inline `rgba()` shadows.
+
+## Radii
+
+`--radius` is 0.75rem. The scale derives from it: sm 8px, md 10px, lg 12px, xl 16px, 2xl 20px. Stay on the scale.
 
 ## Typography
 
-Manrope for display/headlines, Inter for body/labels.
+Manrope for display and headlines, Inter for body and labels.
 
 | Token | Font | Size | Notes |
 | --- | --- | --- | --- |
 | display-lg | Manrope | 3.5rem | bold, -0.02em tracking |
 | headline-md | Manrope | 1.75rem | medium, slide titles |
 | body-lg | Inter | 1rem | regular |
-| label-md | Inter | 0.75rem | uppercase, +0.05em tracking |
+| label-md | Inter | 0.8125rem | normal case |
+
+Small labels are set in normal case at 13px. Uppercase micro-labels below 12px are hard to read and are not used for anything a person needs to act on.
 
 ## Misc
 
-- Text is never pure black, use on-surface.
-- Hover: raise the surface level or scale 1.02, don't darken the fill.
+- Text is never pure black, use `on-surface`.
+- Hover raises the surface level or scales by 1.02, it does not darken the fill.
 - Inactive states use `surface-dim`.
-- Alerts use error-container instead of saturated red.
-- When in doubt, add more whitespace.
+- Alerts use `destructive` rather than a saturated red.

@@ -13,10 +13,10 @@ export function ContinueCard({ presentation: p }: { presentation: Presentation }
   }
 
   return (
-    <div className="flex items-center gap-8 rounded-2xl bg-surface-container-lowest p-6 shadow-[0_12px_40px_rgba(47,51,51,0.05)]">
+    <div className="flex items-center gap-8 rounded-2xl bg-surface-container-lowest p-6 shadow-[0_12px_40px_rgb(35_31_28_/_0.05)]">
       <button
         onClick={openEditor}
-        className="group w-[46%] max-w-[480px] shrink-0 overflow-hidden rounded-xl bg-surface-container shadow-[0_4px_16px_rgba(47,51,51,0.06)] transition-all hover:shadow-[0_12px_32px_rgba(47,51,51,0.12)]"
+        className="group w-[46%] max-w-[480px] shrink-0 overflow-hidden rounded-xl bg-surface-container shadow-[0_4px_16px_rgb(35_31_28_/_0.06)] transition-all hover:shadow-[0_12px_32px_rgb(35_31_28_/_0.12)]"
       >
         <div className="aspect-[16/10]">
           <PresentationThumbnail presentationId={p.id} />
@@ -45,7 +45,7 @@ export function ContinueCard({ presentation: p }: { presentation: Presentation }
         <div className="mt-5 flex items-center gap-2">
           <button
             onClick={openEditor}
-            className="flex items-center gap-2 rounded-md bg-[linear-gradient(135deg,var(--color-primary),var(--color-primary-dim))] px-5 py-2.5 font-sans text-xs font-medium text-primary-foreground shadow-[0_4px_12px_rgba(78,96,115,0.25)] transition-all hover:scale-[1.02] active:scale-[0.99]"
+            className="flex items-center gap-2 rounded-md bg-[linear-gradient(135deg,var(--color-primary),var(--color-primary-dim))] px-5 py-2.5 font-sans text-xs font-medium text-primary-foreground shadow-[0_4px_12px_rgb(34_87_74_/_0.25)] transition-all hover:scale-[1.02] active:scale-[0.99]"
           >
             Continue editing <ArrowRight className="size-3.5" />
           </button>

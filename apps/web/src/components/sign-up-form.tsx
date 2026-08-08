@@ -93,7 +93,7 @@ export default function SignUpForm({ onSwitchToSignIn }: { onSwitchToSignIn: () 
           {({ canSubmit, isSubmitting }) => (
             <button
               type="submit" disabled={!canSubmit || isSubmitting}
-              className="w-full rounded-md bg-[linear-gradient(135deg,var(--color-primary),var(--color-primary-dim))] px-4 py-2.5 font-sans text-sm font-medium text-primary-foreground shadow-[0_4px_12px_rgba(78,96,115,0.25)] transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-40"
+              className="w-full rounded-md bg-[linear-gradient(135deg,var(--color-primary),var(--color-primary-dim))] px-4 py-2.5 font-sans text-sm font-medium text-primary-foreground shadow-[0_4px_12px_rgb(34_87_74_/_0.25)] transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-40"
             >
               {isSubmitting ? "Creating account…" : "Sign Up"}
             </button>

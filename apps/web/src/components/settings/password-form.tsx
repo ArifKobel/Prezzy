@@ -69,7 +69,7 @@ export function PasswordForm() {
       <div className="flex items-center gap-2">
         <button
           type="submit" disabled={saving || !currentPw || !newPw || !confirmPw}
-          className="rounded-md bg-[linear-gradient(135deg,var(--color-primary),var(--color-primary-dim))] px-5 py-2 font-sans text-xs font-medium text-primary-foreground shadow-[0_4px_12px_rgba(78,96,115,0.25)] transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50"
+          className="rounded-md bg-[linear-gradient(135deg,var(--color-primary),var(--color-primary-dim))] px-5 py-2 font-sans text-xs font-medium text-primary-foreground shadow-[0_4px_12px_rgb(34_87_74_/_0.25)] transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50"
         >
           {saving ? "Updating…" : "Update Password"}
         </button>

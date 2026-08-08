@@ -30,9 +30,9 @@ export function QuestionCountdown({
   }, [onDone]);
 
   const pct = count / 5;
-  const ringColor = accentColor || "#4e6073";
-  const numColor = textColor || "#2f3333";
-  const trackColor = surfaceColor || "#f3f4f3";
+  const ringColor = accentColor || "#22574a";
+  const numColor = textColor || "#231f1c";
+  const trackColor = surfaceColor || "#e9e1d3";
 
   return (
     <div className="relative flex size-[4em] items-center justify-center">

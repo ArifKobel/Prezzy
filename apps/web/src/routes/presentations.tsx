@@ -127,7 +127,7 @@ function PresentationsPage() {
 
         <button
           onClick={handleCreateNew}
-          className="flex items-center gap-1.5 rounded-md bg-[linear-gradient(135deg,var(--color-primary),var(--color-primary-dim))] px-4 py-2 font-sans text-xs font-medium text-primary-foreground shadow-[0_4px_12px_rgba(78,96,115,0.25)] transition-all hover:scale-[1.02] active:scale-[0.99]"
+          className="flex items-center gap-1.5 rounded-md bg-[linear-gradient(135deg,var(--color-primary),var(--color-primary-dim))] px-4 py-2 font-sans text-xs font-medium text-primary-foreground shadow-[0_4px_12px_rgb(34_87_74_/_0.25)] transition-all hover:scale-[1.02] active:scale-[0.99]"
         >
           <Plus className="size-3.5" /> New Presentation
         </button>
@@ -146,7 +146,7 @@ function PresentationsPage() {
         ))}
         <button
           onClick={handleCreateNew}
-          className="group flex aspect-[16/10] flex-col items-center justify-center rounded-xl border border-dashed border-outline-variant/30 bg-surface-container-lowest transition-all hover:border-primary/30 hover:shadow-[0_12px_40px_rgba(47,51,51,0.06)]"
+          className="group flex aspect-[16/10] flex-col items-center justify-center rounded-xl border border-dashed border-outline-variant/30 bg-surface-container-lowest transition-all hover:border-primary/30 hover:shadow-[0_12px_40px_rgb(35_31_28_/_0.06)]"
         >
           <div className="flex size-10 items-center justify-center rounded-full bg-surface-container transition-colors group-hover:bg-secondary-container">
             <Plus className="size-5 text-muted-foreground transition-colors group-hover:text-primary" />
@@ -169,7 +169,7 @@ function PresentationsPage() {
           </div>
           <button
             onClick={handleCreateNew}
-            className="mt-2 flex items-center gap-1.5 rounded-md bg-[linear-gradient(135deg,var(--color-primary),var(--color-primary-dim))] px-5 py-2 font-sans text-xs font-medium text-primary-foreground shadow-[0_4px_12px_rgba(78,96,115,0.25)] transition-all hover:scale-[1.02] active:scale-[0.99]"
+            className="mt-2 flex items-center gap-1.5 rounded-md bg-[linear-gradient(135deg,var(--color-primary),var(--color-primary-dim))] px-5 py-2 font-sans text-xs font-medium text-primary-foreground shadow-[0_4px_12px_rgb(34_87_74_/_0.25)] transition-all hover:scale-[1.02] active:scale-[0.99]"
           >
             <Plus className="size-3.5" /> Create Presentation
           </button>
