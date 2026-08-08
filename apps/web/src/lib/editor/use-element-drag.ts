@@ -2,7 +2,7 @@ import type { SlideElement } from "@Prezzy/shared";
 import { useRef, useState } from "react";
 
 import type { HistoryEntry } from "@/lib/editor/history";
-import { snapPos } from "@/lib/editor/snap";
+import { clampGroupDelta, snapPos } from "@/lib/editor/snap";
 
 type DragMove = { id: string; oldX: number; oldY: number; newX: number; newY: number };
 
@@ -24,14 +24,16 @@ export function useElementDrag({
 }) {
   const [dragPositions, setDragPositions] = useState<Map<string, { x: number; y: number }>>(new Map());
   const [snapLines, setSnapLines] = useState<{ vLines: number[]; hLines: number[] }>({ vLines: [], hLines: [] });
-  const dragging = useRef<{ startMX: number; startMY: number; items: Array<{ id: string; startX: number; startY: number }> } | null>(null);
+  const dragging = useRef<{ startMX: number; startMY: number; items: Array<{ id: string; startX: number; startY: number; width: number; height: number }> } | null>(null);
   const dragPosRef = useRef<Map<string, { x: number; y: number }> | null>(null);
   const sessionRef = useRef(0);
+  const didDrag = useRef(false);
 
   function handleElementPointerDown(e: React.PointerEvent<HTMLDivElement>, el: SlideElement) {
     if (editingId === el.id || e.button === 2 || moveableActive.current) return;
     e.preventDefault();
     e.stopPropagation();
+    didDrag.current = false;
     if (editingId) setEditingId(null);
 
     if (e.shiftKey) {
@@ -51,7 +53,13 @@ export function useElementDrag({
     const session = ++sessionRef.current;
     const items = Array.from(dragIds).map((id) => {
       const data = elements?.find((e) => e.id === id);
-      return { id, startX: data?.x ?? 0, startY: data?.y ?? 0 };
+      return {
+        id,
+        startX: data?.x ?? 0,
+        startY: data?.y ?? 0,
+        width: data?.width ?? 20,
+        height: data?.height ?? 20,
+      };
     });
     dragging.current = { startMX: e.clientX, startMY: e.clientY, items };
 
@@ -73,11 +81,12 @@ export function useElementDrag({
       const dx = ((ev.clientX - dragging.current.startMX) / rect.width)  * 100;
       const dy = ((ev.clientY - dragging.current.startMY) / rect.height) * 100;
       const lead = dragging.current.items[0];
-      const snapped = snapPos(Math.max(0, lead.startX + dx), Math.max(0, lead.startY + dy), leadW, leadH, movingIds, elements);
-      const offX = snapped.x - Math.max(0, lead.startX + dx);
-      const offY = snapped.y - Math.max(0, lead.startY + dy);
+      const snapped = snapPos(lead.startX + dx, lead.startY + dy, leadW, leadH, movingIds, elements);
+      const offX = snapped.x - (lead.startX + dx);
+      const offY = snapped.y - (lead.startY + dy);
+      const delta = clampGroupDelta(dragging.current.items, dx + offX, dy + offY);
       const positions = new Map(dragging.current.items.map((item) => [
-        item.id, { x: Math.max(0, item.startX + dx + offX), y: Math.max(0, item.startY + dy + offY) },
+        item.id, { x: item.startX + delta.dx, y: item.startY + delta.dy },
       ]));
       dragPosRef.current = positions;
       setDragPositions(new Map(positions));
@@ -114,6 +123,8 @@ export function useElementDrag({
         return;
       }
 
+      didDrag.current = true;
+
       const writes = moves.map((m) => updatePosition({ id: m.id, x: m.newX, y: m.newY }));
       Promise.allSettled(writes).then(() => {
         if (sessionRef.current === session) setDragPositions(new Map());
@@ -131,5 +142,5 @@ export function useElementDrag({
     window.addEventListener("lostpointercapture", onCancel);
   }
 
-  return { dragPositions, snapLines, handleElementPointerDown };
+  return { dragPositions, snapLines, handleElementPointerDown, didDrag };
 }

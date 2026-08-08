@@ -147,7 +147,7 @@ export function SlideCanvas({
               left: `${el.x}%`,
               top: `${el.y}%`,
               width: `${el.width}%`,
-              ...(isHeading || isText
+              ...((isHeading || isText) && el.props?.heightFitted !== true
                 ? { minHeight: `${el.height}%` }
                 : { height: `${el.height}%` }),
               zIndex: el.zIndex ?? 0,
@@ -241,14 +241,14 @@ export function SlideCanvas({
 
   if (!scaleToFit) {
     return (
-      <div className={cn("relative h-full w-full overflow-hidden", !hasThemeBg && "bg-card", className)} style={themeVars}>
+      <div className={cn("relative h-full w-full overflow-hidden text-left", !hasThemeBg && "bg-card", className)} style={themeVars}>
         {inner}
       </div>
     );
   }
 
   return (
-    <div ref={outerRef} className={cn("flex items-center justify-center overflow-hidden", className)}>
+    <div ref={outerRef} className={cn("flex items-center justify-center overflow-hidden text-left", className)}>
       <div
         className={cn("relative", !hasThemeBg && "bg-card")}
         style={{

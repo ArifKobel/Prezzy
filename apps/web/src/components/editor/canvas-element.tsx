@@ -2,7 +2,7 @@ import type { ElementProps, SlideElement } from "@Prezzy/shared";
 import { ContextMenu, ContextMenuTrigger } from "@Prezzy/ui/components/context-menu";
 import { cn } from "@Prezzy/ui/lib/utils";
 import { ImagePlus, Link, Upload } from "lucide-react";
-import { useCallback } from "react";
+import { useCallback, useEffect, useRef } from "react";
 
 import { ImageElement } from "@/components/elements/image-element";
 import { ShapeElement } from "@/components/elements/shape-element";
@@ -17,7 +17,7 @@ export function CanvasElement({
   dragOverride, rotationOverride, uploadingImageId,
   registerRef, onPointerDown, onSelect, onStartEditing, onStopEditing,
   onPersistContent, setActiveEditor, onImageUpload, onTriggerImageUpload,
-  onShowImageUrlDialog, onDuplicate, onDelete,
+  onShowImageUrlDialog, onDuplicate, onDelete, onFitHeight,
   updateProps, updateImageSrc, reorderElement,
 }: {
   el: SlideElement;
@@ -39,6 +39,7 @@ export function CanvasElement({
   onShowImageUrlDialog: (id: string, src?: string) => void;
   onDuplicate: (el: SlideElement) => void;
   onDelete: (id: string) => void;
+  onFitHeight: (id: string, height: number) => void;
   updateProps: (args: { id: string; props: ElementProps }) => void;
   updateImageSrc: (args: { id: string; src: string }) => void;
   reorderElement: (args: { id: string; action: "front" | "forward" | "backward" | "back" }) => void;
@@ -49,9 +50,31 @@ export function CanvasElement({
   const liveH = el.height;
   const liveContent = el.props?.content ?? "";
   const isRichText = el.type === "heading" || el.type === "text";
+  const heightFitted = el.props?.heightFitted === true;
+  const autoHeight = isRichText && (!heightFitted || isEditing);
+
+  const boxRef = useRef<HTMLElement | null>(null);
+  const fitReported = useRef(false);
+
+  useEffect(() => {
+    if (!isRichText || heightFitted || isEditing || fitReported.current) return;
+    let cancelled = false;
+    document.fonts.ready.then(() => {
+      const node = boxRef.current;
+      const parent = node?.parentElement;
+      if (cancelled || !node || !parent || fitReported.current) return;
+      const parentHeight = parent.getBoundingClientRect().height;
+      if (parentHeight <= 0) return;
+      const measured = (node.getBoundingClientRect().height / parentHeight) * 100;
+      if (!Number.isFinite(measured) || measured <= 0) return;
+      fitReported.current = true;
+      onFitHeight(el.id, measured);
+    });
+    return () => { cancelled = true; };
+  }, [isRichText, heightFitted, isEditing, el.id, liveContent, onFitHeight]);
 
   const setNodeRef = useCallback(
-    (node: HTMLElement | null) => { registerRef(el.id, node); },
+    (node: HTMLElement | null) => { boxRef.current = node; registerRef(el.id, node); },
     [registerRef, el.id],
   );
 
@@ -66,7 +89,7 @@ export function CanvasElement({
         style={{
           position: "absolute", display: "block",
           left: `${liveX}%`, top: `${liveY}%`, width: `${liveW}%`,
-          ...(isRichText ? { minHeight: `${liveH}%` } : { height: `${liveH}%` }),
+          ...(autoHeight ? { minHeight: `${liveH}%` } : { height: `${liveH}%` }),
           transform: (() => {
             const rot = rotationOverride ?? el.props?.rotation;
             return rot ? `rotate(${rot}deg)` : undefined;

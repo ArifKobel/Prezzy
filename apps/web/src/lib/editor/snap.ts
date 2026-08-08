@@ -1,6 +1,40 @@
 const SNAP_T = 1.2;
+const MIN_VISIBLE = 5;
 
 export type Geo = { x: number; y: number; width: number; height: number };
+
+export function boundRange(size: number): { min: number; max: number } {
+  const keep = Math.min(size * 0.25, MIN_VISIBLE);
+  return { min: keep - size, max: 100 - keep };
+}
+
+export function boundPos(value: number, size: number): number {
+  const { min, max } = boundRange(size);
+  return Math.min(Math.max(value, min), max);
+}
+
+export function clampGroupDelta(
+  items: Array<{ startX: number; startY: number; width: number; height: number }>,
+  dx: number,
+  dy: number,
+): { dx: number; dy: number } {
+  let minDX = -Infinity, maxDX = Infinity;
+  let minDY = -Infinity, maxDY = Infinity;
+
+  for (const item of items) {
+    const bx = boundRange(item.width);
+    const by = boundRange(item.height);
+    minDX = Math.max(minDX, bx.min - item.startX);
+    maxDX = Math.min(maxDX, bx.max - item.startX);
+    minDY = Math.max(minDY, by.min - item.startY);
+    maxDY = Math.min(maxDY, by.max - item.startY);
+  }
+
+  return {
+    dx: Math.min(Math.max(dx, minDX), maxDX),
+    dy: Math.min(Math.max(dy, minDY), maxDY),
+  };
+}
 type SnapResult = { x: number; y: number; vLines: number[]; hLines: number[] };
 export function snapPos(
   rawX: number, rawY: number, w: number, h: number,
@@ -39,8 +73,8 @@ export function snapPos(
   }
 
   return {
-    x: Math.max(0, bestX),
-    y: Math.max(0, bestY),
+    x: bestX,
+    y: bestY,
     vLines: [...new Set(vLines)],
     hLines: [...new Set(hLines)],
   };

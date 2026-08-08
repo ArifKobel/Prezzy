@@ -1,5 +1,7 @@
 import type { Slide, SlideElement } from "@Prezzy/shared";
+import { ContextMenu, ContextMenuTrigger } from "@Prezzy/ui/components/context-menu";
 import { cn } from "@Prezzy/ui/lib/utils";
+import { SlideContextMenu } from "@/components/editor/slide-context-menu";
 import {
   closestCenter,
   DndContext,
@@ -21,7 +23,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { arrayMove } from "@dnd-kit/sortable";
-import { GripVertical, Plus } from "lucide-react";
+import { Copy, GripVertical, LayoutGrid, Plus } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { SlideCanvas } from "@/components/slide-canvas";
 
@@ -41,6 +43,11 @@ function SortableThumbnail({
   isActive,
   elements,
   onClick,
+  onDuplicate,
+  onDelete,
+  onAddAfter,
+  onPickLayout,
+  canDelete,
   theme,
 }: {
   slide: Slide;
@@ -48,6 +55,11 @@ function SortableThumbnail({
   isActive: boolean;
   elements: SlideElement[];
   onClick: () => void;
+  onDuplicate: () => void;
+  onDelete: () => void;
+  onAddAfter: () => void;
+  onPickLayout: () => void;
+  canDelete: boolean;
   theme?: PresentationTheme | null;
 }) {
   const {
@@ -73,10 +85,12 @@ function SortableThumbnail({
         isDragging && "z-50 opacity-60",
       )}
     >
-      <div
+      <ContextMenu>
+      <ContextMenuTrigger
         onClick={onClick}
+        onContextMenu={onClick}
         className={cn(
-          "relative aspect-video w-full cursor-pointer overflow-hidden rounded-lg shadow-sm transition-shadow hover:shadow-md",
+          "relative block aspect-video w-full cursor-pointer overflow-hidden rounded-lg shadow-sm transition-shadow hover:shadow-md",
           isActive && "ring-2 ring-primary ring-offset-1 ring-offset-surface-container-low",
         )}
       >
@@ -89,6 +103,14 @@ function SortableThumbnail({
           <GripVertical className="size-3 text-muted-foreground/60" />
         </button>
 
+        <button
+          onClick={(e) => { e.stopPropagation(); onDuplicate(); }}
+          title="Duplicate slide"
+          className="absolute right-1 top-1 z-10 flex size-5 items-center justify-center rounded-md bg-surface-container-lowest/85 text-muted-foreground opacity-0 shadow-sm backdrop-blur-sm transition-all hover:text-foreground group-hover:opacity-100"
+        >
+          <Copy className="size-3" />
+        </button>
+
         <span className="absolute left-1.5 top-1 z-10 font-sans text-[8px] text-muted-foreground">
           {index + 1}
         </span>
@@ -98,7 +120,16 @@ function SortableThumbnail({
           scaleToFit
           theme={theme}
         />
-      </div>
+      </ContextMenuTrigger>
+
+      <SlideContextMenu
+        canDelete={canDelete}
+        onAddAfter={onAddAfter}
+        onPickLayout={onPickLayout}
+        onDuplicate={onDuplicate}
+        onDelete={onDelete}
+      />
+      </ContextMenu>
     </div>
   );
 }
@@ -109,13 +140,19 @@ export function SlideRail({
   presentationId,
   onSwitchSlide,
   onAddSlide,
+  onDuplicateSlide,
+  onDeleteSlide,
+  onPickLayout,
   theme,
 }: {
   slides: Slide[];
   activeSlideId: string | null;
   presentationId: string;
   onSwitchSlide: (id: string) => void;
-  onAddSlide: () => void;
+  onAddSlide: (afterSlideId?: string) => void;
+  onDuplicateSlide: (id: string) => void;
+  onDeleteSlide: (id: string) => void;
+  onPickLayout: () => void;
   theme?: PresentationTheme | null;
 }) {
   const reorder = useReorderSlides();
@@ -192,21 +229,35 @@ export function SlideRail({
                 isActive={slide.id === activeSlideId}
                 elements={elementsBySlide.get(slide.id) ?? []}
                 onClick={() => onSwitchSlide(slide.id)}
+                onDuplicate={() => onDuplicateSlide(slide.id)}
+                onDelete={() => onDeleteSlide(slide.id)}
+                onAddAfter={() => onAddSlide(slide.id)}
+                onPickLayout={onPickLayout}
+                canDelete={localSlides.length > 1}
                 theme={theme}
               />
             ))}
           </SortableContext>
         </DndContext>
 
-        <button
-          onClick={onAddSlide}
-          className="group flex aspect-video w-full flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-border transition-all hover:border-primary/30 hover:bg-surface-container"
-        >
-          <Plus className="size-4 text-muted-foreground/40 transition-colors group-hover:text-primary" />
-          <span className="font-sans text-[8px] font-medium text-muted-foreground/40 transition-colors group-hover:text-foreground">
-            Add Slide
-          </span>
-        </button>
+        <div className="group relative">
+          <button
+            onClick={() => onAddSlide()}
+            className="flex aspect-video w-full flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-border transition-all hover:border-primary/30 hover:bg-surface-container"
+          >
+            <Plus className="size-4 text-muted-foreground/40 transition-colors group-hover:text-primary" />
+            <span className="font-sans text-[8px] font-medium text-muted-foreground/40 transition-colors group-hover:text-foreground">
+              Add Slide
+            </span>
+          </button>
+          <button
+            onClick={onPickLayout}
+            title="Add slide from layout"
+            className="absolute bottom-1 right-1 flex size-5 items-center justify-center rounded-md bg-surface-container-lowest/85 text-muted-foreground opacity-0 shadow-sm backdrop-blur-sm transition-all hover:text-foreground group-hover:opacity-100"
+          >
+            <LayoutGrid className="size-3" />
+          </button>
+        </div>
       </div>
     </div>
   );

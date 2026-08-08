@@ -27,36 +27,41 @@ export function RichTextElement({
   const [fakeSelRects, setFakeSelRects] = useState<{ x: number; y: number; w: number; h: number }[]>([]);
 
   type EditorLike = {
-    view: { coordsAtPos: (pos: number) => { left: number; right: number; top: number; bottom: number } };
-    state: { selection: { from: number; to: number }; doc: { nodesBetween: (from: number, to: number, cb: (node: any, pos: number) => void) => void } };
+    view: { domAtPos: (pos: number) => { node: Node; offset: number } };
+    state: { selection: { from: number; to: number } };
   };
 
   function updateFakeSelRects(ed: EditorLike) {
     const containerEl = containerRef.current;
     const sel = getSavedSelection() ?? ed.state.selection;
     if (!containerEl || !sel || sel.from === sel.to) { setFakeSelRects([]); return; }
-    const cr = containerEl.getBoundingClientRect();
-    const rects: { x: number; y: number; w: number; h: number }[] = [];
-    const { from, to } = sel;
-    let pos = from;
-    while (pos < to) {
-      const start = ed.view.coordsAtPos(pos);
-      let end = ed.view.coordsAtPos(pos + 1);
-      let lineEnd = pos + 1;
-      while (lineEnd < to) {
-        const next = ed.view.coordsAtPos(lineEnd + 1);
-        if (Math.abs(next.top - start.top) > 2) break;
-        end = next;
-        lineEnd++;
-      }
-      const x = start.left - cr.left;
-      const y = start.top - cr.top;
-      const w = end.right - start.left;
-      const h = end.bottom - start.top;
-      if (w > 0 && h > 0) rects.push({ x, y, w, h });
-      pos = lineEnd;
+
+    let rects: DOMRect[];
+    try {
+      const start = ed.view.domAtPos(sel.from);
+      const end = ed.view.domAtPos(sel.to);
+      const range = document.createRange();
+      range.setStart(start.node, start.offset);
+      range.setEnd(end.node, end.offset);
+      rects = [...range.getClientRects()];
+    } catch {
+      setFakeSelRects([]);
+      return;
     }
-    setFakeSelRects(rects);
+
+    const cr = containerEl.getBoundingClientRect();
+    const scale = containerEl.offsetWidth > 0 ? cr.width / containerEl.offsetWidth : 1;
+    const s = scale > 0 ? scale : 1;
+    setFakeSelRects(
+      rects
+        .filter((r) => r.width > 0 && r.height > 0)
+        .map((r) => ({
+          x: (r.left - cr.left) / s,
+          y: (r.top - cr.top) / s,
+          w: r.width / s,
+          h: r.height / s,
+        })),
+    );
   }
 
   const editor = useEditor({

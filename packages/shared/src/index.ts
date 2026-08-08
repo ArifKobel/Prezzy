@@ -47,6 +47,7 @@ export interface ElementProps {
   textColor?: string;
   prompt?: string;
   maxResponses?: number;
+  heightFitted?: boolean;
 }
 
 export interface User {

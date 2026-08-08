@@ -7,7 +7,7 @@ import {
 import { cn } from "@Prezzy/ui/lib/utils";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
-  Copy, ExternalLink, Heading, Image, LayoutGrid, Paintbrush, Play, Plus,
+  ExternalLink, Heading, Image, Paintbrush, Play,
   RotateCcw, RotateCw, Square, Trash2, Type,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -23,7 +23,6 @@ import { RichToolbar } from "@/components/editor/toolbar";
 import { ElementMoveable } from "@/components/editor/element-moveable";
 import { PropertiesPanel } from "@/components/editor/properties-panel";
 import { SlideRail } from "@/components/editor/slide-rail";
-import { ToolbarBtn } from "@/components/editor/editor-ui";
 import { CanvasElement } from "@/components/editor/canvas-element";
 import { ClearResponsesButton } from "@/components/editor/clear-responses-button";
 import { EditableTitle } from "@/components/editor/editable-title";
@@ -91,8 +90,9 @@ function EditorPage() {
     setEditingId(null);
   }
 
-  function handleAddSlide() {
-    createSlide({ presentationId: pid, afterOrder: activeSlide?.order })
+  function handleAddSlide(afterSlideId?: string) {
+    const after = afterSlideId ? slides?.find((s) => s.id === afterSlideId) : activeSlide;
+    createSlide({ presentationId: pid, afterOrder: after?.order })
       .then((slide) => switchSlide(slide.id, true))
       .catch(console.error);
   }
@@ -122,19 +122,19 @@ function EditorPage() {
     }
   }
 
-  function handleDuplicate() {
-    if (!activeSlideId) return;
-    duplicateSlide({ slideId: activeSlideId })
+  function handleDuplicateSlide(slideId: string) {
+    duplicateSlide({ slideId })
       .then((slide) => switchSlide(slide.id, true))
       .catch(console.error);
   }
 
-  function handleDeleteSlide() {
-    if (!activeSlideId || !slides || slides.length <= 1) return;
-    const idx  = slides.findIndex((s) => s.id === activeSlideId);
+  function handleDeleteSlide(slideId: string) {
+    if (!slides || slides.length <= 1) return;
+    const idx = slides.findIndex((s) => s.id === slideId);
+    if (idx === -1) return;
     const next = slides[idx + 1] ?? slides[idx - 1];
-    removeSlide({ slideId: activeSlideId });
-    switchSlide(next.id);
+    removeSlide({ slideId });
+    if (slideId === activeSlideId) switchSlide(next.id);
   }
 
   const updateTitle = useUpdatePresentationTitle();
@@ -209,7 +209,7 @@ function EditorPage() {
     handleImageUpload, handleImageUrlSubmit, triggerImageUpload, handleFileInputChange,
   } = useImageUpload();
 
-  const { dragPositions, snapLines, handleElementPointerDown } = useElementDrag({
+  const { dragPositions, snapLines, handleElementPointerDown, didDrag } = useElementDrag({
     canvasRef, elements,
     selectedIds, setSelectedIds, editingId, setEditingId,
     moveableActive, updatePosition, pushHistory: history.push, liveId: history.liveId,
@@ -321,6 +321,13 @@ function EditorPage() {
       .catch(console.error);
   }
 
+  const handleFitHeight = useCallback((id: string, height: number) => {
+    const el = elements?.find((e) => e.id === id);
+    if (!el) return;
+    updateGeometry({ id, x: el.x, y: el.y, width: el.width, height });
+    updateProps({ id, props: { heightFitted: true } });
+  }, [elements, updateGeometry, updateProps]);
+
   const isEditingRichText = editingId !== null && elements?.some((el) =>
     el.id === editingId && (el.type === "heading" || el.type === "text")
   );
@@ -420,20 +427,6 @@ function EditorPage() {
 
       <div className="flex items-center border-b border-border bg-surface px-3 py-1">
         <div className="flex items-center gap-0.5">
-          <ToolbarBtn icon={<Plus className="size-3.5" />} label="ADD" onClick={handleAddSlide} />
-          <ToolbarBtn icon={<LayoutGrid className="size-3.5" />} label="LAYOUT" onClick={() => setShowLayoutPicker(true)} />
-          <ToolbarBtn icon={<Copy className="size-3.5" />} label="DUPLICATE" onClick={handleDuplicate} disabled={!activeSlideId} />
-          <ToolbarBtn
-            icon={<Trash2 className="size-3.5 text-destructive" />}
-            label="DELETE" onClick={handleDeleteSlide}
-            disabled={!activeSlideId || (slides?.length ?? 0) <= 1}
-            className="text-destructive hover:text-destructive disabled:text-destructive/30"
-          />
-        </div>
-
-        <div className="mx-2 h-4 w-px bg-border" />
-
-        <div className="flex items-center gap-0.5">
           <button
             onClick={() => history.undo()}
             disabled={!history.canUndo}
@@ -456,7 +449,17 @@ function EditorPage() {
 
       <div className="flex flex-1 overflow-hidden">
 
-        <SlideRail slides={slides} activeSlideId={activeSlideId} presentationId={pid} onSwitchSlide={switchSlide} onAddSlide={handleAddSlide} theme={presentation.theme} />
+        <SlideRail
+          slides={slides}
+          activeSlideId={activeSlideId}
+          presentationId={pid}
+          onSwitchSlide={switchSlide}
+          onAddSlide={handleAddSlide}
+          onDuplicateSlide={handleDuplicateSlide}
+          onDeleteSlide={handleDeleteSlide}
+          onPickLayout={() => setShowLayoutPicker(true)}
+          theme={presentation.theme}
+        />
         <div
           ref={canvasAreaRef}
           className="relative flex flex-1 items-center justify-center overflow-hidden bg-surface"
@@ -530,7 +533,10 @@ function EditorPage() {
                   uploadingImageId={uploadingImageId}
                   registerRef={registerElementRef}
                   onPointerDown={handleElementPointerDown}
-                  onSelect={(id) => setSelectedIds(new Set([id]))}
+                  onSelect={(id) => {
+                    if (didDrag.current) { didDrag.current = false; return; }
+                    setSelectedIds(new Set([id]));
+                  }}
                   onStartEditing={(id) => setEditingId(id)}
                   onStopEditing={() => setEditingId(null)}
                   onPersistContent={persistContent}
@@ -540,6 +546,7 @@ function EditorPage() {
                   onShowImageUrlDialog={(id, src) => { setShowImageUrlDialog(id); setImageUrlInput(src ?? ""); }}
                   onDuplicate={handleDuplicateElement}
                   onDelete={(id) => deleteElements(new Set([id]))}
+                  onFitHeight={handleFitHeight}
                   updateProps={updateProps}
                   updateImageSrc={updateImageSrc}
                   reorderElement={reorderElement}
