@@ -1,4 +1,4 @@
-import type { Doc, Id } from "@Prezzy/backend/convex/_generated/dataModel";
+import type { SlideElement } from "@Prezzy/shared";
 import { useRef, useState } from "react";
 
 import type { Geo } from "@/lib/editor/snap";
@@ -8,9 +8,9 @@ export function useMarquee({
 }: {
   canvasRef: React.RefObject<HTMLDivElement | null>;
   canvasAreaRef: React.RefObject<HTMLDivElement | null>;
-  elements: Doc<"slideElements">[] | undefined;
-  localGeometry: Map<Id<"slideElements">, Geo>;
-  setSelectedIds: React.Dispatch<React.SetStateAction<Set<Id<"slideElements">>>>;
+  elements: SlideElement[] | undefined;
+  localGeometry: Map<string, Geo>;
+  setSelectedIds: React.Dispatch<React.SetStateAction<Set<string>>>;
 }) {
   const [marquee, setMarquee] = useState<{ x: number; y: number; w: number; h: number } | null>(null);
   const marqueeRef      = useRef<{ startX: number; startY: number } | null>(null);
@@ -48,10 +48,10 @@ export function useMarquee({
         const mx = Math.min(mq.x, mq.x + mq.w);
         const my = Math.min(mq.y, mq.y + mq.h);
         const mw = Math.abs(mq.w), mh = Math.abs(mq.h);
-        const hit = new Set<Id<"slideElements">>();
+        const hit = new Set<string>();
         elements.forEach((el) => {
-          const g = localGeometry.get(el._id) ?? el;
-          if (g.x < mx + mw && g.x + g.width > mx && g.y < my + mh && g.y + g.height > my) hit.add(el._id);
+          const g = localGeometry.get(el.id) ?? el;
+          if (g.x < mx + mw && g.x + g.width > mx && g.y < my + mh && g.y + g.height > my) hit.add(el.id);
         });
         didMarqueeRef.current = true;
         setSelectedIds(hit);

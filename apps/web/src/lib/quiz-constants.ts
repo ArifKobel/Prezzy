@@ -1,3 +1,5 @@
+import type { ElementProps } from "@Prezzy/shared";
+
 export const QUIZ_OPTION_LABELS = ["A", "B", "C", "D", "E", "F"];
 
 
@@ -137,16 +139,16 @@ export interface PresentationTheme {
   bodyFont?: string;
 }
 
-export function getElementStyle(props?: Record<string, any> | null): ElementStyle {
+export function getElementStyle(props?: ElementProps | null): ElementStyle {
   return {
-    accentColor: props?.accentColor as string | undefined,
-    backgroundColor: props?.backgroundColor as string | undefined,
-    textColor: props?.textColor as string | undefined,
+    accentColor: props?.accentColor,
+    backgroundColor: props?.backgroundColor,
+    textColor: props?.textColor,
   };
 }
 
 export function resolveElementStyle(
-  props?: Record<string, any> | null,
+  props?: ElementProps | null,
   theme?: PresentationTheme | null,
 ): ElementStyle {
   const el = getElementStyle(props);

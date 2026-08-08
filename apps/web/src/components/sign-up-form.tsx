@@ -3,21 +3,22 @@ import { useForm } from "@tanstack/react-form";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import z from "zod";
-import { authClient } from "@/lib/auth-client";
+import { useSignup } from "@/lib/api/auth";
 
 export default function SignUpForm({ onSwitchToSignIn }: { onSwitchToSignIn: () => void }) {
   const navigate = useNavigate({ from: "/" });
+  const signup = useSignup();
 
   const form = useForm({
     defaultValues: { email: "", password: "", name: "" },
     onSubmit: async ({ value }) => {
-      await authClient.signUp.email(
-        { email: value.email, password: value.password, name: value.name },
-        {
-          onSuccess: () => { navigate({ to: "/dashboard" }); toast.success("Account created"); },
-          onError: (error) => { toast.error(error.error.message || error.error.statusText); },
-        },
-      );
+      try {
+        await signup({ email: value.email, password: value.password, name: value.name });
+        navigate({ to: "/dashboard" });
+        toast.success("Account created");
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : "Sign up failed");
+      }
     },
     validators: {
       onSubmit: z.object({

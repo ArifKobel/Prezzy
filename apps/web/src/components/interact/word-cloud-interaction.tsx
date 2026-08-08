@@ -1,8 +1,7 @@
-import { api } from "@Prezzy/backend/convex/_generated/api";
-import type { Id } from "@Prezzy/backend/convex/_generated/dataModel";
-import { useQuery } from "convex/react";
+import type { AudienceResponse, SlideElement } from "@Prezzy/shared";
 import { Check, Send } from "lucide-react";
 import { useState } from "react";
+import { useResponses } from "@/lib/api/interact";
 import {
   deriveOptionAccents,
   alpha,
@@ -17,20 +16,20 @@ export function WordCloudInteraction({
   submitResponse,
   theme,
 }: {
-  element: { _id: string; props?: Record<string, any> | null };
+  element: SlideElement;
   participantId: string;
   participantName: string;
   submitResponse: (args: {
-    elementId: any;
+    elementId: string;
     participantId: string;
     participantName: string;
     value: string;
-  }) => Promise<any>;
+  }) => Promise<AudienceResponse>;
   theme?: PresentationTheme | null;
 }) {
   const prompt = element.props?.prompt || "Share a word...";
-  const maxResponses = (element.props?.maxResponses as number) ?? 1;
-  const elementId = element._id as Id<"slideElements">;
+  const maxResponses = element.props?.maxResponses ?? 1;
+  const elementId = element.id;
 
   const s = resolveElementStyle(element.props, theme);
   const accentHex = s.accentColor || "#4e6073";
@@ -38,7 +37,7 @@ export function WordCloudInteraction({
   const textFaint = alpha(text, 0.35);
   const correctColor = s.accentColor ? deriveOptionAccents(s.accentColor)[1].bg : "#6b8e7b";
 
-  const responses = useQuery(api.interactive.listResponses, { elementId });
+  const { data: responses } = useResponses(elementId);
   const myResponseCount =
     responses?.filter((r) => r.participantId === participantId).length ?? 0;
   const remaining = maxResponses - myResponseCount;

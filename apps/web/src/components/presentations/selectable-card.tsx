@@ -1,11 +1,11 @@
-import type { Doc } from "@Prezzy/backend/convex/_generated/dataModel";
+import type { Presentation } from "@Prezzy/shared";
 import { useNavigate } from "@tanstack/react-router";
 import { Check } from "lucide-react";
 import { formatTimeAgo } from "@/components/dashboard/shell";
 import { PresentationThumbnail } from "@/components/presentation-thumbnail";
 
 export function SelectableCard({ presentation: p, isSelected, anySelected, onToggle }: {
-  presentation: Doc<"presentations">;
+  presentation: Presentation;
   isSelected: boolean;
   anySelected: boolean;
   onToggle: () => void;
@@ -37,11 +37,11 @@ export function SelectableCard({ presentation: p, isSelected, anySelected, onTog
       {isSelected && <div className="pointer-events-none absolute inset-0 z-[5] rounded-xl bg-primary/[0.03]" />}
 
       <button
-        onClick={() => navigate({ to: "/editor/$presentationId", params: { presentationId: p._id } })}
+        onClick={() => navigate({ to: "/editor/$presentationId", params: { presentationId: p.id } })}
         className="flex flex-1 flex-col text-left"
       >
         <div className="aspect-[16/10] overflow-hidden bg-surface-container transition-colors group-hover:bg-surface-container-high">
-          <PresentationThumbnail presentationId={p._id} />
+          <PresentationThumbnail presentationId={p.id} />
         </div>
         <div className="px-4 py-3.5">
           <p className="font-display text-[13px] font-semibold leading-snug text-foreground">{p.title}</p>

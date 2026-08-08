@@ -1,27 +1,23 @@
-import { api } from "@Prezzy/backend/convex/_generated/api";
-import type { Id } from "@Prezzy/backend/convex/_generated/dataModel";
-import { useMutation } from "convex/react";
 import { useRef, useState } from "react";
 
+import { useUpdateElementImageSrc } from "@/lib/api/elements";
+import { uploadImage } from "@/lib/api/files";
+
 export function useImageUpload() {
-  const updateImageSrc = useMutation(api.slideElements.updateImageSrc);
-  const generateUploadUrl = useMutation(api.files.generateUploadUrl);
-  const setImageFromStorage = useMutation(api.slideElements.setImageFromStorage);
+  const updateImageSrc = useUpdateElementImageSrc();
 
-  const [uploadingImageId, setUploadingImageId] = useState<Id<"slideElements"> | null>(null);
+  const [uploadingImageId, setUploadingImageId] = useState<string | null>(null);
   const [imageUrlInput, setImageUrlInput]       = useState("");
-  const [showImageUrlDialog, setShowImageUrlDialog] = useState<Id<"slideElements"> | null>(null);
+  const [showImageUrlDialog, setShowImageUrlDialog] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const pendingUploadElId = useRef<Id<"slideElements"> | null>(null);
+  const pendingUploadElId = useRef<string | null>(null);
 
-  async function handleImageUpload(file: File, elementId: Id<"slideElements">) {
+  async function handleImageUpload(file: File, elementId: string) {
     if (!file.type.startsWith("image/")) return;
     setUploadingImageId(elementId);
     try {
-      const uploadUrl = await generateUploadUrl();
-      const result = await fetch(uploadUrl, { method: "POST", headers: { "Content-Type": file.type }, body: file });
-      const { storageId } = await result.json();
-      await setImageFromStorage({ id: elementId, storageId });
+      const url = await uploadImage(file);
+      await updateImageSrc({ id: elementId, src: url });
     } catch (err) {
       console.error("Image upload failed:", err);
     } finally {
@@ -29,7 +25,7 @@ export function useImageUpload() {
     }
   }
 
-  function handleImageUrlSubmit(elementId: Id<"slideElements">) {
+  function handleImageUrlSubmit(elementId: string) {
     const url = imageUrlInput.trim();
     if (!url) return;
     updateImageSrc({ id: elementId, src: url });
@@ -37,7 +33,7 @@ export function useImageUpload() {
     setShowImageUrlDialog(null);
   }
 
-  function triggerImageUpload(elementId: Id<"slideElements">) {
+  function triggerImageUpload(elementId: string) {
     pendingUploadElId.current = elementId;
     fileInputRef.current?.click();
   }

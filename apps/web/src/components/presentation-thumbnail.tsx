@@ -1,16 +1,12 @@
-import { api } from "@Prezzy/backend/convex/_generated/api";
-import type { Id } from "@Prezzy/backend/convex/_generated/dataModel";
-import { useQuery } from "convex/react";
+import { useFirstSlideElements } from "@/lib/api/presentations";
 import { SlideCanvas } from "@/components/slide-canvas";
 
 export function PresentationThumbnail({
   presentationId,
 }: {
-  presentationId: Id<"presentations">;
+  presentationId: string;
 }) {
-  const elements = useQuery(api.slideElements.listFirstSlide, {
-    presentationId,
-  });
+  const { data: elements } = useFirstSlideElements(presentationId);
 
   if (!elements || elements.length === 0) {
     return (
@@ -24,16 +20,7 @@ export function PresentationThumbnail({
 
   return (
     <SlideCanvas
-      elements={elements.map((el) => ({
-        _id: el._id,
-        type: el.type,
-        x: el.x,
-        y: el.y,
-        width: el.width,
-        height: el.height,
-        zIndex: el.zIndex ?? 0,
-        props: el.props as Record<string, any> | null,
-      }))}
+      elements={elements}
       scaleToFit
       showPlaceholders
       className="h-full w-full"

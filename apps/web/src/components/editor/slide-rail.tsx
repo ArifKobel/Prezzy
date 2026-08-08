@@ -1,5 +1,4 @@
-import { api } from "@Prezzy/backend/convex/_generated/api";
-import type { Doc, Id } from "@Prezzy/backend/convex/_generated/dataModel";
+import type { Slide, SlideElement } from "@Prezzy/shared";
 import { cn } from "@Prezzy/ui/lib/utils";
 import {
   closestCenter,
@@ -22,11 +21,12 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { arrayMove } from "@dnd-kit/sortable";
-import { useMutation, useQuery } from "convex/react";
 import { GripVertical, Plus } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { SlideCanvas } from "@/components/slide-canvas";
 
+import { usePresentationElements } from "@/lib/api/presentations";
+import { useReorderSlides } from "@/lib/api/slides";
 import type { PresentationTheme } from "@/lib/quiz-constants";
 
 function SortableThumbnail({
@@ -37,10 +37,10 @@ function SortableThumbnail({
   onClick,
   theme,
 }: {
-  slide: Doc<"slides">;
+  slide: Slide;
   index: number;
   isActive: boolean;
-  elements: Doc<"slideElements">[];
+  elements: SlideElement[];
   onClick: () => void;
   theme?: PresentationTheme | null;
 }) {
@@ -51,7 +51,7 @@ function SortableThumbnail({
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: slide._id });
+  } = useSortable({ id: slide.id });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -105,18 +105,18 @@ export function SlideRail({
   onAddSlide,
   theme,
 }: {
-  slides: Doc<"slides">[];
-  activeSlideId: Id<"slides"> | null;
-  presentationId: Id<"presentations">;
-  onSwitchSlide: (id: Id<"slides">) => void;
+  slides: Slide[];
+  activeSlideId: string | null;
+  presentationId: string;
+  onSwitchSlide: (id: string) => void;
   onAddSlide: () => void;
   theme?: PresentationTheme | null;
 }) {
-  const reorder = useMutation(api.slides.reorder);
-  const allElements = useQuery(api.slideElements.listByPresentation, { presentationId });
+  const reorder = useReorderSlides();
+  const { data: allElements } = usePresentationElements(presentationId);
 
   const elementsBySlide = useMemo(() => {
-    const map = new Map<Id<"slides">, Doc<"slideElements">[]>();
+    const map = new Map<string, SlideElement[]>();
     if (!allElements) return map;
     for (const el of allElements) {
       const list = map.get(el.slideId) ?? [];
@@ -133,8 +133,8 @@ export function SlideRail({
     if (!pendingReorder.current) {
       setLocalSlides(slides);
     } else {
-      const serverIds = slides.map((s) => s._id).join(",");
-      const localIds = localSlides.map((s) => s._id).join(",");
+      const serverIds = slides.map((s) => s.id).join(",");
+      const localIds = localSlides.map((s) => s.id).join(",");
       if (serverIds === localIds) {
         pendingReorder.current = false;
       }
@@ -151,8 +151,8 @@ export function SlideRail({
       const { active, over } = event;
       if (!over || active.id === over.id) return;
 
-      const oldIndex = localSlides.findIndex((s) => s._id === active.id);
-      const newIndex = localSlides.findIndex((s) => s._id === over.id);
+      const oldIndex = localSlides.findIndex((s) => s.id === active.id);
+      const newIndex = localSlides.findIndex((s) => s.id === over.id);
       if (oldIndex === -1 || newIndex === -1) return;
 
       const reordered = arrayMove(localSlides, oldIndex, newIndex);
@@ -161,13 +161,13 @@ export function SlideRail({
 
       await reorder({
         presentationId: slides[0].presentationId,
-        slideIds: reordered.map((s) => s._id),
+        slideIds: reordered.map((s) => s.id),
       });
     },
     [localSlides, slides, reorder],
   );
 
-  const slideIds = localSlides.map((s) => s._id);
+  const slideIds = localSlides.map((s) => s.id);
 
   return (
     <div className="flex w-[180px] shrink-0 flex-col overflow-hidden bg-surface-container-low">
@@ -181,12 +181,12 @@ export function SlideRail({
           <SortableContext items={slideIds} strategy={verticalListSortingStrategy}>
             {localSlides.map((slide, i) => (
               <SortableThumbnail
-                key={slide._id}
+                key={slide.id}
                 slide={slide}
                 index={i}
-                isActive={slide._id === activeSlideId}
-                elements={elementsBySlide.get(slide._id) ?? []}
-                onClick={() => onSwitchSlide(slide._id)}
+                isActive={slide.id === activeSlideId}
+                elements={elementsBySlide.get(slide.id) ?? []}
+                onClick={() => onSwitchSlide(slide.id)}
                 theme={theme}
               />
             ))}

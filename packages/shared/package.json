@@ -1,0 +1,16 @@
+{
+  "name": "@Prezzy/shared",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "check-types": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@Prezzy/config": "workspace:*",
+    "typescript": "^5.9.3"
+  }
+}

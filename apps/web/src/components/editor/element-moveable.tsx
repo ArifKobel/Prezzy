@@ -1,4 +1,3 @@
-import type { Id } from "@Prezzy/backend/convex/_generated/dataModel";
 import { DESIGN_W, DESIGN_H } from "@/components/slide-canvas";
 import Moveable from "react-moveable";
 import { useEffect, useRef } from "react";
@@ -21,17 +20,17 @@ export function ElementMoveable({
 }: {
   targetNode: HTMLElement;
   container: HTMLElement | null;
-  elementId: Id<"slideElements">;
+  elementId: string;
   effectiveScale: number;
   geo: Geo;
   dragPosition?: { x: number; y: number };
   rotation: number;
   onInteractionStart: () => void;
   onInteractionEnd: () => void;
-  onGeometryChange: (id: Id<"slideElements">, geo: Geo) => void;
-  onGeometryCommit: (id: Id<"slideElements">, geo: Geo) => void;
-  onRotationChange: (id: Id<"slideElements">, rotation: number) => void;
-  onRotationCommit: (id: Id<"slideElements">, rotation: number) => void;
+  onGeometryChange: (id: string, geo: Geo) => void;
+  onGeometryCommit: (id: string, geo: Geo) => void;
+  onRotationChange: (id: string, rotation: number) => void;
+  onRotationCommit: (id: string, rotation: number) => void;
 }) {
   const moveableRef = useRef<Moveable>(null);
   const interacting = useRef(false);

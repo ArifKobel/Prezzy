@@ -1,15 +1,21 @@
-import { api } from "@Prezzy/backend/convex/_generated/api";
-import type { Id } from "@Prezzy/backend/convex/_generated/dataModel";
 import { SlideCanvas } from "@/components/slide-canvas";
-import type { ElementResponses, LeaderboardEntry } from "@/components/slide-canvas";
+import type { ElementResponses } from "@/components/slide-canvas";
 import type { QuizPhase } from "@/components/live-quiz";
 import { PresentControls } from "@/components/present/present-controls";
 import { PresentEmptyState } from "@/components/present/present-empty-state";
 import { PresentLoading } from "@/components/present/present-loading";
 import { PresentNavHint } from "@/components/present/present-nav-hint";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useMutation, useQuery } from "convex/react";
 import { useCallback, useEffect, useRef, useState } from "react";
+
+import { useSlideElements } from "@/lib/api/elements";
+import {
+  useClearQuiz, useLeaderboard, useParticipantCount, useResponses,
+  useSetLiveSlide, useSetQuizPhase,
+} from "@/lib/api/interact";
+import { usePresentation } from "@/lib/api/presentations";
+import { useSlides } from "@/lib/api/slides";
+import { useRealtime } from "@/lib/api/socket";
 
 export const Route = createFileRoute("/present/$presentationId/")({
   component: PresentPage,
@@ -23,26 +29,24 @@ const QUIZ_PHASES: QuizPhase[] = ["lobby", "question", "answering", "results"];
 function PresentPage() {
   const { presentationId } = Route.useParams();
   const { slide: initialSlideId } = Route.useSearch();
-  const pid = presentationId as Id<"presentations">;
+  const pid = presentationId;
   const navigate = useNavigate();
 
-  const presentation = useQuery(api.presentations.get, { id: pid });
-  const slides = useQuery(api.slides.listByPresentation, {
-    presentationId: pid,
-  });
+  useRealtime(`presentation:${pid}`);
 
-  const setLiveSlide = useMutation(api.interactive.setLiveSlide);
-  const clearLiveSlide = useMutation(api.interactive.clearLiveSlide);
-  const ensureJoinCode = useMutation(api.interactive.ensureJoinCode);
-  const setQuizPhase = useMutation(api.interactive.setQuizPhase);
-  const clearQuiz = useMutation(api.interactive.clearQuiz);
+  const { data: presentation } = usePresentation(pid);
+  const { data: slides } = useSlides(pid);
+
+  const setLiveSlide = useSetLiveSlide();
+  const setQuizPhase = useSetQuizPhase();
+  const clearQuiz = useClearQuiz();
 
   const [slideIndex, setSlideIndex] = useState(0);
   const initialSlideApplied = useRef(false);
 
   useEffect(() => {
     if (initialSlideApplied.current || !slides || !initialSlideId) return;
-    const idx = slides.findIndex((s) => s._id === initialSlideId);
+    const idx = slides.findIndex((s) => s.id === initialSlideId);
     if (idx >= 0) setSlideIndex(idx);
     initialSlideApplied.current = true;
   }, [slides, initialSlideId]);
@@ -50,7 +54,6 @@ function PresentPage() {
   const [answeringStartedAt, setAnsweringStartedAt] = useState(0);
   const [showControls, setShowControls] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [joinCode, setJoinCode] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const controlsTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const navDirection = useRef<"forward" | "backward">("forward");
@@ -59,34 +62,22 @@ function PresentPage() {
   const totalSlides = slides?.length ?? 0;
   const currentSlide = slides?.[slideIndex] ?? null;
 
-  const elements = useQuery(
-    api.slideElements.listBySlide,
-    currentSlide ? { slideId: currentSlide._id } : "skip",
-  );
+  const { data: elements } = useSlideElements(currentSlide?.id ?? null);
 
   const quizEl = elements?.find((el) => el.type === "quiz");
 
   const wordcloudEl = elements?.find((el) => el.type === "wordcloud");
-  const wordcloudResponses = useQuery(
-    api.interactive.listResponses,
-    wordcloudEl?._id ? { elementId: wordcloudEl._id } : "skip",
-  );
+  const { data: wordcloudResponses } = useResponses(wordcloudEl?.id ?? null);
 
   const hasLeaderboard = elements?.some((el) => el.type === "leaderboard");
-  const leaderboard = useQuery(
-    api.interactive.getLeaderboard,
-    hasLeaderboard ? { presentationId: pid } : "skip",
-  );
+  const { data: leaderboard } = useLeaderboard(hasLeaderboard ? pid : null);
 
-  const participantCount = useQuery(
-    api.interactive.getActiveParticipantCount,
-    { presentationId: pid },
-  );
+  const { data: participantCount } = useParticipantCount(pid);
 
   const responsesMap: ElementResponses | undefined =
     wordcloudEl && wordcloudResponses
       ? {
-          [wordcloudEl._id]: wordcloudResponses.map((r) => ({
+          [wordcloudEl.id]: wordcloudResponses.map((r) => ({
             value: r.value,
             participantId: r.participantId,
           })),
@@ -95,20 +86,20 @@ function PresentPage() {
 
   useEffect(() => {
     if (!elements || !currentSlide) return;
-    if (quizInitForSlide.current === currentSlide._id) return;
+    if (quizInitForSlide.current === currentSlide.id) return;
 
-    quizInitForSlide.current = currentSlide._id;
+    quizInitForSlide.current = currentSlide.id;
     const hasQuiz = elements.some((el) => el.type === "quiz");
     if (hasQuiz) {
       setQuizStep(navDirection.current === "backward" ? 3 : 0);
     } else {
       setQuizStep(null);
     }
-  }, [elements, currentSlide?._id]);
+  }, [elements, currentSlide?.id]);
 
   useEffect(() => {
     if (!quizEl || quizStep === null) return;
-    const elementId = quizEl._id as Id<"slideElements">;
+    const elementId = quizEl.id;
     const phase = QUIZ_PHASES[quizStep];
 
     if (phase === "lobby") {
@@ -119,29 +110,19 @@ function PresentPage() {
         setAnsweringStartedAt(Date.now());
       }
     }
-  }, [quizStep, quizEl?._id, pid, setQuizPhase, clearQuiz]);
-
-  useEffect(() => {
-    if (presentation && !joinCode) {
-      if (presentation.joinCode) {
-        setJoinCode(presentation.joinCode);
-      } else {
-        ensureJoinCode({ presentationId: pid }).then(setJoinCode);
-      }
-    }
-  }, [presentation, joinCode, ensureJoinCode, pid]);
+  }, [quizStep, quizEl?.id, pid, setQuizPhase, clearQuiz]);
 
   useEffect(() => {
     if (currentSlide) {
-      setLiveSlide({ presentationId: pid, slideId: currentSlide._id });
+      setLiveSlide({ presentationId: pid, slideId: currentSlide.id });
     }
-  }, [currentSlide?._id, setLiveSlide, pid]);
+  }, [currentSlide?.id, setLiveSlide, pid]);
 
   useEffect(() => {
     return () => {
-      clearLiveSlide({ presentationId: pid });
+      setLiveSlide({ presentationId: pid, slideId: null });
     };
-  }, [clearLiveSlide, pid]);
+  }, [setLiveSlide, pid]);
 
   const goNext = useCallback(() => {
     if (quizStep !== null && quizStep < 3) {
@@ -292,7 +273,7 @@ function PresentPage() {
         scaleToFit
         className="h-full w-full"
         responses={responsesMap}
-        leaderboard={leaderboard as LeaderboardEntry[] | undefined}
+        leaderboard={leaderboard}
         presentationId={pid}
         quizPhase={currentQuizPhase}
         quizStartedAt={answeringStartedAt}

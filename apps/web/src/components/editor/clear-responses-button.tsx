@@ -1,11 +1,10 @@
-import { api } from "@Prezzy/backend/convex/_generated/api";
-import type { Id } from "@Prezzy/backend/convex/_generated/dataModel";
-import { useMutation } from "convex/react";
 import { Trash2 } from "lucide-react";
 import { useState } from "react";
 
-export function ClearResponsesButton({ presentationId }: { presentationId: Id<"presentations"> }) {
-  const clearAll = useMutation(api.interactive.clearAllResponses);
+import { useClearAllResponses } from "@/lib/api/interact";
+
+export function ClearResponsesButton({ presentationId }: { presentationId: string }) {
+  const clearAll = useClearAllResponses();
   const [confirming, setConfirming] = useState(false);
 
   if (confirming) {

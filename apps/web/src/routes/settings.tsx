@@ -1,13 +1,11 @@
-import { api } from "@Prezzy/backend/convex/_generated/api";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useQuery } from "convex/react";
 import { AuthGuard } from "@/components/auth-guard";
 import { LogOut, Shield, User } from "lucide-react";
 import { DashboardShell } from "@/components/dashboard/shell";
 import { PasswordForm } from "@/components/settings/password-form";
 import { ProfileForm } from "@/components/settings/profile-form";
 import { SettingsSection } from "@/components/settings/settings-section";
-import { authClient } from "@/lib/auth-client";
+import { useLogout, useMe } from "@/lib/api/auth";
 
 export const Route = createFileRoute("/settings")({
   component: SettingsRoute,
@@ -34,7 +32,8 @@ function RedirectToHome() {
 }
 
 function SettingsPage() {
-  const user = useQuery(api.auth.getCurrentUser);
+  const { data: user } = useMe();
+  const logout = useLogout();
 
   if (user === undefined) {
     return (
@@ -67,7 +66,7 @@ function SettingsPage() {
               <p className="mt-0.5 font-sans text-[11px] text-muted-foreground">Sign out of your account on this device</p>
             </div>
             <button
-              onClick={() => authClient.signOut()}
+              onClick={() => logout()}
               className="rounded-lg px-4 py-2 font-sans text-xs font-medium text-destructive transition-colors hover:bg-destructive/10"
             >
               Sign Out

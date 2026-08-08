@@ -1,4 +1,4 @@
-import type { Doc, Id } from "@Prezzy/backend/convex/_generated/dataModel";
+import type { ElementProps, SlideElement } from "@Prezzy/shared";
 import { ContextMenu, ContextMenuTrigger } from "@Prezzy/ui/components/context-menu";
 import { cn } from "@Prezzy/ui/lib/utils";
 import { ImagePlus, Link, Upload } from "lucide-react";
@@ -20,7 +20,7 @@ export function CanvasElement({
   onShowImageUrlDialog, onDuplicate, onDelete,
   updateProps, updateImageSrc, reorderElement,
 }: {
-  el: Doc<"slideElements">;
+  el: SlideElement;
   isSelected: boolean;
   isEditing: boolean;
   multiSelected: boolean;
@@ -28,22 +28,22 @@ export function CanvasElement({
   dragOverride: { x: number; y: number } | undefined;
   liveContent: string;
   rotationOverride: number | undefined;
-  uploadingImageId: Id<"slideElements"> | null;
-  registerRef: (id: Id<"slideElements">, node: HTMLElement | null) => void;
-  onPointerDown: (e: React.PointerEvent<HTMLDivElement>, el: Doc<"slideElements">) => void;
-  onSelect: (id: Id<"slideElements">) => void;
-  onStartEditing: (id: Id<"slideElements">) => void;
+  uploadingImageId: string | null;
+  registerRef: (id: string, node: HTMLElement | null) => void;
+  onPointerDown: (e: React.PointerEvent<HTMLDivElement>, el: SlideElement) => void;
+  onSelect: (id: string) => void;
+  onStartEditing: (id: string) => void;
   onStopEditing: () => void;
-  onPersistContent: (id: Id<"slideElements">, html: string) => void;
+  onPersistContent: (id: string, html: string) => void;
   setActiveEditor: (e: EditorInstance | null) => void;
-  onImageUpload: (file: File, id: Id<"slideElements">) => void;
-  onTriggerImageUpload: (id: Id<"slideElements">) => void;
-  onShowImageUrlDialog: (id: Id<"slideElements">, src?: string) => void;
-  onDuplicate: (el: Doc<"slideElements">) => void;
-  onDelete: (id: Id<"slideElements">) => void;
-  updateProps: (args: { id: Id<"slideElements">; props: Record<string, any> }) => void;
-  updateImageSrc: (args: { id: Id<"slideElements">; src: string }) => void;
-  reorderElement: (args: { id: Id<"slideElements">; action: "front" | "forward" | "backward" | "back" }) => void;
+  onImageUpload: (file: File, id: string) => void;
+  onTriggerImageUpload: (id: string) => void;
+  onShowImageUrlDialog: (id: string, src?: string) => void;
+  onDuplicate: (el: SlideElement) => void;
+  onDelete: (id: string) => void;
+  updateProps: (args: { id: string; props: ElementProps }) => void;
+  updateImageSrc: (args: { id: string; src: string }) => void;
+  reorderElement: (args: { id: string; action: "front" | "forward" | "backward" | "back" }) => void;
 }) {
   const liveX = dragOverride?.x ?? (geoOverride?.x ?? el.x);
   const liveY = dragOverride?.y ?? (geoOverride?.y ?? el.y);
@@ -52,13 +52,13 @@ export function CanvasElement({
   const isRichText = el.type === "heading" || el.type === "text";
 
   function persistContent(html: string) {
-    onPersistContent(el._id, html);
+    onPersistContent(el.id, html);
   }
 
   return (
     <ContextMenu>
       <ContextMenuTrigger
-        ref={(node: HTMLElement | null) => registerRef(el._id, node)}
+        ref={(node: HTMLElement | null) => registerRef(el.id, node)}
         style={{
           position: "absolute", display: "block",
           left: `${liveX}%`, top: `${liveY}%`, width: `${liveW}%`,
@@ -69,12 +69,12 @@ export function CanvasElement({
           })(),
         }}
         onPointerDown={(e: React.PointerEvent<HTMLElement>) => onPointerDown(e as React.PointerEvent<HTMLDivElement>, el)}
-        onClick={(e: React.MouseEvent) => { e.stopPropagation(); if (!e.shiftKey) onSelect(el._id); }}
-        onContextMenu={() => onSelect(el._id)}
+        onClick={(e: React.MouseEvent) => { e.stopPropagation(); if (!e.shiftKey) onSelect(el.id); }}
+        onContextMenu={() => onSelect(el.id)}
         onDoubleClick={(e: React.MouseEvent) => {
           e.stopPropagation();
-          if (isRichText) onStartEditing(el._id);
-          if (el.type === "image" && !el.props?.src) onTriggerImageUpload(el._id);
+          if (isRichText) onStartEditing(el.id);
+          if (el.type === "image" && !el.props?.src) onTriggerImageUpload(el.id);
         }}
         className={cn("select-none", !isEditing && "cursor-move", isEditing && "cursor-text")}
       >
@@ -107,7 +107,7 @@ export function CanvasElement({
             <div
               className="relative h-full w-full"
               onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
-              onDrop={(e) => { e.preventDefault(); e.stopPropagation(); const file = e.dataTransfer.files?.[0]; if (file) onImageUpload(file, el._id); }}
+              onDrop={(e) => { e.preventDefault(); e.stopPropagation(); const file = e.dataTransfer.files?.[0]; if (file) onImageUpload(file, el.id); }}
             >
               <ImageElement
                 src={el.props?.src}
@@ -115,7 +115,7 @@ export function CanvasElement({
                 borderRadius={el.props?.borderRadius}
                 opacity={el.props?.opacity}
               >
-                {uploadingImageId === el._id ? (
+                {uploadingImageId === el.id ? (
                   <div className="flex flex-col items-center gap-2">
                     <div className="size-5 animate-spin rounded-full border-2 border-white/40 border-t-white/80" />
                     <span className="text-[10px] font-medium text-white/60">Uploading...</span>
@@ -125,10 +125,10 @@ export function CanvasElement({
                     <ImagePlus className="size-6 text-white/50" />
                     {isSelected && (
                       <div className="flex flex-col items-center gap-1.5">
-                        <button onPointerDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); onTriggerImageUpload(el._id); }} className="flex items-center gap-1 rounded-md bg-white/20 px-3 py-1 text-[10px] font-medium text-white/80 transition-all hover:bg-white/30">
+                        <button onPointerDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); onTriggerImageUpload(el.id); }} className="flex items-center gap-1 rounded-md bg-white/20 px-3 py-1 text-[10px] font-medium text-white/80 transition-all hover:bg-white/30">
                           <Upload className="size-3" /> Upload Image
                         </button>
-                        <button onPointerDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); onShowImageUrlDialog(el._id); }} className="flex items-center gap-1 text-[10px] text-white/50 transition-all hover:text-white/70">
+                        <button onPointerDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); onShowImageUrlDialog(el.id); }} className="flex items-center gap-1 text-[10px] text-white/50 transition-all hover:text-white/70">
                           <Link className="size-3" /> or paste URL
                         </button>
                       </div>
@@ -149,11 +149,11 @@ export function CanvasElement({
           )}
 
           {el.type === "quiz" && (
-            <QuizElement el={{ _id: el._id, type: el.type, x: el.x, y: el.y, width: el.width, height: el.height, props: el.props }} />
+            <QuizElement el={el} />
           )}
 
           {el.type === "wordcloud" && (
-            <WordCloudElement el={{ _id: el._id, type: el.type, x: el.x, y: el.y, width: el.width, height: el.height, props: el.props }} showPlaceholder />
+            <WordCloudElement el={el} showPlaceholder />
           )}
 
           {el.type === "leaderboard" && (

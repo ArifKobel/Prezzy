@@ -1,8 +1,6 @@
-import { api } from "@Prezzy/backend/convex/_generated/api";
-import type { Id } from "@Prezzy/backend/convex/_generated/dataModel";
 import { QrCode } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
-import { useQuery } from "convex/react";
+import { usePresentation } from "@/lib/api/presentations";
 import { alpha, type ElementStyle } from "@/lib/quiz-constants";
 
 export function QRCodeElement({
@@ -10,14 +8,11 @@ export function QRCodeElement({
   showPlaceholder,
   style,
 }: {
-  presentationId?: Id<"presentations">;
+  presentationId?: string;
   showPlaceholder?: boolean;
   style?: ElementStyle;
 }) {
-  const presentation = useQuery(
-    api.presentations.get,
-    presentationId ? { id: presentationId } : "skip",
-  );
+  const { data: presentation } = usePresentation(presentationId ?? null);
   const joinCode = presentation?.joinCode ?? null;
   const joinUrl = joinCode
     ? `${typeof window !== "undefined" ? window.location.origin : ""}/interact/${joinCode}`

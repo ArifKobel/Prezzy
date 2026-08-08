@@ -1,7 +1,5 @@
-import { api } from "@Prezzy/backend/convex/_generated/api";
-import type { Id } from "@Prezzy/backend/convex/_generated/dataModel";
-import { useQuery } from "convex/react";
 import { useEffect, useRef, useState } from "react";
+import { useResponses } from "@/lib/api/interact";
 import {
   deriveOptionAccents,
   deriveBarFills,
@@ -17,7 +15,7 @@ import { ResultBarRow } from "@/components/quiz/result-bar-row";
 export type QuizPhase = "lobby" | "question" | "answering" | "results";
 
 interface LiveQuizProps {
-  elementId: Id<"slideElements">;
+  elementId: string;
   question: string;
   options: string[];
   correctOption?: number;
@@ -45,7 +43,7 @@ export function LiveQuizElement({
   onQuestionEnd,
   style,
 }: LiveQuizProps) {
-  const responses = useQuery(api.interactive.listResponses, { elementId });
+  const { data: responses } = useResponses(elementId);
   const responseCount = responses?.length ?? 0;
 
   const [remaining, setRemaining] = useState(timerSeconds);

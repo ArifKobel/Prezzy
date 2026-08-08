@@ -1,4 +1,3 @@
-import { api } from "@Prezzy/backend/convex/_generated/api";
 import { Button } from "@Prezzy/ui/components/button";
 import {
   DropdownMenu,
@@ -10,13 +9,13 @@ import {
   DropdownMenuTrigger,
 } from "@Prezzy/ui/components/dropdown-menu";
 import { useNavigate } from "@tanstack/react-router";
-import { useQuery } from "convex/react";
 
-import { authClient } from "@/lib/auth-client";
+import { useLogout, useMe } from "@/lib/api/auth";
 
 export default function UserMenu() {
   const navigate = useNavigate();
-  const user = useQuery(api.auth.getCurrentUser);
+  const { data: user } = useMe();
+  const logout = useLogout();
 
   return (
     <DropdownMenu>
@@ -29,14 +28,10 @@ export default function UserMenu() {
           <DropdownMenuItem
             variant="destructive"
             onClick={() => {
-              authClient.signOut({
-                fetchOptions: {
-                  onSuccess: () => {
-                    navigate({
-                      to: "/dashboard",
-                    });
-                  },
-                },
+              logout().then(() => {
+                navigate({
+                  to: "/dashboard",
+                });
               });
             }}
           >

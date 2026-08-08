@@ -11,8 +11,10 @@
     "build": "turbo build",
     "check-types": "turbo check-types",
     "dev:web": "turbo -F web dev",
-    "dev:server": "turbo -F @Prezzy/backend dev",
-    "dev:setup": "turbo -F @Prezzy/backend dev:setup"
+    "dev:api": "turbo -F api dev",
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down",
+    "db:push": "turbo -F api db:push"
   },
   "dependencies": {
     "@Prezzy/env": "workspace:*",

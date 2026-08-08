@@ -2,9 +2,10 @@ import { KeyRound } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { FieldGroup } from "@/components/settings/field-group";
-import { authClient } from "@/lib/auth-client";
+import { useChangePassword } from "@/lib/api/auth";
 
 export function PasswordForm() {
+  const changePassword = useChangePassword();
   const [currentPw, setCurrentPw] = useState("");
   const [newPw, setNewPw] = useState("");
   const [confirmPw, setConfirmPw] = useState("");
@@ -17,7 +18,7 @@ export function PasswordForm() {
     if (newPw !== confirmPw) { toast.error("Passwords don't match"); return; }
     setSaving(true);
     try {
-      await authClient.changePassword({ currentPassword: currentPw, newPassword: newPw });
+      await changePassword({ currentPassword: currentPw, newPassword: newPw });
       toast.success("Password updated");
       setCurrentPw(""); setNewPw(""); setConfirmPw(""); setOpen(false);
     } catch {

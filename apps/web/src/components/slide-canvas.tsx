@@ -1,4 +1,4 @@
-import type { Id } from "@Prezzy/backend/convex/_generated/dataModel";
+import type { ElementProps, LeaderboardEntry, SlideElement } from "@Prezzy/shared";
 import { cn } from "@Prezzy/ui/lib/utils";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { LiveQuizElement, type QuizPhase } from "@/components/live-quiz";
@@ -63,7 +63,7 @@ export function shapeClipPath(shapeType: string): string | undefined {
   }
 }
 
-export function elementTransform(props?: Record<string, any> | null): string | undefined {
+export function elementTransform(props?: ElementProps | null): string | undefined {
   const parts: string[] = [];
   const rotation = props?.rotation ?? 0;
   const flipX = props?.flipX ?? false;
@@ -74,26 +74,10 @@ export function elementTransform(props?: Record<string, any> | null): string | u
   return parts.length > 0 ? parts.join(" ") : undefined;
 }
 
-export interface SlideElement {
-  _id: string;
-  type: string;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  zIndex?: number;
-  props?: Record<string, any> | null;
-}
+export type { LeaderboardEntry, SlideElement };
 
 export interface ElementResponses {
   [elementId: string]: Array<{ value: string; participantId: string }>;
-}
-
-export interface LeaderboardEntry {
-  name: string;
-  score: number;
-  correct: number;
-  total: number;
 }
 
 interface SlideCanvasProps {
@@ -103,7 +87,7 @@ interface SlideCanvasProps {
   scaleToFit?: boolean;
   responses?: ElementResponses;
   leaderboard?: LeaderboardEntry[];
-  presentationId?: Id<"presentations">;
+  presentationId?: string;
   quizPhase?: QuizPhase;
   quizStartedAt?: number;
   onQuizTimerEnd?: () => void;
@@ -157,7 +141,7 @@ export function SlideCanvas({
 
         return (
           <div
-            key={el._id}
+            key={el.id}
             className="absolute"
             style={{
               left: `${el.x}%`,
@@ -199,12 +183,12 @@ export function SlideCanvas({
 
             {el.type === "quiz" && presentationId && quizPhase && (
               <LiveQuizElement
-                elementId={el._id as Id<"slideElements">}
+                elementId={el.id}
                 question={el.props?.question || "Your question here"}
                 options={el.props?.options ?? ["Option A", "Option B"]}
-                correctOption={el.props?.correctOption as number | undefined}
-                timerSeconds={(el.props?.timerSeconds as number) ?? 20}
-                timeScoring={(el.props?.timeScoring as boolean) ?? true}
+                correctOption={el.props?.correctOption}
+                timerSeconds={el.props?.timerSeconds ?? 20}
+                timeScoring={el.props?.timeScoring ?? true}
                 phase={quizPhase}
                 startedAt={quizStartedAt ?? 0}
                 participantCount={participantCount}
@@ -218,7 +202,7 @@ export function SlideCanvas({
             )}
 
             {el.type === "wordcloud" && (
-              <WordCloudElement el={el} responses={responses?.[el._id]} showPlaceholder={showPlaceholders} theme={theme} />
+              <WordCloudElement el={el} responses={responses?.[el.id]} showPlaceholder={showPlaceholders} theme={theme} />
             )}
 
             {el.type === "leaderboard" && (

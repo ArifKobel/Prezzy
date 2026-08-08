@@ -1,12 +1,12 @@
-import { api } from "@Prezzy/backend/convex/_generated/api";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useQuery, useMutation } from "convex/react";
 import { AuthGuard } from "@/components/auth-guard";
 import { FileUp, LayoutTemplate } from "lucide-react";
 import { DashboardShell, getGreeting } from "@/components/dashboard/shell";
 import { NewDraftCard } from "@/components/dashboard/new-draft-card";
 import { PresentationCard } from "@/components/dashboard/presentation-card";
 import { QuickStartCard } from "@/components/dashboard/quick-start-card";
+import { useMe } from "@/lib/api/auth";
+import { useCreatePresentation, usePresentations } from "@/lib/api/presentations";
 
 export const Route = createFileRoute("/dashboard")({
   component: DashboardRoute,
@@ -33,9 +33,9 @@ function RedirectToHome() {
 }
 
 function DashboardPage() {
-  const user = useQuery(api.auth.getCurrentUser);
-  const presentations = useQuery(api.presentations.list);
-  const createPresentation = useMutation(api.presentations.create);
+  const { data: user } = useMe();
+  const { data: presentations } = usePresentations();
+  const createPresentation = useCreatePresentation();
   const navigate = useNavigate();
 
   if (user === undefined || presentations === undefined) {
@@ -50,8 +50,8 @@ function DashboardPage() {
   const firstName = user?.name?.split(" ")[0] ?? "";
 
   async function handleCreateNew() {
-    const id = await createPresentation({ title: "Untitled Presentation" });
-    navigate({ to: "/editor/$presentationId", params: { presentationId: id } });
+    const created = await createPresentation({ title: "Untitled Presentation" });
+    navigate({ to: "/editor/$presentationId", params: { presentationId: created.id } });
   }
 
   return (
@@ -92,7 +92,7 @@ function DashboardPage() {
           </div>
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
             {presentations?.slice(0, 5).map((p) => (
-              <PresentationCard key={p._id} presentation={p} />
+              <PresentationCard key={p.id} presentation={p} />
             ))}
             <NewDraftCard onClick={handleCreateNew} />
           </div>

@@ -1,25 +1,25 @@
-import { api } from "@Prezzy/backend/convex/_generated/api";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { useMutation, useQuery } from "convex/react";
 import {
   Bell, FolderOpen, HelpCircle, LayoutDashboard,
   LayoutTemplate, LogOut, Plus, Settings, Store,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { authClient } from "@/lib/auth-client";
+import { useLogout, useMe } from "@/lib/api/auth";
+import { useCreatePresentation } from "@/lib/api/presentations";
 
 export function DashboardShell({ activePage, children }: {
   activePage: "dashboard" | "presentations" | "settings";
   children: React.ReactNode;
 }) {
-  const user = useQuery(api.auth.getCurrentUser);
-  const createPresentation = useMutation(api.presentations.create);
+  const { data: user } = useMe();
+  const createPresentation = useCreatePresentation();
+  const logout = useLogout();
   const navigate = useNavigate();
   const firstName = user?.name?.split(" ")[0] ?? "";
 
   async function handleCreateNew() {
-    const id = await createPresentation({ title: "Untitled Presentation" });
-    navigate({ to: "/editor/$presentationId", params: { presentationId: id } });
+    const created = await createPresentation({ title: "Untitled Presentation" });
+    navigate({ to: "/editor/$presentationId", params: { presentationId: created.id } });
   }
 
   if (user === undefined) {
@@ -52,7 +52,7 @@ export function DashboardShell({ activePage, children }: {
           </button>
           <button className="flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:text-foreground"><Bell className="size-4" /></button>
           <button className="flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:text-foreground"><HelpCircle className="size-4" /></button>
-          <UserMenu name={user?.name} email={user?.email} onSignOut={() => authClient.signOut()} />
+          <UserMenu name={user?.name} email={user?.email} onSignOut={() => logout()} />
         </div>
       </nav>
 

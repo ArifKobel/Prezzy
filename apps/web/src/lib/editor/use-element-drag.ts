@@ -1,4 +1,4 @@
-import type { Doc, Id } from "@Prezzy/backend/convex/_generated/dataModel";
+import type { SlideElement } from "@Prezzy/shared";
 import { useRef, useState } from "react";
 
 import type { HistoryEntry } from "@/lib/editor/history";
@@ -10,24 +10,24 @@ export function useElementDrag({
   moveableActive, updatePosition, pushHistory,
 }: {
   canvasRef: React.RefObject<HTMLDivElement | null>;
-  elements: Doc<"slideElements">[] | undefined;
-  localGeometry: Map<Id<"slideElements">, Geo>;
-  setLocalGeometry: React.Dispatch<React.SetStateAction<Map<Id<"slideElements">, Geo>>>;
-  selectedIds: Set<Id<"slideElements">>;
-  setSelectedIds: React.Dispatch<React.SetStateAction<Set<Id<"slideElements">>>>;
-  editingId: Id<"slideElements"> | null;
-  setEditingId: (id: Id<"slideElements"> | null) => void;
+  elements: SlideElement[] | undefined;
+  localGeometry: Map<string, Geo>;
+  setLocalGeometry: React.Dispatch<React.SetStateAction<Map<string, Geo>>>;
+  selectedIds: Set<string>;
+  setSelectedIds: React.Dispatch<React.SetStateAction<Set<string>>>;
+  editingId: string | null;
+  setEditingId: (id: string | null) => void;
   moveableActive: React.RefObject<boolean>;
-  updatePosition: (args: { id: Id<"slideElements">; x: number; y: number }) => void;
+  updatePosition: (args: { id: string; x: number; y: number }) => void;
   pushHistory: (entry: HistoryEntry) => void;
 }) {
-  const [dragPositions, setDragPositions] = useState<Map<Id<"slideElements">, { x: number; y: number }>>(new Map());
+  const [dragPositions, setDragPositions] = useState<Map<string, { x: number; y: number }>>(new Map());
   const [snapLines, setSnapLines] = useState<{ vLines: number[]; hLines: number[] }>({ vLines: [], hLines: [] });
-  const dragging = useRef<{ startMX: number; startMY: number; items: Array<{ id: Id<"slideElements">; startX: number; startY: number }> } | null>(null);
-  const dragPosRef = useRef<Map<Id<"slideElements">, { x: number; y: number }> | null>(null);
+  const dragging = useRef<{ startMX: number; startMY: number; items: Array<{ id: string; startX: number; startY: number }> } | null>(null);
+  const dragPosRef = useRef<Map<string, { x: number; y: number }> | null>(null);
 
-  function handleElementPointerDown(e: React.PointerEvent<HTMLDivElement>, el: Doc<"slideElements">) {
-    if (editingId === el._id || e.button === 2 || moveableActive.current) return;
+  function handleElementPointerDown(e: React.PointerEvent<HTMLDivElement>, el: SlideElement) {
+    if (editingId === el.id || e.button === 2 || moveableActive.current) return;
     e.preventDefault();
     e.stopPropagation();
     if (editingId) setEditingId(null);
@@ -35,29 +35,29 @@ export function useElementDrag({
     if (e.shiftKey) {
       setSelectedIds((prev) => {
         const next = new Set(prev);
-        if (next.has(el._id)) next.delete(el._id); else next.add(el._id);
+        if (next.has(el.id)) next.delete(el.id); else next.add(el.id);
         return next;
       });
       return;
     }
 
-    const dragIds: Set<Id<"slideElements">> = selectedIds.has(el._id) && selectedIds.size > 1
-      ? selectedIds : new Set([el._id]);
+    const dragIds: Set<string> = selectedIds.has(el.id) && selectedIds.size > 1
+      ? selectedIds : new Set([el.id]);
 
-    if (!selectedIds.has(el._id) || selectedIds.size === 1) setSelectedIds(new Set([el._id]));
+    if (!selectedIds.has(el.id) || selectedIds.size === 1) setSelectedIds(new Set([el.id]));
 
     const items = Array.from(dragIds).map((id) => {
       const geo = localGeometry.get(id);
-      const data = elements?.find((e) => e._id === id);
+      const data = elements?.find((e) => e.id === id);
       return { id, startX: geo?.x ?? data?.x ?? 0, startY: geo?.y ?? data?.y ?? 0 };
     });
     dragging.current = { startMX: e.clientX, startMY: e.clientY, items };
 
-    const leadEl  = elements?.find((e) => e._id === el._id);
-    const leadGeo = localGeometry.get(el._id) ?? leadEl;
+    const leadEl  = elements?.find((e) => e.id === el.id);
+    const leadGeo = localGeometry.get(el.id) ?? leadEl;
     const leadW   = leadGeo?.width  ?? leadEl?.width  ?? 20;
     const leadH   = leadGeo?.height ?? leadEl?.height ?? 20;
-    const movingIds = new Set(items.map((i) => i.id as string));
+    const movingIds = new Set(items.map((i) => i.id));
 
     function onMove(ev: PointerEvent) {
       if (!dragging.current || !canvasRef.current) return;
@@ -78,9 +78,9 @@ export function useElementDrag({
 
     function onUp() {
       if (dragging.current && dragPosRef.current) {
-        const moves: Array<{ id: Id<"slideElements">; oldX: number; oldY: number; newX: number; newY: number }> = [];
+        const moves: Array<{ id: string; oldX: number; oldY: number; newX: number; newY: number }> = [];
         dragPosRef.current.forEach((pos, id) => {
-          const data = elements?.find((e) => e._id === id);
+          const data = elements?.find((e) => e.id === id);
           const existing = localGeometry.get(id);
           moves.push({ id, oldX: data?.x ?? 0, oldY: data?.y ?? 0, newX: pos.x, newY: pos.y });
           setLocalGeometry((prev) => new Map(prev).set(id, {

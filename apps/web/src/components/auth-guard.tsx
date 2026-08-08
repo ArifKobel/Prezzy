@@ -1,5 +1,4 @@
-import { useConvexAuth } from "convex/react";
-import { useRef } from "react";
+import { useMe } from "@/lib/api/auth";
 
 export function AuthGuard({
   authenticated,
@@ -10,16 +9,11 @@ export function AuthGuard({
   unauthenticated: React.ReactNode;
   loading: React.ReactNode;
 }) {
-  const { isLoading, isAuthenticated } = useConvexAuth();
-  const hasResolved = useRef(false);
+  const { data: user } = useMe();
 
-  if (!isLoading) {
-    hasResolved.current = true;
-  }
-
-  if (isLoading && !hasResolved.current) {
+  if (user === undefined) {
     return <>{loading}</>;
   }
 
-  return isAuthenticated ? <>{authenticated}</> : <>{unauthenticated}</>;
+  return user === null ? <>{unauthenticated}</> : <>{authenticated}</>;
 }

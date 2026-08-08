@@ -1,4 +1,4 @@
-import type { Doc } from "@Prezzy/backend/convex/_generated/dataModel";
+import type { SlideElement } from "@Prezzy/shared";
 import {
   AlignLeft, ChevronLeft, Cloud, Heading, HelpCircle, Image,
   QrCode, Square, Trophy, X,
@@ -18,7 +18,7 @@ import { WordCloudProperties } from "@/components/editor/properties/word-cloud-p
 export function PropertiesPanel({
   selectedEl,
 }: {
-  selectedEl: Doc<"slideElements"> | undefined;
+  selectedEl: SlideElement | undefined;
 }) {
   const actions = useEditorActions();
   const { activeSlideId, hasInteractiveElement } = useEditorCtxState();
@@ -48,7 +48,7 @@ export function PropertiesPanel({
           )}
 
           {(selectedEl.type === "heading" || selectedEl.type === "text") && (
-            <PropSlider label="Opacity" icon={<span className="font-sans text-[9px] font-bold">%</span>} value={selectedEl.props?.opacity ?? 100} min={0} max={100} onChange={(v) => actions.updateProps({ id: selectedEl._id, props: { opacity: v } })} />
+            <PropSlider label="Opacity" icon={<span className="font-sans text-[9px] font-bold">%</span>} value={selectedEl.props?.opacity ?? 100} min={0} max={100} onChange={(v) => actions.updateProps({ id: selectedEl.id, props: { opacity: v } })} />
           )}
 
           {selectedEl.type === "quiz" && (
@@ -64,7 +64,7 @@ export function PropertiesPanel({
           )}
 
           <div className="mt-auto pt-2">
-            <button onClick={() => { actions.removeElement({ id: selectedEl._id }); actions.deselect(); }} className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-destructive/20 bg-destructive/5 px-3 py-2 font-sans text-[11px] font-medium text-destructive transition-all hover:bg-destructive/10">
+            <button onClick={() => { actions.removeElement({ id: selectedEl.id }); actions.deselect(); }} className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-destructive/20 bg-destructive/5 px-3 py-2 font-sans text-[11px] font-medium text-destructive transition-all hover:bg-destructive/10">
               <X className="size-3" /> Delete Element
             </button>
           </div>

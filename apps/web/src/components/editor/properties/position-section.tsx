@@ -1,23 +1,24 @@
-import type { Doc } from "@Prezzy/backend/convex/_generated/dataModel";
+import type { SlideElement } from "@Prezzy/shared";
 import { Move } from "lucide-react";
 import { useEditorActions, useEditorCtxState } from "@/lib/editor/editor-context";
 import { PropNumberInput, SectionLabel } from "@/components/editor/editor-ui";
+import type { Geo } from "@/lib/editor/snap";
 
-export function PositionSection({ el }: { el: Doc<"slideElements"> }) {
+export function PositionSection({ el }: { el: SlideElement }) {
   const { updatePosition, updateGeometry, setLocalGeometry } = useEditorActions();
   const { localGeometry } = useEditorCtxState();
-  const geo = localGeometry.get(el._id) ?? el;
+  const geo: Geo = localGeometry.get(el.id) ?? el;
 
   function updateAxis(axis: "x" | "y", v: number) {
     const next = { ...geo, [axis]: v };
-    setLocalGeometry(el._id, next);
-    updatePosition({ id: el._id, x: next.x, y: next.y });
+    setLocalGeometry(el.id, next);
+    updatePosition({ id: el.id, x: next.x, y: next.y });
   }
 
   function updateSize(dim: "width" | "height", v: number) {
     const next = { ...geo, [dim]: v };
-    setLocalGeometry(el._id, next);
-    updateGeometry({ id: el._id, ...next });
+    setLocalGeometry(el.id, next);
+    updateGeometry({ id: el.id, ...next });
   }
 
   return (

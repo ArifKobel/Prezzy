@@ -1,10 +1,10 @@
-import type { Doc } from "@Prezzy/backend/convex/_generated/dataModel";
+import type { SlideElement } from "@Prezzy/shared";
 import { cn } from "@Prezzy/ui/lib/utils";
 import { Check, HelpCircle, Sparkles, Square, X } from "lucide-react";
 import { useEditorActions } from "@/lib/editor/editor-context";
 import { SectionLabel } from "@/components/editor/editor-ui";
 
-export function QuizProperties({ el }: { el: Doc<"slideElements"> }) {
+export function QuizProperties({ el }: { el: SlideElement }) {
   const { updateProps } = useEditorActions();
   const question = el.props?.question ?? "";
   const options: string[] = (el.props?.options as string[] | undefined) ?? ["", ""];
@@ -19,7 +19,7 @@ export function QuizProperties({ el }: { el: Doc<"slideElements"> }) {
         <input
           type="text"
           value={question}
-          onChange={(e) => updateProps({ id: el._id, props: { question: e.target.value } })}
+          onChange={(e) => updateProps({ id: el.id, props: { question: e.target.value } })}
           placeholder="What is your question?"
           className="w-full rounded-md border border-border bg-surface px-2.5 py-1.5 font-sans text-[11px] text-foreground outline-none placeholder:text-muted-foreground/40 focus:border-ring"
           onKeyDown={(e) => e.stopPropagation()}
@@ -33,7 +33,7 @@ export function QuizProperties({ el }: { el: Doc<"slideElements"> }) {
             <div key={i} className="flex items-center gap-1.5">
               <button
                 type="button"
-                onClick={() => updateProps({ id: el._id, props: { correctOption: correctOption === i ? undefined : i } })}
+                onClick={() => updateProps({ id: el.id, props: { correctOption: correctOption === i ? undefined : i } })}
                 className={cn(
                   "flex size-5 shrink-0 items-center justify-center rounded-full border-2 transition-all",
                   correctOption === i
@@ -50,7 +50,7 @@ export function QuizProperties({ el }: { el: Doc<"slideElements"> }) {
                 onChange={(e) => {
                   const next = [...options];
                   next[i] = e.target.value;
-                  updateProps({ id: el._id, props: { options: next } });
+                  updateProps({ id: el.id, props: { options: next } });
                 }}
                 placeholder={`Option ${i + 1}`}
                 className={cn(
@@ -64,7 +64,7 @@ export function QuizProperties({ el }: { el: Doc<"slideElements"> }) {
                   onClick={() => {
                     const next = options.filter((_, j) => j !== i);
                     const newCorrect = correctOption === i ? undefined : correctOption != null && correctOption > i ? correctOption - 1 : correctOption;
-                    updateProps({ id: el._id, props: { options: next, correctOption: newCorrect } });
+                    updateProps({ id: el.id, props: { options: next, correctOption: newCorrect } });
                   }}
                   className="flex size-5 items-center justify-center rounded text-muted-foreground hover:text-destructive"
                 >
@@ -75,7 +75,7 @@ export function QuizProperties({ el }: { el: Doc<"slideElements"> }) {
           ))}
           {options.length < 6 && (
             <button
-              onClick={() => updateProps({ id: el._id, props: { options: [...options, ""] } })}
+              onClick={() => updateProps({ id: el.id, props: { options: [...options, ""] } })}
               className="self-start font-sans text-[10px] font-medium text-primary hover:underline"
             >
               + Add option
@@ -92,7 +92,7 @@ export function QuizProperties({ el }: { el: Doc<"slideElements"> }) {
             <input
               type="number"
               value={timerSeconds}
-              onChange={(e) => updateProps({ id: el._id, props: { timerSeconds: Math.max(5, Math.min(120, Number(e.target.value) || 20)) } })}
+              onChange={(e) => updateProps({ id: el.id, props: { timerSeconds: Math.max(5, Math.min(120, Number(e.target.value) || 20)) } })}
               min={5}
               max={120}
               className="w-16 rounded-md border border-border bg-surface px-2 py-1 text-center font-mono text-[11px] text-foreground outline-none focus:border-ring"
@@ -106,7 +106,7 @@ export function QuizProperties({ el }: { el: Doc<"slideElements"> }) {
             </div>
             <button
               type="button"
-              onClick={() => updateProps({ id: el._id, props: { timeScoring: !timeScoring } })}
+              onClick={() => updateProps({ id: el.id, props: { timeScoring: !timeScoring } })}
               className={cn(
                 "relative h-5 w-9 rounded-full transition-colors",
                 timeScoring ? "bg-primary" : "bg-border",

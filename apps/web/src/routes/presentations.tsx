@@ -1,12 +1,14 @@
-import { api } from "@Prezzy/backend/convex/_generated/api";
-import type { Id } from "@Prezzy/backend/convex/_generated/dataModel";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useQuery, useMutation } from "convex/react";
 import { AuthGuard } from "@/components/auth-guard";
 import { Check, FolderOpen, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { DashboardShell } from "@/components/dashboard/shell";
 import { SelectableCard } from "@/components/presentations/selectable-card";
+import {
+  useCreatePresentation,
+  usePresentations,
+  useRemovePresentation,
+} from "@/lib/api/presentations";
 
 export const Route = createFileRoute("/presentations")({
   component: PresentationsRoute,
@@ -33,12 +35,12 @@ function RedirectToHome() {
 }
 
 function PresentationsPage() {
-  const presentations = useQuery(api.presentations.list);
-  const createPresentation = useMutation(api.presentations.create);
-  const removePresentation = useMutation(api.presentations.remove);
+  const { data: presentations } = usePresentations();
+  const createPresentation = useCreatePresentation();
+  const removePresentation = useRemovePresentation();
   const navigate = useNavigate();
 
-  const [selected, setSelected] = useState<Set<Id<"presentations">>>(new Set());
+  const [selected, setSelected] = useState<Set<string>>(new Set());
 
   if (presentations === undefined) {
     return (
@@ -49,11 +51,11 @@ function PresentationsPage() {
   }
 
   async function handleCreateNew() {
-    const id = await createPresentation({ title: "Untitled Presentation" });
-    navigate({ to: "/editor/$presentationId", params: { presentationId: id } });
+    const created = await createPresentation({ title: "Untitled Presentation" });
+    navigate({ to: "/editor/$presentationId", params: { presentationId: created.id } });
   }
 
-  function toggleSelect(id: Id<"presentations">) {
+  function toggleSelect(id: string) {
     setSelected((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id); else next.add(id);
@@ -83,7 +85,7 @@ function PresentationsPage() {
             onClick={() => {
               if (!presentations) return;
               if (allSelected) setSelected(new Set());
-              else setSelected(new Set(presentations.map((p) => p._id)));
+              else setSelected(new Set(presentations.map((p) => p.id)));
             }}
             className={`flex size-[18px] items-center justify-center rounded-[4px] border-[1.5px] transition-all ${
               allSelected
@@ -135,11 +137,11 @@ function PresentationsPage() {
       <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {presentations?.map((p) => (
           <SelectableCard
-            key={p._id}
+            key={p.id}
             presentation={p}
-            isSelected={selected.has(p._id)}
+            isSelected={selected.has(p.id)}
             anySelected={someSelected}
-            onToggle={() => toggleSelect(p._id)}
+            onToggle={() => toggleSelect(p.id)}
           />
         ))}
         <button

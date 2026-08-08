@@ -2,9 +2,10 @@ import { Mail, User } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { FieldGroup } from "@/components/settings/field-group";
-import { authClient } from "@/lib/auth-client";
+import { useUpdateProfile } from "@/lib/api/auth";
 
 export function ProfileForm({ name, email }: { name: string; email: string }) {
+  const updateProfile = useUpdateProfile();
   const [draftName, setDraftName] = useState(name);
   const [saving, setSaving] = useState(false);
   const changed = draftName.trim() !== name;
@@ -13,7 +14,7 @@ export function ProfileForm({ name, email }: { name: string; email: string }) {
     if (!changed) return;
     setSaving(true);
     try {
-      await authClient.updateUser({ name: draftName.trim() });
+      await updateProfile({ name: draftName.trim() });
       toast.success("Name updated");
     } catch {
       toast.error("Failed to update name");

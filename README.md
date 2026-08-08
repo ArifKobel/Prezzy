@@ -12,31 +12,28 @@ Prezzy is a web app for building and presenting interactive slide decks. Slides 
 
 ## Stack
 
-- React with TanStack Router/Start, Tailwind CSS
-- Convex as backend (data + realtime subscriptions)
-- Better-Auth for authentication
+- React with TanStack Router/Start and TanStack Query, Tailwind CSS
+- NestJS API with Drizzle ORM on Postgres
+- socket.io for live updates during presentations
 - pnpm workspaces + Turborepo
 
 ## Setup
 
 ```bash
 pnpm install
-pnpm run dev:setup   # creates/links the Convex project, follow the prompts
+pnpm run db:up      # starts Postgres via docker compose
+pnpm run db:push    # creates the tables
+pnpm run dev        # web on :3000, api on :3001
 ```
 
-Copy the environment variables from `packages/backend/.env.local` into `apps/web/.env`, then:
-
-```bash
-pnpm run dev
-```
-
-The app runs on http://localhost:3000.
+Environment files: `apps/api/.env` (database url, jwt secret, port, web origin) and `apps/web/.env` (`VITE_API_URL`). Both ship with working defaults for local development, see the `.env.example` files.
 
 ## Repo layout
 
 ```
 apps/web              frontend (routes, editor, presenter, audience views)
-packages/backend      Convex functions and schema
+apps/api              nestjs api (rest + websockets, drizzle schema)
+packages/shared       types shared between web and api
 packages/ui           shared UI components and design notes
 packages/env          typed env handling
 packages/config       shared tsconfig
@@ -44,7 +41,9 @@ packages/config       shared tsconfig
 
 ## Scripts
 
-- `pnpm run dev` - run everything in dev mode
-- `pnpm run dev:web` - frontend only
+- `pnpm run dev` - run web and api in dev mode
+- `pnpm run dev:web` / `pnpm run dev:api` - only one of them
+- `pnpm run db:up` / `pnpm run db:down` - start or stop the Postgres container
+- `pnpm run db:push` - sync the Drizzle schema to the database
 - `pnpm run build` - build all packages
 - `pnpm run check-types` - type checking

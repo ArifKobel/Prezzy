@@ -1,6 +1,4 @@
-import { api } from "@Prezzy/backend/convex/_generated/api";
 import { createFileRoute } from "@tanstack/react-router";
-import { useMutation, useQuery } from "convex/react";
 import { Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { FollowAlong } from "@/components/interact/follow-along";
@@ -10,6 +8,11 @@ import { SessionNotFound } from "@/components/interact/session-not-found";
 import { Shell } from "@/components/interact/shell";
 import { WaitingRoom } from "@/components/interact/waiting-room";
 import { WordCloudInteraction } from "@/components/interact/word-cloud-interaction";
+import { useSlideElements } from "@/lib/api/elements";
+import {
+  useHeartbeat, usePresentationByJoinCode, useSubmitResponse,
+} from "@/lib/api/interact";
+import { useRealtime } from "@/lib/api/socket";
 
 export const Route = createFileRoute("/interact/$sessionCode/")({
   component: AudiencePage,
@@ -36,36 +39,33 @@ function saveName(name: string) {
 function AudiencePage() {
   const { sessionCode } = Route.useParams();
 
-  const presentation = useQuery(api.interactive.getByJoinCode, {
-    joinCode: sessionCode,
-  });
+  useRealtime(`join:${sessionCode}`);
+
+  const { data: presentation } = usePresentationByJoinCode(sessionCode);
   const liveSlideId = presentation?.liveSlideId ?? null;
   const quizState = presentation?.quizState ?? null;
 
-  const elements = useQuery(
-    api.slideElements.listBySlide,
-    liveSlideId ? { slideId: liveSlideId } : "skip",
-  );
+  const { data: elements } = useSlideElements(liveSlideId);
 
-  const submitResponse = useMutation(api.interactive.submitResponse);
-  const heartbeat = useMutation(api.interactive.heartbeat);
+  const submitResponse = useSubmitResponse();
+  const heartbeat = useHeartbeat();
   const participantId = useRef(getParticipantId());
 
   const [name, setName] = useState(getSavedName);
   const [nameSubmitted, setNameSubmitted] = useState(!!getSavedName());
 
   useEffect(() => {
-    if (!presentation?._id || !nameSubmitted) return;
+    if (!presentation?.id || !nameSubmitted) return;
     const send = () =>
       heartbeat({
-        presentationId: presentation._id,
+        joinCode: sessionCode,
         participantId: participantId.current,
         participantName: name || undefined,
       }).catch(() => {});
     send();
     const interval = setInterval(send, 10_000);
     return () => clearInterval(interval);
-  }, [presentation?._id, nameSubmitted, name, heartbeat]);
+  }, [presentation?.id, nameSubmitted, name, heartbeat, sessionCode]);
 
   const interactiveEl = elements?.find(
     (el) => el.type === "quiz" || el.type === "wordcloud",

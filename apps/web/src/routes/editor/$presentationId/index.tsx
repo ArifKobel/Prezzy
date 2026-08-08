@@ -1,5 +1,4 @@
-import { api } from "@Prezzy/backend/convex/_generated/api";
-import type { Doc, Id } from "@Prezzy/backend/convex/_generated/dataModel";
+import type { ElementProps, SlideElement } from "@Prezzy/shared";
 import { DESIGN_W, DESIGN_H } from "@/components/slide-canvas";
 import {
   ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSeparator,
@@ -7,7 +6,6 @@ import {
 } from "@Prezzy/ui/components/context-menu";
 import { cn } from "@Prezzy/ui/lib/utils";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useMutation, useQuery } from "convex/react";
 import {
   Copy, ExternalLink, Heading, Image, LayoutGrid, Paintbrush, Play, Plus,
   RotateCcw, RotateCw, Square, Trash2, Type,
@@ -43,6 +41,18 @@ import { useElementDrag } from "@/lib/editor/use-element-drag";
 import { useImageUpload } from "@/lib/editor/use-image-upload";
 import { useMarquee } from "@/lib/editor/use-marquee";
 import { useZoomPan } from "@/lib/editor/use-zoom-pan";
+import {
+  useCreateElement, useRemoveElement, useReorderElement, useSlideElements,
+  useUpdateElementContent, useUpdateElementGeometry, useUpdateElementImageSrc,
+  useUpdateElementPosition, useUpdateElementProps,
+} from "@/lib/api/elements";
+import {
+  usePresentation, useUpdatePresentationTheme, useUpdatePresentationTitle,
+} from "@/lib/api/presentations";
+import {
+  useCreateSlide, useCreateSlideFromLayout, useDuplicateSlide, useRemoveSlide, useSlides,
+} from "@/lib/api/slides";
+import { useRealtime } from "@/lib/api/socket";
 
 export const Route = createFileRoute("/editor/$presentationId/")({
   component: EditorPage,
@@ -50,27 +60,29 @@ export const Route = createFileRoute("/editor/$presentationId/")({
 
 function EditorPage() {
   const { presentationId } = Route.useParams();
-  const pid = presentationId as Id<"presentations">;
+  const pid = presentationId;
   const navigate = useNavigate();
 
-  const presentation = useQuery(api.presentations.get, { id: pid });
-  const slides       = useQuery(api.slides.listByPresentation, { presentationId: pid });
+  useRealtime(`presentation:${pid}`);
 
-  const createSlide    = useMutation(api.slides.create);
-  const createFromLayout = useMutation(api.slides.createFromLayout);
-  const duplicateSlide = useMutation(api.slides.duplicate);
-  const removeSlide    = useMutation(api.slides.remove);
+  const { data: presentation } = usePresentation(pid);
+  const { data: slides }       = useSlides(pid);
 
-  const [activeSlideId, setActiveSlideId] = useState<Id<"slides"> | null>(null);
+  const createSlide    = useCreateSlide();
+  const createFromLayout = useCreateSlideFromLayout();
+  const duplicateSlide = useDuplicateSlide();
+  const removeSlide    = useRemoveSlide();
+
+  const [activeSlideId, setActiveSlideId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!slides || slides.length === 0) { setActiveSlideId(null); return; }
-    if (!slides.some((s) => s._id === activeSlideId)) setActiveSlideId(slides[0]._id);
+    if (!slides.some((s) => s.id === activeSlideId)) setActiveSlideId(slides[0].id);
   }, [slides, activeSlideId]);
 
-  const activeSlide = slides?.find((s) => s._id === activeSlideId) ?? null;
+  const activeSlide = slides?.find((s) => s.id === activeSlideId) ?? null;
 
-  function switchSlide(id: Id<"slides">) {
+  function switchSlide(id: string) {
     setActiveSlideId(id);
     setSelectedIds(new Set());
     setEditingId(null);
@@ -80,7 +92,7 @@ function EditorPage() {
 
   function handleAddSlide() {
     createSlide({ presentationId: pid, afterOrder: activeSlide?.order })
-      .then((id) => switchSlide(id as Id<"slides">));
+      .then((slide) => switchSlide(slide.id));
   }
 
   function handlePickLayout(layoutId: string) {
@@ -90,7 +102,7 @@ function EditorPage() {
 
     if (layout.slots.length === 0) {
       createSlide({ presentationId: pid, afterOrder: activeSlide?.order })
-        .then((id) => switchSlide(id as Id<"slides">));
+        .then((slide) => switchSlide(slide.id));
     } else {
       createFromLayout({
         presentationId: pid,
@@ -103,40 +115,37 @@ function EditorPage() {
           height: slot.height,
           props: slot.props,
         })),
-      }).then((id) => switchSlide(id as Id<"slides">));
+      }).then((slide) => switchSlide(slide.id));
     }
   }
 
   function handleDuplicate() {
     if (!activeSlideId) return;
     duplicateSlide({ slideId: activeSlideId })
-      .then((id) => switchSlide(id as Id<"slides">));
+      .then((slide) => switchSlide(slide.id));
   }
 
   function handleDeleteSlide() {
     if (!activeSlideId || !slides || slides.length <= 1) return;
-    const idx  = slides.findIndex((s) => s._id === activeSlideId);
+    const idx  = slides.findIndex((s) => s.id === activeSlideId);
     const next = slides[idx + 1] ?? slides[idx - 1];
     removeSlide({ slideId: activeSlideId });
-    switchSlide(next._id);
+    switchSlide(next.id);
   }
 
-  const updateTitle = useMutation(api.presentations.updateTitle);
-  const updateTheme = useMutation(api.presentations.updateTheme);
+  const updateTitle = useUpdatePresentationTitle();
+  const updateTheme = useUpdatePresentationTheme();
 
-  const createElement   = useMutation(api.slideElements.create);
-  const updatePosition  = useMutation(api.slideElements.updatePosition);
-  const updateGeometry  = useMutation(api.slideElements.updateGeometry);
-  const updateContent   = useMutation(api.slideElements.updateContent);
-  const updateImageSrc  = useMutation(api.slideElements.updateImageSrc);
-  const updateProps     = useMutation(api.slideElements.updateProps);
-  const removeElement   = useMutation(api.slideElements.remove);
-  const reorderElement  = useMutation(api.slideElements.reorder);
+  const createElement   = useCreateElement();
+  const updatePosition  = useUpdateElementPosition();
+  const updateGeometry  = useUpdateElementGeometry();
+  const updateContent   = useUpdateElementContent();
+  const updateImageSrc  = useUpdateElementImageSrc();
+  const updateProps     = useUpdateElementProps();
+  const removeElement   = useRemoveElement();
+  const reorderElement  = useReorderElement();
 
-  const elements = useQuery(
-    api.slideElements.listBySlide,
-    activeSlideId ? { slideId: activeSlideId } : "skip",
-  );
+  const { data: elements } = useSlideElements(activeSlideId);
 
   const history = useHistory();
 
@@ -160,12 +169,12 @@ function EditorPage() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [history]);
 
-  const [selectedIds, setSelectedIds]     = useState<Set<Id<"slideElements">>>(new Set());
-  const [editingId, setEditingId]         = useState<Id<"slideElements"> | null>(null);
+  const [selectedIds, setSelectedIds]     = useState<Set<string>>(new Set());
+  const [editingId, setEditingId]         = useState<string | null>(null);
   const [activeEditor, setActiveEditorState] = useState<EditorInstance | null>(null);
-  const [localGeometry, setLocalGeometry] = useState<Map<Id<"slideElements">, Geo>>(new Map());
-  const [localContent, setLocalContent]   = useState<Map<Id<"slideElements">, string>>(new Map());
-  const [liveRotation, setLiveRotation]   = useState<{ id: Id<"slideElements">; rotation: number } | null>(null);
+  const [localGeometry, setLocalGeometry] = useState<Map<string, Geo>>(new Map());
+  const [localContent, setLocalContent]   = useState<Map<string, string>>(new Map());
+  const [liveRotation, setLiveRotation]   = useState<{ id: string; rotation: number } | null>(null);
   const [showThemePanel, setShowThemePanel] = useState(false);
   const [showLayoutPicker, setShowLayoutPicker] = useState(false);
 
@@ -218,7 +227,7 @@ function EditorPage() {
   const hasInteractiveElement = elements?.some((el) => INTERACTIVE_TYPES.has(el.type)) ?? false;
 
   const sortedElements = useMemo(
-    () => elements ? [...elements].sort((a, b) => (a.zIndex ?? 0) - (b.zIndex ?? 0) || a._creationTime - b._creationTime) : [],
+    () => elements ? [...elements].sort((a, b) => (a.zIndex ?? 0) - (b.zIndex ?? 0) || a.createdAt - b.createdAt) : [],
     [elements],
   );
 
@@ -226,7 +235,7 @@ function EditorPage() {
     if (!activeSlideId) return;
     if (INTERACTIVE_TYPES.has(type) && hasInteractiveElement) return;
     const d = ELEMENT_DEFAULTS[type];
-    const props: Record<string, any> = {};
+    const props: ElementProps = {};
     if (d.content) props.content = d.content;
     if (type === "quiz") {
       props.question = "Your question here";
@@ -240,35 +249,35 @@ function EditorPage() {
       x: d.x, y: d.y, width: d.width, height: d.height,
       props: Object.keys(props).length > 0 ? props : undefined,
     };
-    createElement(createArgs).then((id) => {
-      const elId = id as Id<"slideElements">;
+    createElement(createArgs).then((created) => {
+      const elId = created.id;
       setSelectedIds(new Set([elId]));
       history.push({
         undo: () => { removeElement({ id: elId }); setSelectedIds(new Set()); },
-        redo: () => { createElement(createArgs).then((newId) => setSelectedIds(new Set([newId as Id<"slideElements">]))); },
+        redo: () => { createElement(createArgs).then((recreated) => setSelectedIds(new Set([recreated.id]))); },
       });
     });
   }
 
-  function deleteElements(ids: Set<Id<"slideElements">>) {
+  function deleteElements(ids: Set<string>) {
     if (ids.size === 0) return;
-    const deleted = [...ids].map((id) => elements?.find((e) => e._id === id)).filter(Boolean) as NonNullable<typeof elements>[number][];
+    const deleted = [...ids].map((id) => elements?.find((e) => e.id === id)).filter(Boolean) as SlideElement[];
     ids.forEach((id) => removeElement({ id }));
     setSelectedIds(new Set());
     if (deleted.length > 0) {
-      const recreatedIds: Id<"slideElements">[] = [];
+      const recreatedIds: string[] = [];
       history.push({
         undo: async () => {
           recreatedIds.length = 0;
           for (const el of deleted) {
-            const newId = await createElement({
+            const recreated = await createElement({
               slideId: el.slideId,
               type: el.type,
               x: el.x, y: el.y, width: el.width, height: el.height,
               props: el.props ?? undefined,
               zIndex: el.zIndex ?? undefined,
             });
-            recreatedIds.push(newId as Id<"slideElements">);
+            recreatedIds.push(recreated.id);
           }
         },
         redo: () => {
@@ -279,33 +288,33 @@ function EditorPage() {
     }
   }
 
-  function persistContent(id: Id<"slideElements">, html: string) {
+  function persistContent(id: string, html: string) {
     const cleaned = html.replace(/(<p>(\s|<br[^>]*>)*<\/p>\s*)+$/, "").trim() || html;
     setLocalContent((prev) => new Map(prev).set(id, cleaned));
     updateContent({ id, content: cleaned });
   }
 
-  function handleDuplicateElement(el: Doc<"slideElements">) {
+  function handleDuplicateElement(el: SlideElement) {
     if (!activeSlideId) return;
-    createElement({ slideId: activeSlideId, type: el.type, x: el.x + 3, y: el.y + 3, width: el.width, height: el.height, props: el.props })
-      .then((id) => setSelectedIds(new Set([id as Id<"slideElements">])));
+    createElement({ slideId: activeSlideId, type: el.type, x: el.x + 3, y: el.y + 3, width: el.width, height: el.height, props: el.props ?? undefined })
+      .then((created) => setSelectedIds(new Set([created.id])));
   }
 
   const isEditingRichText = editingId !== null && elements?.some((el) =>
-    el._id === editingId && (el.type === "heading" || el.type === "text")
+    el.id === editingId && (el.type === "heading" || el.type === "text")
   );
   const selectedTextEl = selectedIds.size === 1
-    ? elements?.find((el) => selectedIds.has(el._id) && (el.type === "heading" || el.type === "text"))
+    ? elements?.find((el) => selectedIds.has(el.id) && (el.type === "heading" || el.type === "text"))
     : undefined;
   const selectedEl = selectedIds.size === 1
-    ? elements?.find((el) => selectedIds.has(el._id))
+    ? elements?.find((el) => selectedIds.has(el.id))
     : undefined;
   const showRichToolbar = isEditingRichText || !!selectedTextEl;
 
   // biome-ignore lint: intentional side effect syncing editor state
   useEffect(() => {
-    setEnterEditForSelection(selectedTextEl ? () => setEditingId(selectedTextEl._id) : null);
-  }, [selectedTextEl?._id]);
+    setEnterEditForSelection(selectedTextEl ? () => setEditingId(selectedTextEl.id) : null);
+  }, [selectedTextEl?.id]);
 
   const editorActions: EditorActions = useMemo(() => ({
     updatePosition,
@@ -314,11 +323,11 @@ function EditorPage() {
     updateImageSrc,
     removeElement,
     triggerImageUpload,
-    showImageUrlDialog: (id: Id<"slideElements">, src?: string) => { setShowImageUrlDialog(id); setImageUrlInput(src ?? ""); },
+    showImageUrlDialog: (id: string, src?: string) => { setShowImageUrlDialog(id); setImageUrlInput(src ?? ""); },
     handleImageUpload,
     addElement: handleAddElement,
     deselect: () => setSelectedIds(new Set()),
-    setLocalGeometry: (id: Id<"slideElements">, geo: Geo) => setLocalGeometry((prev) => new Map(prev).set(id, geo)),
+    setLocalGeometry: (id: string, geo: Geo) => setLocalGeometry((prev) => new Map(prev).set(id, geo)),
   }), [updatePosition, updateGeometry, updateProps, updateImageSrc, removeElement, handleImageUpload]);
 
   const editorCtxState: EditorCtxState = useMemo(() => ({
@@ -429,7 +438,7 @@ function EditorPage() {
         <div className="flex items-center border-b border-border bg-surface-container-lowest px-3 py-1">
           <RichToolbar
             editor={activeEditor}
-            contentHtml={selectedTextEl ? (localContent.get(selectedTextEl._id) ?? selectedTextEl.props?.content ?? "") : ""}
+            contentHtml={selectedTextEl ? (localContent.get(selectedTextEl.id) ?? selectedTextEl.props?.content ?? "") : ""}
           />
         </div>
       )}
@@ -487,15 +496,15 @@ function EditorPage() {
             ) : (
               sortedElements.map((el) => (
                 <CanvasElement
-                  key={el._id}
+                  key={el.id}
                   el={el}
-                  isSelected={selectedIds.has(el._id)}
-                  isEditing={editingId === el._id}
+                  isSelected={selectedIds.has(el.id)}
+                  isEditing={editingId === el.id}
                   multiSelected={selectedIds.size > 1}
-                  geoOverride={localGeometry.get(el._id)}
-                  dragOverride={dragPositions.get(el._id)}
-                  liveContent={localContent.get(el._id) ?? el.props?.content ?? ""}
-                  rotationOverride={liveRotation?.id === el._id ? liveRotation.rotation : undefined}
+                  geoOverride={localGeometry.get(el.id)}
+                  dragOverride={dragPositions.get(el.id)}
+                  liveContent={localContent.get(el.id) ?? el.props?.content ?? ""}
+                  rotationOverride={liveRotation?.id === el.id ? liveRotation.rotation : undefined}
                   uploadingImageId={uploadingImageId}
                   registerRef={(id, node) => {
                     if (node) elementRefsMap.current.set(id, node);
@@ -528,7 +537,7 @@ function EditorPage() {
             {selectedIds.size === 1 && (() => {
               const selId = [...selectedIds][0];
               const targetNode = elementRefsMap.current.get(selId);
-              const selEl = elements?.find((e) => e._id === selId);
+              const selEl = elements?.find((e) => e.id === selId);
               if (!targetNode || !selEl) return null;
               return (
                 <ElementMoveable

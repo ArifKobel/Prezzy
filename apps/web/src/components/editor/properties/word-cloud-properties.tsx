@@ -1,10 +1,10 @@
-import type { Doc } from "@Prezzy/backend/convex/_generated/dataModel";
+import type { SlideElement } from "@Prezzy/shared";
 import { cn } from "@Prezzy/ui/lib/utils";
 import { Cloud } from "lucide-react";
 import { useEditorActions } from "@/lib/editor/editor-context";
 import { SectionLabel } from "@/components/editor/editor-ui";
 
-export function WordCloudProperties({ el }: { el: Doc<"slideElements"> }) {
+export function WordCloudProperties({ el }: { el: SlideElement }) {
   const { updateProps } = useEditorActions();
   const prompt = el.props?.prompt ?? "";
   const maxResponses = (el.props?.maxResponses as number) ?? 1;
@@ -16,7 +16,7 @@ export function WordCloudProperties({ el }: { el: Doc<"slideElements"> }) {
         <input
           type="text"
           value={prompt}
-          onChange={(e) => updateProps({ id: el._id, props: { prompt: e.target.value } })}
+          onChange={(e) => updateProps({ id: el.id, props: { prompt: e.target.value } })}
           placeholder="Describe this in one word..."
           className="w-full rounded-md border border-border bg-surface px-2.5 py-1.5 font-sans text-[11px] text-foreground outline-none placeholder:text-muted-foreground/40 focus:border-ring"
           onKeyDown={(e) => e.stopPropagation()}
@@ -32,7 +32,7 @@ export function WordCloudProperties({ el }: { el: Doc<"slideElements"> }) {
           {[1, 2, 3, 5, 10].map((n) => (
             <button
               key={n}
-              onClick={() => updateProps({ id: el._id, props: { maxResponses: n } })}
+              onClick={() => updateProps({ id: el.id, props: { maxResponses: n } })}
               className={cn(
                 "flex-1 rounded-md px-2 py-1.5 font-sans text-[11px] font-medium transition-all",
                 maxResponses === n

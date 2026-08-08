@@ -1,25 +1,25 @@
-import type { Id } from "@Prezzy/backend/convex/_generated/dataModel";
+import type { ElementProps, ElementType } from "@Prezzy/shared";
 import { createContext, useContext } from "react";
 import type { Geo } from "@/lib/editor/snap";
 
 export interface EditorActions {
-  updatePosition: (args: { id: Id<"slideElements">; x: number; y: number }) => void;
-  updateGeometry: (args: { id: Id<"slideElements">; x: number; y: number; width: number; height: number }) => void;
-  updateProps: (args: { id: Id<"slideElements">; props: Record<string, any> }) => void;
-  updateImageSrc: (args: { id: Id<"slideElements">; src: string }) => void;
-  removeElement: (args: { id: Id<"slideElements"> }) => void;
-  triggerImageUpload: (id: Id<"slideElements">) => void;
-  showImageUrlDialog: (id: Id<"slideElements">, currentSrc?: string) => void;
-  handleImageUpload: (file: File, id: Id<"slideElements">) => void;
-  addElement: (type: "heading" | "text" | "image" | "shape" | "quiz" | "wordcloud" | "leaderboard" | "qrcode") => void;
+  updatePosition: (args: { id: string; x: number; y: number }) => void;
+  updateGeometry: (args: { id: string; x: number; y: number; width: number; height: number }) => void;
+  updateProps: (args: { id: string; props: ElementProps }) => void;
+  updateImageSrc: (args: { id: string; src: string }) => void;
+  removeElement: (args: { id: string }) => void;
+  triggerImageUpload: (id: string) => void;
+  showImageUrlDialog: (id: string, currentSrc?: string) => void;
+  handleImageUpload: (file: File, id: string) => void;
+  addElement: (type: ElementType) => void;
   deselect: () => void;
-  setLocalGeometry: (id: Id<"slideElements">, geo: Geo) => void;
+  setLocalGeometry: (id: string, geo: Geo) => void;
 }
 
 export interface EditorState {
-  activeSlideId: Id<"slides"> | null;
-  localGeometry: Map<Id<"slideElements">, Geo>;
-  uploadingImageId: Id<"slideElements"> | null;
+  activeSlideId: string | null;
+  localGeometry: Map<string, Geo>;
+  uploadingImageId: string | null;
   hasInteractiveElement: boolean;
 }
 
