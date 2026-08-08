@@ -9,24 +9,19 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SettingsRouteImport } from './routes/settings'
-import { Route as PresentationsRouteImport } from './routes/presentations'
-import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as InteractIndexRouteImport } from './routes/interact/index'
+import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as PresentationsRouteImport } from './routes/presentations'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as EditorIndexRouteImport } from './routes/editor/index'
-import { Route as PresentPresentationIdIndexRouteImport } from './routes/present/$presentationId/index'
-import { Route as InteractSessionCodeIndexRouteImport } from './routes/interact/$sessionCode/index'
+import { Route as InteractIndexRouteImport } from './routes/interact/index'
 import { Route as EditorPresentationIdIndexRouteImport } from './routes/editor/$presentationId/index'
+import { Route as InteractSessionCodeIndexRouteImport } from './routes/interact/$sessionCode/index'
+import { Route as PresentPresentationIdIndexRouteImport } from './routes/present/$presentationId/index'
 
-const SettingsRoute = SettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PresentationsRoute = PresentationsRouteImport.update({
-  id: '/presentations',
-  path: '/presentations',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -34,14 +29,14 @@ const DashboardRoute = DashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const PresentationsRoute = PresentationsRouteImport.update({
+  id: '/presentations',
+  path: '/presentations',
   getParentRoute: () => rootRouteImport,
 } as any)
-const InteractIndexRoute = InteractIndexRouteImport.update({
-  id: '/interact/',
-  path: '/interact/',
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EditorIndexRoute = EditorIndexRouteImport.update({
@@ -49,10 +44,15 @@ const EditorIndexRoute = EditorIndexRouteImport.update({
   path: '/editor/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PresentPresentationIdIndexRoute =
-  PresentPresentationIdIndexRouteImport.update({
-    id: '/present/$presentationId/',
-    path: '/present/$presentationId/',
+const InteractIndexRoute = InteractIndexRouteImport.update({
+  id: '/interact/',
+  path: '/interact/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EditorPresentationIdIndexRoute =
+  EditorPresentationIdIndexRouteImport.update({
+    id: '/editor/$presentationId/',
+    path: '/editor/$presentationId/',
     getParentRoute: () => rootRouteImport,
   } as any)
 const InteractSessionCodeIndexRoute =
@@ -61,10 +61,10 @@ const InteractSessionCodeIndexRoute =
     path: '/interact/$sessionCode/',
     getParentRoute: () => rootRouteImport,
   } as any)
-const EditorPresentationIdIndexRoute =
-  EditorPresentationIdIndexRouteImport.update({
-    id: '/editor/$presentationId/',
-    path: '/editor/$presentationId/',
+const PresentPresentationIdIndexRoute =
+  PresentPresentationIdIndexRouteImport.update({
+    id: '/present/$presentationId/',
+    path: '/present/$presentationId/',
     getParentRoute: () => rootRouteImport,
   } as any)
 
@@ -152,18 +152,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/settings': {
-      id: '/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof SettingsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/presentations': {
-      id: '/presentations'
-      path: '/presentations'
-      fullPath: '/presentations'
-      preLoaderRoute: typeof PresentationsRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -173,18 +166,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/presentations': {
+      id: '/presentations'
+      path: '/presentations'
+      fullPath: '/presentations'
+      preLoaderRoute: typeof PresentationsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/interact/': {
-      id: '/interact/'
-      path: '/interact'
-      fullPath: '/interact/'
-      preLoaderRoute: typeof InteractIndexRouteImport
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/editor/': {
@@ -194,11 +187,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EditorIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/present/$presentationId/': {
-      id: '/present/$presentationId/'
-      path: '/present/$presentationId'
-      fullPath: '/present/$presentationId/'
-      preLoaderRoute: typeof PresentPresentationIdIndexRouteImport
+    '/interact/': {
+      id: '/interact/'
+      path: '/interact'
+      fullPath: '/interact/'
+      preLoaderRoute: typeof InteractIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/editor/$presentationId/': {
+      id: '/editor/$presentationId/'
+      path: '/editor/$presentationId'
+      fullPath: '/editor/$presentationId/'
+      preLoaderRoute: typeof EditorPresentationIdIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/interact/$sessionCode/': {
@@ -208,11 +208,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InteractSessionCodeIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/editor/$presentationId/': {
-      id: '/editor/$presentationId/'
-      path: '/editor/$presentationId'
-      fullPath: '/editor/$presentationId/'
-      preLoaderRoute: typeof EditorPresentationIdIndexRouteImport
+    '/present/$presentationId/': {
+      id: '/present/$presentationId/'
+      path: '/present/$presentationId'
+      fullPath: '/present/$presentationId/'
+      preLoaderRoute: typeof PresentPresentationIdIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
   }

@@ -6,6 +6,7 @@ import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { useEffect, useRef, useState } from "react";
 import { ExtendedTextStyle } from "@/lib/editor/tiptap";
+import { selectionRectsInContainer, type LocalRect } from "@/lib/editor/selection-rects";
 import {
   setActiveEditorInstance, setPendingCommandFn,
   setSavedSelection, setRefreshFakeSelRects,
@@ -24,7 +25,7 @@ export function RichTextElement({
   setActiveEditor: (e: EditorInstance | null) => void;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [fakeSelRects, setFakeSelRects] = useState<{ x: number; y: number; w: number; h: number }[]>([]);
+  const [fakeSelRects, setFakeSelRects] = useState<LocalRect[]>([]);
 
   type EditorLike = {
     view: { domAtPos: (pos: number) => { node: Node; offset: number } };
@@ -36,32 +37,20 @@ export function RichTextElement({
     const sel = getSavedSelection() ?? ed.state.selection;
     if (!containerEl || !sel || sel.from === sel.to) { setFakeSelRects([]); return; }
 
-    let rects: DOMRect[];
+    let rects: LocalRect[];
     try {
       const start = ed.view.domAtPos(sel.from);
       const end = ed.view.domAtPos(sel.to);
       const range = document.createRange();
       range.setStart(start.node, start.offset);
       range.setEnd(end.node, end.offset);
-      rects = [...range.getClientRects()];
+      rects = selectionRectsInContainer(containerEl, range);
     } catch {
       setFakeSelRects([]);
       return;
     }
 
-    const cr = containerEl.getBoundingClientRect();
-    const scale = containerEl.offsetWidth > 0 ? cr.width / containerEl.offsetWidth : 1;
-    const s = scale > 0 ? scale : 1;
-    setFakeSelRects(
-      rects
-        .filter((r) => r.width > 0 && r.height > 0)
-        .map((r) => ({
-          x: (r.left - cr.left) / s,
-          y: (r.top - cr.top) / s,
-          w: r.width / s,
-          h: r.height / s,
-        })),
-    );
+    setFakeSelRects(rects);
   }
 
   const editor = useEditor({

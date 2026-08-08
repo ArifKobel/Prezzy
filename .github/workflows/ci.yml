@@ -55,3 +55,27 @@ jobs:
 
       - name: Build
         run: pnpm run build
+
+  browser:
+    runs-on: ubuntu-latest
+
+    env:
+      VITE_API_URL: http://localhost:3001
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright chromium
+        run: pnpm -F web exec playwright install --with-deps chromium
+
+      - name: Web browser tests
+        run: pnpm -F web test:browser
