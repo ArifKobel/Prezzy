@@ -49,6 +49,7 @@
     "socket.io-client": "^4.8.1",
     "sonner": "catalog:",
     "tailwindcss": "^4.1.18",
+    "yjs": "^13.6.32",
     "zod": "catalog:"
   },
   "devDependencies": {

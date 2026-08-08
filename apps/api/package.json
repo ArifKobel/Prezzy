@@ -7,7 +7,8 @@
     "build": "nest build && tsc-alias",
     "start": "node dist/main",
     "db:push": "drizzle-kit push",
-    "check-types": "tsc --noEmit"
+    "test": "vitest run",
+    "check-types": "tsc --noEmit && tsc -p tsconfig.test.json"
   },
   "dependencies": {
     "@Prezzy/shared": "workspace:*",
@@ -32,13 +33,19 @@
   "devDependencies": {
     "@Prezzy/config": "workspace:*",
     "@nestjs/cli": "^11.0.10",
+    "@nestjs/testing": "^11.1.28",
+    "@swc/core": "^1.15.47",
     "@types/cookie-parser": "^1.4.9",
     "@types/express": "^5.0.3",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/multer": "^2.0.0",
     "@types/node": "^22.10.2",
+    "@types/supertest": "^7.2.1",
     "drizzle-kit": "^0.31.6",
+    "supertest": "^7.2.2",
     "tsc-alias": "^1.8.16",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "unplugin-swc": "^1.5.10",
+    "vitest": "^3.2.4"
   }
 }
