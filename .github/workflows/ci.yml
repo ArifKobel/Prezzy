@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: prezzy
+          POSTGRES_PASSWORD: prezzy
+          POSTGRES_DB: prezzy
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U prezzy"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      TEST_DATABASE_HOST: postgres://prezzy:prezzy@localhost:5432
+      VITE_API_URL: http://localhost:3001
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Types
+        run: pnpm run check-types
+
+      - name: Web tests
+        run: pnpm -F web test
+
+      - name: API tests
+        run: pnpm -F api test
+
+      - name: Build
+        run: pnpm run build
