@@ -81,4 +81,8 @@ export class ElementPropsDto {
   @IsOptional()
   @IsNumber()
   maxResponses?: number | null;
+
+  @IsOptional()
+  @IsBoolean()
+  heightFitted?: boolean | null;
 }

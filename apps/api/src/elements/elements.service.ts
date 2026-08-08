@@ -1,14 +1,21 @@
-import { Inject, Injectable, NotFoundException } from "@nestjs/common";
-import { asc, eq } from "drizzle-orm";
+import {
+  BadRequestException,
+  ConflictException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
+import { and, asc, eq, inArray, ne, notInArray, sql } from "drizzle-orm";
 import { AccessService } from "@/access/access.service";
 import { mergePatch } from "@/common/merge";
 import { DRIZZLE } from "@/db/db.constants";
-import type { Database } from "@/db/db.types";
+import type { Database, DbExecutor } from "@/db/db.types";
 import { type SlideElementRow, slideElements, slides } from "@/db/schema";
 import { EventsService } from "@/events/events.service";
 import type { ElementProps, SlideElement } from "@/shared";
 import type { CreateElementDto } from "@/elements/dto/create-element.dto";
 import type { ReorderAction } from "@/elements/dto/reorder-element.dto";
+import type { ReplaceElementDto } from "@/elements/dto/replace-element.dto";
 import type { UpdateElementDto } from "@/elements/dto/update-element.dto";
 import { toElement } from "@/elements/element.serializer";
 
@@ -21,12 +28,7 @@ export class ElementsService {
   ) {}
 
   async listBySlide(slideId: string): Promise<SlideElement[]> {
-    const rows = await this.db
-      .select()
-      .from(slideElements)
-      .where(eq(slideElements.slideId, slideId))
-      .orderBy(asc(slideElements.createdAt))
-      .limit(200);
+    const rows = await this.selectBySlide(this.db, slideId);
     return rows.map(toElement);
   }
 
@@ -74,6 +76,47 @@ export class ElementsService {
     return toElement(created);
   }
 
+  async replace(
+    slideId: string,
+    userId: string,
+    elements: ReplaceElementDto[],
+  ): Promise<SlideElement[]> {
+    const { presentation } = await this.access.ownedSlide(slideId, userId);
+    const ids = elements.map((element) => element.id);
+    if (new Set(ids).size !== ids.length) {
+      throw new BadRequestException("Duplicate element id in payload");
+    }
+
+    const rows = await this.db.transaction(async (tx) => {
+      await this.assertNoForeignIds(tx, slideId, ids);
+      await tx
+        .delete(slideElements)
+        .where(and(eq(slideElements.slideId, slideId), notInArray(slideElements.id, ids)));
+      if (elements.length > 0) {
+        await tx
+          .insert(slideElements)
+          .values(elements.map((element, index) => this.toRowValues(slideId, element, index)))
+          .onConflictDoUpdate({
+            target: slideElements.id,
+            set: {
+              slideId: sql`excluded."slide_id"`,
+              type: sql`excluded."type"`,
+              x: sql`excluded."x"`,
+              y: sql`excluded."y"`,
+              width: sql`excluded."width"`,
+              height: sql`excluded."height"`,
+              zIndex: sql`excluded."z_index"`,
+              props: sql`excluded."props"`,
+            },
+          });
+      }
+      return this.selectBySlide(tx, slideId);
+    });
+
+    this.events.elementsChanged(this.access.target(presentation), slideId);
+    return rows.map(toElement);
+  }
+
   async update(id: string, userId: string, dto: UpdateElementDto): Promise<SlideElement> {
     const { element, presentation } = await this.access.ownedElement(id, userId);
     const [updated] = await this.db
@@ -119,6 +162,45 @@ export class ElementsService {
     const { element, presentation } = await this.access.ownedElement(id, userId);
     await this.db.delete(slideElements).where(eq(slideElements.id, id));
     this.events.elementsChanged(this.access.target(presentation), element.slideId);
+  }
+
+  private selectBySlide(executor: DbExecutor, slideId: string): Promise<SlideElementRow[]> {
+    return executor
+      .select()
+      .from(slideElements)
+      .where(eq(slideElements.slideId, slideId))
+      .orderBy(asc(slideElements.createdAt))
+      .limit(200);
+  }
+
+  private toRowValues(slideId: string, element: ReplaceElementDto, index: number) {
+    return {
+      id: element.id,
+      slideId,
+      type: element.type,
+      x: element.x,
+      y: element.y,
+      width: element.width,
+      height: element.height,
+      zIndex: element.zIndex ?? index,
+      props: element.props ? mergePatch<ElementProps>(null, element.props) : null,
+    };
+  }
+
+  private async assertNoForeignIds(
+    executor: DbExecutor,
+    slideId: string,
+    ids: string[],
+  ): Promise<void> {
+    if (ids.length === 0) return;
+    const foreign = await executor
+      .select({ id: slideElements.id })
+      .from(slideElements)
+      .where(and(inArray(slideElements.id, ids), ne(slideElements.slideId, slideId)))
+      .limit(1);
+    if (foreign.length > 0) {
+      throw new ConflictException("Element belongs to another slide");
+    }
   }
 
   private async nextZIndex(slideId: string): Promise<number> {
