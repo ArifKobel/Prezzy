@@ -64,3 +64,7 @@ packages/config       shared tsconfig
 - `pnpm run db:up` / `pnpm run db:down` - start or stop the Postgres container
 - `pnpm run db:push` - sync the Drizzle schema to the database
 - `pnpm run build` - build all packages
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the workflow and commit convention.
