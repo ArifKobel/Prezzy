@@ -493,7 +493,7 @@ function EditorPage() {
               left: `calc(50% + ${panOffset.x}px)`, top: `calc(50% + ${panOffset.y}px)`,
               transform: `translate(-50%, -50%) scale(${effectiveScale})`,
               transformOrigin: "center",
-              ...slideThemeStyle(resolveSlideTheme(presentation.theme)),
+              ...slideThemeStyle(resolveSlideTheme(presentation.theme, activeSlide?.bg)),
             }}
             onClick={(e: React.MouseEvent) => {
               e.stopPropagation();

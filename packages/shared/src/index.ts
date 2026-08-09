@@ -88,6 +88,7 @@ export interface Slide {
   presentationId: string;
   order: number;
   title: string | null;
+  bg: string | null;
   createdAt: number;
 }
 

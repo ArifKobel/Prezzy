@@ -281,6 +281,7 @@ function PresentPage() {
         onQuizQuestionEnd={onQuizQuestionEnd}
         participantCount={participantCount ?? 0}
         theme={presentation?.theme}
+        slideBg={currentSlide?.bg}
       />
 
       <PresentControls

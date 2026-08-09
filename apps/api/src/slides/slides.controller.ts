@@ -21,7 +21,7 @@ export class SlidesController {
     @CurrentUser() user: User,
     @Body() dto: UpdateSlideDto,
   ): Promise<Slide> {
-    return this.slides.updateTitle(id, user.id, dto.title);
+    return this.slides.update(id, user.id, dto);
   }
 
   @Delete(":id")

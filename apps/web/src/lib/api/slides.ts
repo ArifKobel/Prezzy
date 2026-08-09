@@ -52,6 +52,15 @@ export function useCreateSlideFromLayout() {
   );
 }
 
+export function useUpdateSlide() {
+  return useSlideMutation((args: { slideId: string; title?: string; bg?: string | null }) =>
+    apiFetch<Slide>(`/slides/${args.slideId}`, {
+      method: "PATCH",
+      body: { title: args.title, bg: args.bg },
+    }),
+  );
+}
+
 export function useDuplicateSlide() {
   return useSlideMutation((args: { slideId: string }) =>
     apiFetch<Slide>(`/slides/${args.slideId}/duplicate`, { method: "POST" }),

@@ -34,8 +34,8 @@ function seeded(): EditorStore {
     title: "Deck",
     theme: null,
     slides: [
-      { id: "s1", presentationId: "p1", order: 0, title: null, createdAt: 1 },
-      { id: "s2", presentationId: "p1", order: 1, title: null, createdAt: 2 },
+      { id: "s1", presentationId: "p1", order: 0, title: null, bg: null, createdAt: 1 },
+      { id: "s2", presentationId: "p1", order: 1, title: null, bg: null, createdAt: 2 },
     ],
     elements: [
       { id: "a", slideId: "s1", type: "shape", x: 10, y: 10, width: 20, height: 20, zIndex: 0, props: null, createdAt: 1 },

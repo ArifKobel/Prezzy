@@ -115,6 +115,7 @@ interface SlideCanvasProps {
   onQuizQuestionEnd?: () => void;
   participantCount?: number;
   theme?: PresentationTheme | null;
+  slideBg?: string | null;
 }
 
 export function SlideCanvas({
@@ -131,10 +132,11 @@ export function SlideCanvas({
   onQuizQuestionEnd,
   participantCount,
   theme,
+  slideBg,
 }: SlideCanvasProps) {
   const outerRef = useRef<HTMLDivElement>(null);
   const [fitScale, setFitScale] = useState(1);
-  const resolved = useMemo(() => resolveSlideTheme(theme), [theme]);
+  const resolved = useMemo(() => resolveSlideTheme(theme, slideBg), [theme, slideBg]);
 
   useEffect(() => {
     if (!scaleToFit) return;

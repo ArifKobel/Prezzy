@@ -7,8 +7,8 @@ function seeded(): EditorStore {
     title: "Deck",
     theme: null,
     slides: [
-      { id: "s1", presentationId: "p1", order: 0, title: "One", createdAt: 1 },
-      { id: "s2", presentationId: "p1", order: 1, title: "Two", createdAt: 2 },
+      { id: "s1", presentationId: "p1", order: 0, title: "One", bg: null, createdAt: 1 },
+      { id: "s2", presentationId: "p1", order: 1, title: "Two", bg: null, createdAt: 2 },
     ],
     elements: [
       { id: "e1", slideId: "s1", type: "heading", x: 5, y: 5, width: 40, height: 10, zIndex: 0, props: { content: "<p>A</p>" }, createdAt: 1 },

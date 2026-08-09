@@ -10,7 +10,7 @@ beforeEach(() => {
   store.load({
     title: "Deck",
     theme: null,
-    slides: [{ id: "s1", presentationId: "p1", order: 0, title: null, createdAt: 1 }],
+    slides: [{ id: "s1", presentationId: "p1", order: 0, title: null, bg: null, createdAt: 1 }],
     elements: [
       { id: "a", slideId: "s1", type: "shape", x: 10, y: 10, width: 20, height: 20, zIndex: 0, props: null, createdAt: 1 },
       { id: "b", slideId: "s1", type: "shape", x: 50, y: 50, width: 20, height: 20, zIndex: 1, props: null, createdAt: 2 },

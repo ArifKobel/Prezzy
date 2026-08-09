@@ -41,6 +41,7 @@ export const slides = pgTable("slides", {
     .references(() => presentations.id, { onDelete: "cascade" }),
   order: doublePrecision("order").notNull(),
   title: text("title"),
+  bg: text("bg"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

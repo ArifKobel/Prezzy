@@ -55,6 +55,7 @@ export function snapshot(doc: Y.Doc): DocSnapshot {
       presentationId: (meta.get("presentationId") as string) ?? "",
       order: (value.get("order") as number) ?? 0,
       title: (value.get("title") as string | null) ?? null,
+      bg: (value.get("bg") as string | null) ?? null,
       createdAt: (value.get("createdAt") as number) ?? 0,
     });
   }
@@ -95,6 +96,7 @@ function slideToY(slide: Slide): YSlide {
   const map = new Y.Map<unknown>();
   map.set("order", slide.order);
   map.set("title", slide.title);
+  map.set("bg", slide.bg);
   map.set("createdAt", slide.createdAt);
   return map;
 }

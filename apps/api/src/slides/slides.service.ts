@@ -101,6 +101,7 @@ export class SlidesService {
         presentationId: slide.presentationId,
         order: insertOrder(siblings, slide.order),
         title: slide.title ? `${slide.title} (copy)` : null,
+        bg: slide.bg,
       })
       .returning();
     if (!created) throw new NotFoundException("Slide not found");
@@ -134,11 +135,15 @@ export class SlidesService {
     return toSlide(normalized);
   }
 
-  async updateTitle(slideId: string, userId: string, title: string): Promise<Slide> {
-    const { presentation } = await this.access.ownedSlide(slideId, userId);
+  async update(slideId: string, userId: string, patch: { title?: string; bg?: string | null }): Promise<Slide> {
+    const { slide, presentation } = await this.access.ownedSlide(slideId, userId);
+    const set: Partial<{ title: string; bg: string | null }> = {};
+    if (patch.title !== undefined) set.title = patch.title;
+    if (patch.bg !== undefined) set.bg = patch.bg;
+    if (Object.keys(set).length === 0) return toSlide(slide);
     const [updated] = await this.db
       .update(slides)
-      .set({ title })
+      .set(set)
       .where(eq(slides.id, slideId))
       .returning();
     if (!updated) throw new NotFoundException("Slide not found");

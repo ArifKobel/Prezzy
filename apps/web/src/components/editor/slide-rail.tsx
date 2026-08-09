@@ -28,7 +28,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { SlideCanvas } from "@/components/slide-canvas";
 
 import { usePresentationElements } from "@/lib/api/presentations";
-import { useReorderSlides } from "@/lib/api/slides";
+import { useReorderSlides, useUpdateSlide } from "@/lib/api/slides";
 import type { PresentationTheme } from "@Prezzy/shared";
 
 function sameSlideSet(a: Slide[], b: Slide[]): boolean {
@@ -47,6 +47,7 @@ function SortableThumbnail({
   onDelete,
   onAddAfter,
   onPickLayout,
+  onSetBg,
   canDelete,
   theme,
 }: {
@@ -59,6 +60,7 @@ function SortableThumbnail({
   onDelete: () => void;
   onAddAfter: () => void;
   onPickLayout: () => void;
+  onSetBg: (bg: string | null) => void;
   canDelete: boolean;
   theme?: PresentationTheme | null;
 }) {
@@ -119,15 +121,18 @@ function SortableThumbnail({
           className="pointer-events-none h-full w-full"
           scaleToFit
           theme={theme}
+          slideBg={slide.bg}
         />
       </ContextMenuTrigger>
 
       <SlideContextMenu
         canDelete={canDelete}
+        bg={slide.bg}
         onAddAfter={onAddAfter}
         onPickLayout={onPickLayout}
         onDuplicate={onDuplicate}
         onDelete={onDelete}
+        onSetBg={onSetBg}
       />
       </ContextMenu>
     </div>
@@ -156,6 +161,7 @@ export function SlideRail({
   theme?: PresentationTheme | null;
 }) {
   const reorder = useReorderSlides();
+  const updateSlide = useUpdateSlide();
   const { data: allElements } = usePresentationElements(presentationId);
 
   const elementsBySlide = useMemo(() => {
@@ -233,6 +239,7 @@ export function SlideRail({
                 onDelete={() => onDeleteSlide(slide.id)}
                 onAddAfter={() => onAddSlide(slide.id)}
                 onPickLayout={onPickLayout}
+                onSetBg={(bg) => updateSlide({ slideId: slide.id, bg })}
                 canDelete={localSlides.length > 1}
                 theme={theme}
               />

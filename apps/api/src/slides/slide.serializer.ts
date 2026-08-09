@@ -6,5 +6,6 @@ export const toSlide = (row: SlideRow): Slide => ({
   presentationId: row.presentationId,
   order: row.order,
   title: row.title,
+  bg: row.bg,
   createdAt: row.createdAt.getTime(),
 });
