@@ -14,7 +14,7 @@ export function PresentationCard({ presentation: p }: { presentation: Presentati
     >
       <div className="w-full bg-[#fffdf8] p-1.5 shadow-[0_1px_3px_rgb(27_30_34_/_0.15),0_8px_20px_rgb(27_30_34_/_0.12)] transition-transform group-hover:scale-[1.02]">
         <div className="aspect-video overflow-hidden bg-surface-container">
-          <PresentationThumbnail presentationId={p.id} />
+          <PresentationThumbnail presentationId={p.id} theme={p.theme} />
         </div>
       </div>
       <div>

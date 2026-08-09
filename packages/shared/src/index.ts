@@ -83,6 +83,11 @@ export interface Presentation {
   updatedAt: number;
 }
 
+export interface FirstSlidePreview {
+  bg: string | null;
+  elements: SlideElement[];
+}
+
 export interface Slide {
   id: string;
   presentationId: string;

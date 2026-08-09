@@ -40,7 +40,7 @@ export function SelectableCard({ presentation: p, isSelected, anySelected, onTog
           }`}
         >
           <div className="aspect-video overflow-hidden bg-surface-container">
-            <PresentationThumbnail presentationId={p.id} />
+            <PresentationThumbnail presentationId={p.id} theme={p.theme} />
           </div>
         </div>
         <div>

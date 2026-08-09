@@ -19,7 +19,7 @@ export function ContinueCard({ presentation: p }: { presentation: Presentation }
         className="group w-[42%] max-w-[440px] shrink-0 bg-[#fffdf8] p-2 shadow-[0_4px_16px_rgb(0_0_0_/_0.45)] transition-transform hover:scale-[1.01]"
       >
         <div className="aspect-video overflow-hidden bg-surface-container">
-          <PresentationThumbnail presentationId={p.id} />
+          <PresentationThumbnail presentationId={p.id} theme={p.theme} />
         </div>
       </button>
 

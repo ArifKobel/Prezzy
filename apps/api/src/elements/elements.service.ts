@@ -12,7 +12,7 @@ import { DRIZZLE } from "@/db/db.constants";
 import type { Database, DbExecutor } from "@/db/db.types";
 import { type SlideElementRow, slideElements, slides } from "@/db/schema";
 import { EventsService } from "@/events/events.service";
-import type { ElementProps, SlideElement } from "@/shared";
+import type { ElementProps, FirstSlidePreview, SlideElement } from "@/shared";
 import type { CreateElementDto } from "@/elements/dto/create-element.dto";
 import type { ReorderAction } from "@/elements/dto/reorder-element.dto";
 import type { ReplaceElementDto } from "@/elements/dto/replace-element.dto";
@@ -43,7 +43,7 @@ export class ElementsService {
     return rows.map((row) => toElement(row.element));
   }
 
-  async listFirstSlide(presentationId: string, userId: string): Promise<SlideElement[]> {
+  async listFirstSlide(presentationId: string, userId: string): Promise<FirstSlidePreview> {
     await this.access.ownedPresentation(presentationId, userId);
     const [first] = await this.db
       .select()
@@ -51,8 +51,8 @@ export class ElementsService {
       .where(eq(slides.presentationId, presentationId))
       .orderBy(asc(slides.order), asc(slides.createdAt))
       .limit(1);
-    if (!first) return [];
-    return this.listBySlide(first.id);
+    if (!first) return { bg: null, elements: [] };
+    return { bg: first.bg, elements: await this.listBySlide(first.id) };
   }
 
   async create(slideId: string, userId: string, dto: CreateElementDto): Promise<SlideElement> {

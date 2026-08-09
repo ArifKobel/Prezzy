@@ -1,7 +1,7 @@
 import { Controller, Get, Param, UseGuards } from "@nestjs/common";
 import { AuthGuard } from "@/auth/auth.guard";
 import { CurrentUser } from "@/auth/current-user.decorator";
-import type { SlideElement, User } from "@/shared";
+import type { FirstSlidePreview, SlideElement, User } from "@/shared";
 import { ElementsService } from "@/elements/elements.service";
 
 @Controller("presentations")
@@ -21,7 +21,7 @@ export class PresentationElementsController {
   firstSlide(
     @Param("presentationId") presentationId: string,
     @CurrentUser() user: User,
-  ): Promise<SlideElement[]> {
+  ): Promise<FirstSlidePreview> {
     return this.elements.listFirstSlide(presentationId, user.id);
   }
 }

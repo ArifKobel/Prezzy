@@ -8,6 +8,7 @@ export type {
   QuizPhase,
   QuizState,
   Slide,
+  FirstSlidePreview,
   SlideElement,
   User,
 } from "@Prezzy/shared";
