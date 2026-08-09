@@ -1,4 +1,4 @@
-import type { ElementProps, SlideElement } from "@Prezzy/shared";
+import type { ElementProps, ResolvedSlideTheme, SlideElement } from "@Prezzy/shared";
 import { ContextMenu, ContextMenuTrigger } from "@Prezzy/ui/components/context-menu";
 import { cn } from "@Prezzy/ui/lib/utils";
 import { ImagePlus, Link, Upload } from "lucide-react";
@@ -7,9 +7,10 @@ import { useCallback, useEffect, useRef } from "react";
 import { ImageElement } from "@/components/elements/image-element";
 import { ShapeElement } from "@/components/elements/shape-element";
 import { TextElement } from "@/components/elements/text-element";
-import { QuizElement, WordCloudElement, LeaderboardElement, QRCodeElement } from "@/components/slide-canvas";
+import { QuizElement, WordCloudElement, LeaderboardElement, QRCodeElement, interactiveFontSize } from "@/components/slide-canvas";
 import { RichTextElement } from "@/components/editor/rich-text-element";
 import { ElementContextMenu } from "@/components/editor/element-context-menu";
+import { resolveElementStyle } from "@/lib/quiz-constants";
 import type { EditorInstance } from "@/lib/editor/editor-state";
 
 export function CanvasElement({
@@ -18,9 +19,10 @@ export function CanvasElement({
   registerRef, onPointerDown, onSelect, onStartEditing, onStopEditing,
   onPersistContent, setActiveEditor, onImageUpload, onTriggerImageUpload,
   onShowImageUrlDialog, onDuplicate, onDelete, onFitHeight,
-  updateProps, updateImageSrc, reorderElement,
+  updateProps, updateImageSrc, reorderElement, theme,
 }: {
   el: SlideElement;
+  theme?: ResolvedSlideTheme;
   isSelected: boolean;
   isEditing: boolean;
   multiSelected: boolean;
@@ -94,6 +96,7 @@ export function CanvasElement({
             const rot = rotationOverride ?? el.props?.rotation;
             return rot ? `rotate(${rot}deg)` : undefined;
           })(),
+          fontSize: interactiveFontSize({ type: el.type, width: liveW, height: liveH }),
         }}
         onPointerDown={(e: React.PointerEvent<HTMLElement>) => onPointerDown(e as React.PointerEvent<HTMLDivElement>, el)}
         onClick={(e: React.MouseEvent) => { e.stopPropagation(); if (!e.shiftKey) onSelect(el.id); }}
@@ -176,19 +179,19 @@ export function CanvasElement({
           )}
 
           {el.type === "quiz" && (
-            <QuizElement el={el} />
+            <QuizElement el={el} theme={theme} />
           )}
 
           {el.type === "wordcloud" && (
-            <WordCloudElement el={el} showPlaceholder />
+            <WordCloudElement el={el} showPlaceholder theme={theme} />
           )}
 
           {el.type === "leaderboard" && (
-            <LeaderboardElement showPlaceholder />
+            <LeaderboardElement showPlaceholder style={resolveElementStyle(el.props, theme)} />
           )}
 
           {el.type === "qrcode" && (
-            <QRCodeElement showPlaceholder />
+            <QRCodeElement showPlaceholder style={resolveElementStyle(el.props, theme)} />
           )}
         </div>
 

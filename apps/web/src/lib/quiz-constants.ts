@@ -149,7 +149,7 @@ export function resolveElementStyle(
   const el = getElementStyle(props);
   return {
     accentColor: el.accentColor || theme?.accent,
-    backgroundColor: el.backgroundColor || theme?.surface,
+    backgroundColor: el.backgroundColor,
     textColor: el.textColor || theme?.text,
   };
 }

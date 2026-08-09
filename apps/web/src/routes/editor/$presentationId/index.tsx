@@ -638,6 +638,7 @@ function EditorPage() {
                 <CanvasElement
                   key={el.id}
                   el={livePropsPreview?.id === el.id ? { ...el, props: { ...el.props, ...livePropsPreview.props } } : el}
+                  theme={resolveSlideTheme(presentation.theme, activeSlide?.bg)}
                   isSelected={selectedIds.has(el.id)}
                   isEditing={editingId === el.id}
                   multiSelected={selectedIds.size > 1}

@@ -33,6 +33,15 @@ export const TEXT_CLS =
   "h-full w-full overflow-hidden max-w-none leading-normal [font-family:var(--slide-font-body)] [color:var(--slide-text)] " +
   `[&_p]:text-sm ${LIST_CLS}`;
 
+const SCALED_TYPES = new Set(["quiz", "wordcloud", "leaderboard", "qrcode"]);
+
+export function interactiveFontSize(el: Pick<SlideElement, "type" | "width" | "height">): number | undefined {
+  if (!SCALED_TYPES.has(el.type)) return undefined;
+  const w = (el.width / 100) * DESIGN_W;
+  const h = (el.height / 100) * DESIGN_H;
+  return Math.max(8, Math.min(w / 54, h / 25));
+}
+
 export function slideThemeStyle(t: ResolvedSlideTheme): React.CSSProperties {
   return {
     backgroundColor: t.bg,
@@ -176,6 +185,7 @@ export function SlideCanvas({
                 : { height: `${el.height}%` }),
               zIndex: el.zIndex ?? 0,
               transform,
+              fontSize: interactiveFontSize(el),
             }}
           >
             {(isHeading || isText) && (
