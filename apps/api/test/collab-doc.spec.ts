@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import type { INestApplication } from "@nestjs/common";
 import { eq } from "drizzle-orm";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import * as awarenessProtocol from "y-protocols/awareness";
 import * as Y from "yjs";
 import { DocRegistryService } from "@/collab/doc-registry.service";
 import { readDoc } from "@/collab/doc-schema";
@@ -125,6 +126,34 @@ describe("materialization", () => {
       .from(slides)
       .where(eq(slides.presentationId, fixture.presentationId));
     expect(rows.map((row) => row.id)).toEqual([fixture.slideA]);
+  });
+});
+
+describe("awareness", () => {
+  it("tracks peer states and clears them when their socket disconnects", async () => {
+    await registry.connect(fixture.presentationId, "s1");
+    await registry.connect(fixture.presentationId, "s2");
+
+    const peerDoc = new Y.Doc();
+    const peer = new awarenessProtocol.Awareness(peerDoc);
+    peer.setLocalStateField("user", { name: "Peer" });
+    await registry.applyAwareness(
+      fixture.presentationId,
+      awarenessProtocol.encodeAwarenessUpdate(peer, [peerDoc.clientID]),
+      "s2",
+    );
+
+    let states = await registry.awarenessStates(fixture.presentationId);
+    expect(states?.size).toBe(1);
+    expect([...(states?.values() ?? [])][0]).toMatchObject({ user: { name: "Peer" } });
+
+    await registry.disconnect(fixture.presentationId, "s2");
+    states = await registry.awarenessStates(fixture.presentationId);
+    expect(states?.size).toBe(0);
+
+    await registry.disconnect(fixture.presentationId, "s1");
+    peer.destroy();
+    peerDoc.destroy();
   });
 });
 

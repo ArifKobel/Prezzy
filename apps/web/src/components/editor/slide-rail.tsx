@@ -25,6 +25,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { arrayMove } from "@dnd-kit/sortable";
 import { Copy, GripVertical, LayoutGrid, Plus } from "lucide-react";
 import { SlideCanvas } from "@/components/slide-canvas";
+import type { PresencePeer } from "@/lib/editor/use-presence";
 
 import type { PresentationTheme } from "@Prezzy/shared";
 
@@ -33,6 +34,7 @@ function SortableThumbnail({
   index,
   isActive,
   elements,
+  peers,
   onClick,
   onDuplicate,
   onDelete,
@@ -46,6 +48,7 @@ function SortableThumbnail({
   index: number;
   isActive: boolean;
   elements: SlideElement[];
+  peers: PresencePeer[];
   onClick: () => void;
   onDuplicate: () => void;
   onDelete: () => void;
@@ -107,6 +110,20 @@ function SortableThumbnail({
         <span className="absolute left-1.5 top-1 z-10 font-sans text-[8px] text-muted-foreground">
           {index + 1}
         </span>
+        {peers.length > 0 && (
+          <span
+            className="absolute bottom-1 right-1 z-10 flex gap-0.5"
+            title={peers.map((peer) => peer.name).join(", ")}
+          >
+            {peers.map((peer) => (
+              <span
+                key={peer.clientId}
+                className="size-2 rounded-full ring-1 ring-white/80"
+                style={{ backgroundColor: peer.color }}
+              />
+            ))}
+          </span>
+        )}
         <SlideCanvas
           elements={elements}
           className="pointer-events-none h-full w-full"
@@ -134,6 +151,7 @@ export function SlideRail({
   slides,
   activeSlideId,
   elementsBySlide,
+  peersBySlide,
   onSwitchSlide,
   onAddSlide,
   onDuplicateSlide,
@@ -146,6 +164,7 @@ export function SlideRail({
   slides: Slide[];
   activeSlideId: string | null;
   elementsBySlide: Map<string, SlideElement[]>;
+  peersBySlide: Map<string, PresencePeer[]>;
   onSwitchSlide: (id: string) => void;
   onAddSlide: (afterSlideId?: string) => void;
   onDuplicateSlide: (id: string) => void;
@@ -188,6 +207,7 @@ export function SlideRail({
                 index={i}
                 isActive={slide.id === activeSlideId}
                 elements={elementsBySlide.get(slide.id) ?? []}
+                peers={peersBySlide.get(slide.id) ?? []}
                 onClick={() => onSwitchSlide(slide.id)}
                 onDuplicate={() => onDuplicateSlide(slide.id)}
                 onDelete={() => onDeleteSlide(slide.id)}

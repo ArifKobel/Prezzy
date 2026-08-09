@@ -1,5 +1,6 @@
 import { Inject, Injectable, Logger } from "@nestjs/common";
 import { and, asc, eq, inArray, notInArray, sql } from "drizzle-orm";
+import * as awarenessProtocol from "y-protocols/awareness";
 import * as Y from "yjs";
 import { DRIZZLE } from "@/db/db.constants";
 import type { Database } from "@/db/db.types";
@@ -17,6 +18,8 @@ export type DocBroadcaster = (
 
 interface DocEntry {
   doc: Y.Doc;
+  awareness: awarenessProtocol.Awareness;
+  awarenessBySocket: Map<string, Set<number>>;
   presentationId: string;
   joinCode: string | null;
   connections: Set<string>;
@@ -31,6 +34,7 @@ export class DocRegistryService {
   private readonly logger = new Logger(DocRegistryService.name);
   private readonly entries = new Map<string, Promise<DocEntry>>();
   private broadcaster: DocBroadcaster | null = null;
+  private awarenessBroadcaster: DocBroadcaster | null = null;
 
   constructor(
     @Inject(DRIZZLE) private readonly db: Database,
@@ -39,6 +43,29 @@ export class DocRegistryService {
 
   setBroadcaster(broadcaster: DocBroadcaster): void {
     this.broadcaster = broadcaster;
+  }
+
+  setAwarenessBroadcaster(broadcaster: DocBroadcaster): void {
+    this.awarenessBroadcaster = broadcaster;
+  }
+
+  async applyAwareness(presentationId: string, update: Uint8Array, socketId: string): Promise<void> {
+    const entry = await this.entryFor(presentationId);
+    if (!entry) return;
+    awarenessProtocol.applyAwarenessUpdate(entry.awareness, update, socketId);
+  }
+
+  async encodeAwareness(presentationId: string): Promise<Uint8Array | null> {
+    const entry = await this.entryFor(presentationId);
+    if (!entry) return null;
+    const clientIds = [...entry.awareness.getStates().keys()];
+    if (clientIds.length === 0) return null;
+    return awarenessProtocol.encodeAwarenessUpdate(entry.awareness, clientIds);
+  }
+
+  async awarenessStates(presentationId: string): Promise<Map<number, Record<string, unknown>> | null> {
+    const entry = await this.entryFor(presentationId);
+    return entry ? entry.awareness.getStates() : null;
   }
 
   async connect(presentationId: string, socketId: string): Promise<Y.Doc> {
@@ -59,16 +86,18 @@ export class DocRegistryService {
   }
 
   async docFor(presentationId: string): Promise<Y.Doc | null> {
-    const pending = this.entries.get(presentationId);
-    if (!pending) return null;
-    return pending.then((entry) => entry.doc).catch(() => null);
+    const entry = await this.entryFor(presentationId);
+    return entry ? entry.doc : null;
   }
 
   async disconnect(presentationId: string, socketId: string): Promise<void> {
-    const pending = this.entries.get(presentationId);
-    if (!pending) return;
-    const entry = await pending.catch(() => null);
+    const entry = await this.entryFor(presentationId);
     if (!entry) return;
+    const owned = entry.awarenessBySocket.get(socketId);
+    if (owned && owned.size > 0) {
+      awarenessProtocol.removeAwarenessStates(entry.awareness, [...owned], socketId);
+    }
+    entry.awarenessBySocket.delete(socketId);
     entry.connections.delete(socketId);
     if (entry.connections.size > 0) return;
     this.entries.delete(presentationId);
@@ -77,7 +106,14 @@ export class DocRegistryService {
       entry.saveTimer = null;
     }
     await this.save(entry);
+    entry.awareness.destroy();
     entry.doc.destroy();
+  }
+
+  private async entryFor(presentationId: string): Promise<DocEntry | null> {
+    const pending = this.entries.get(presentationId);
+    if (!pending) return null;
+    return pending.catch(() => null);
   }
 
   private async open(presentationId: string): Promise<DocEntry> {
@@ -112,8 +148,13 @@ export class DocRegistryService {
       hydrateDoc(doc, presentation, slideRows, elementRows.map((row) => row.element));
     }
 
+    const awareness = new awarenessProtocol.Awareness(doc);
+    awareness.setLocalState(null);
+
     const entry: DocEntry = {
       doc,
+      awareness,
+      awarenessBySocket: new Map(),
       presentationId,
       joinCode: presentation.joinCode,
       connections: new Set(),
@@ -128,6 +169,29 @@ export class DocRegistryService {
       this.scheduleSave(entry);
       this.broadcaster?.(presentationId, update, typeof origin === "string" ? origin : null);
     });
+
+    awareness.on(
+      "update",
+      (changes: { added: number[]; updated: number[]; removed: number[] }, origin: unknown) => {
+        const { added, updated, removed } = changes;
+        if (typeof origin === "string") {
+          let owned = entry.awarenessBySocket.get(origin);
+          if (!owned) {
+            owned = new Set();
+            entry.awarenessBySocket.set(origin, owned);
+          }
+          for (const clientId of [...added, ...updated]) owned.add(clientId);
+          for (const clientId of removed) owned.delete(clientId);
+        }
+        const changed = [...added, ...updated, ...removed];
+        if (changed.length === 0) return;
+        this.awarenessBroadcaster?.(
+          presentationId,
+          awarenessProtocol.encodeAwarenessUpdate(awareness, changed),
+          typeof origin === "string" ? origin : null,
+        );
+      },
+    );
 
     return entry;
   }

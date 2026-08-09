@@ -51,6 +51,12 @@ export class CollabGateway implements OnGatewayInit, OnGatewayDisconnect {
         .except(originSocketId ?? [])
         .emit("doc:sync", { presentationId, data: encoding.toUint8Array(encoder) });
     });
+    this.registry.setAwarenessBroadcaster((presentationId, update, originSocketId) => {
+      this.server
+        .to(roomOf(presentationId))
+        .except(originSocketId ?? [])
+        .emit("doc:awareness", { presentationId, data: update });
+    });
   }
 
   @SubscribeMessage("doc:join")
@@ -69,10 +75,23 @@ export class CollabGateway implements OnGatewayInit, OnGatewayDisconnect {
       const encoder = encoding.createEncoder();
       syncProtocol.writeSyncStep1(encoder, doc);
       client.emit("doc:sync", { presentationId, data: encoding.toUint8Array(encoder) });
+      const states = await this.registry.encodeAwareness(presentationId);
+      if (states) client.emit("doc:awareness", { presentationId, data: states });
       return { ok: true };
     } catch {
       return { ok: false };
     }
+  }
+
+  @SubscribeMessage("doc:awareness")
+  async handleAwareness(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() message: SyncMessage | undefined,
+  ): Promise<void> {
+    const presentationId = message?.presentationId;
+    if (typeof presentationId !== "string" || !message?.data) return;
+    if (!client.rooms.has(roomOf(presentationId))) return;
+    await this.registry.applyAwareness(presentationId, toBytes(message.data), client.id);
   }
 
   @SubscribeMessage("doc:sync")

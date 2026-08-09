@@ -23,7 +23,9 @@ import {
 
 import { RichToolbar } from "@/components/editor/toolbar";
 import { ElementMoveable } from "@/components/editor/element-moveable";
+import { PresenceAvatars } from "@/components/editor/presence-avatars";
 import { PropertiesPanel } from "@/components/editor/properties-panel";
+import { RemotePresence } from "@/components/editor/remote-presence";
 import { SlideRail } from "@/components/editor/slide-rail";
 import { CanvasElement } from "@/components/editor/canvas-element";
 import { ClearResponsesButton } from "@/components/editor/clear-responses-button";
@@ -43,11 +45,17 @@ import type { ProviderStatus } from "@/lib/editor/provider";
 import { useCanvasPointer } from "@/lib/editor/use-canvas-pointer";
 import { useEditorDoc } from "@/lib/editor/use-editor-doc";
 import { useImageUpload } from "@/lib/editor/use-image-upload";
+import { type PresencePeer, useRemotePresence } from "@/lib/editor/use-presence";
 import { useZoomPan } from "@/lib/editor/use-zoom-pan";
+import { useMe } from "@/lib/api/auth";
 import { useRealtime } from "@/lib/api/socket";
+import type { Awareness } from "y-protocols/awareness";
 
 export const Route = createFileRoute("/editor/$presentationId/")({
   component: EditorPage,
+  validateSearch: (search: Record<string, unknown>): { slide?: string } => ({
+    slide: typeof search.slide === "string" ? search.slide : undefined,
+  }),
 });
 
 const INTERACTIVE_TYPES = new Set(["quiz", "wordcloud", "leaderboard", "qrcode"]);
@@ -66,7 +74,7 @@ function EditorPage() {
 
 function EditorShell({ pid }: { pid: string }) {
   useRealtime(`presentation:${pid}`);
-  const { store, interaction, ready, status } = useEditorDoc(pid);
+  const { store, interaction, awareness, ready, status } = useEditorDoc(pid);
   const contextValue = useMemo(() => ({ store, interaction }), [store, interaction]);
 
   if (status === "denied") {
@@ -78,12 +86,18 @@ function EditorShell({ pid }: { pid: string }) {
 
   return (
     <EditorContext.Provider value={contextValue}>
-      <EditorBody pid={pid} status={status} />
+      <EditorBody pid={pid} status={status} awareness={awareness} />
     </EditorContext.Provider>
   );
 }
 
-function EditorBody({ pid, status }: { pid: string; status: ProviderStatus }) {
+function EditorBody({
+  pid, status, awareness,
+}: {
+  pid: string;
+  status: ProviderStatus;
+  awareness: Awareness;
+}) {
   const navigate = useNavigate();
   const store = useEditorStore();
   const interaction = useInteraction();
@@ -113,6 +127,65 @@ function EditorBody({ pid, status }: { pid: string; status: ProviderStatus }) {
   const activeSlide = slides.find((s) => s.id === activeSlideId) ?? null;
 
   const isMutating = useIsMutating() > 0;
+
+  const { data: me } = useMe();
+  const peers = useRemotePresence(awareness);
+  const cursorSentAt = useRef(0);
+
+  const { slide: slideParam } = Route.useSearch();
+
+  useEffect(() => {
+    if (slideParam) store.setActiveSlide(slideParam);
+  }, [store, slideParam]);
+
+  useEffect(() => {
+    if (!activeSlideId) return;
+    navigate({
+      to: "/editor/$presentationId",
+      params: { presentationId: pid },
+      search: { slide: activeSlideId },
+      replace: true,
+    });
+  }, [activeSlideId, navigate, pid]);
+
+  const peersBySlide = useMemo(() => {
+    const map = new Map<string, PresencePeer[]>();
+    for (const peer of peers) {
+      if (!peer.slideId) continue;
+      const list = map.get(peer.slideId);
+      if (list) list.push(peer);
+      else map.set(peer.slideId, [peer]);
+    }
+    return map;
+  }, [peers]);
+
+  useEffect(() => {
+    awareness.setLocalStateField("user", { name: me?.name ?? "Someone" });
+  }, [awareness, me?.name]);
+
+  useEffect(() => {
+    awareness.setLocalStateField("slideId", activeSlideId);
+  }, [awareness, activeSlideId]);
+
+  useEffect(() => {
+    awareness.setLocalStateField("selection", [...selectedIds]);
+  }, [awareness, selectedIds]);
+
+  const broadcastCursor = useCallback((e: React.PointerEvent<HTMLElement>) => {
+    const now = performance.now();
+    if (now - cursorSentAt.current < 40) return;
+    const rect = canvasRef.current?.getBoundingClientRect();
+    if (!rect || rect.width === 0 || rect.height === 0) return;
+    cursorSentAt.current = now;
+    awareness.setLocalStateField("cursor", {
+      x: ((e.clientX - rect.left) / rect.width) * 100,
+      y: ((e.clientY - rect.top) / rect.height) * 100,
+    });
+  }, [awareness]);
+
+  const clearCursor = useCallback(() => {
+    awareness.setLocalStateField("cursor", null);
+  }, [awareness]);
 
   const [activeEditor, setActiveEditorState] = useState<EditorInstance | null>(null);
   const [elementNodes, setElementNodes] = useState<Map<string, HTMLElement>>(new Map());
@@ -445,6 +518,7 @@ function EditorBody({ pid, status }: { pid: string; status: ProviderStatus }) {
         </div>
 
         <div className="flex items-center gap-2">
+          <PresenceAvatars peers={peers} />
           <span className="mr-1 font-sans text-[10px] text-muted-foreground/60">
             {status === "offline" ? "Offline" : status === "connecting" ? "Syncing…" : isMutating ? "Saving…" : "Saved"}
           </span>
@@ -502,6 +576,7 @@ function EditorBody({ pid, status }: { pid: string; status: ProviderStatus }) {
           slides={slides}
           activeSlideId={activeSlideId}
           elementsBySlide={elementsBySlide}
+          peersBySlide={peersBySlide}
           onSwitchSlide={(id) => store.setActiveSlide(id)}
           onAddSlide={handleAddSlide}
           onDuplicateSlide={handleDuplicateSlide}
@@ -520,6 +595,8 @@ function EditorBody({ pid, status }: { pid: string; status: ProviderStatus }) {
             store.stopEditing();
           }}
           onPointerDown={handleCanvasPointerDown}
+          onPointerMove={broadcastCursor}
+          onPointerLeave={clearCursor}
         >
           {showRichToolbar && (
             <div
@@ -596,6 +673,8 @@ function EditorBody({ pid, status }: { pid: string; status: ProviderStatus }) {
                 />
               ))
             )}
+
+            <RemotePresence peers={peers} activeSlideId={activeSlideId} elements={elements} />
 
             {snapLines.vLines.map((x) => (
               <div key={`v${x}`} className="pointer-events-none absolute inset-y-0 z-40 w-px bg-primary/60" style={{ left: `${x}%` }} />
