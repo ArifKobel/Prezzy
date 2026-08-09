@@ -15,7 +15,7 @@ import {
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { ELEMENT_DEFAULTS, applyToContentHtml } from "@/lib/editor/tiptap";
-import { SLIDE_LAYOUTS } from "@/lib/slide-layouts";
+import { INTERACTIVE_PRESETS, SLIDE_LAYOUTS } from "@/lib/slide-layouts";
 import {
   setActiveEditorInstance, setEnterEditForSelection,
   type EditorInstance,
@@ -320,7 +320,7 @@ function EditorPage() {
 
   const hasInteractiveElement = elements?.some((el) => INTERACTIVE_TYPES.has(el.type)) ?? false;
 
-  async function pasteElements(source: ElementSnapshot[]) {
+  async function pasteElements(source: ElementSnapshot[], offset = 3) {
     if (!activeSlideId) return;
     let hasInteractive = elements?.some((el) => INTERACTIVE_TYPES.has(el.type)) ?? false;
     const created: SlideElement[] = [];
@@ -332,7 +332,7 @@ function EditorPage() {
       try {
         created.push(await createElement({
           slideId: activeSlideId, type: c.type,
-          x: Math.min(c.x + 3, 95), y: Math.min(c.y + 3, 95),
+          x: Math.min(c.x + offset, 95), y: Math.min(c.y + offset, 95),
           width: c.width, height: c.height,
           props: c.props ?? undefined,
         }));
@@ -370,16 +370,21 @@ function EditorPage() {
   function handleAddElement(type: keyof typeof ELEMENT_DEFAULTS) {
     if (!activeSlideId) return;
     if (INTERACTIVE_TYPES.has(type) && hasInteractiveElement) return;
+    const preset = INTERACTIVE_PRESETS[type];
+    if (preset) {
+      pasteElements(
+        preset.map((slot) => ({
+          type: slot.type,
+          x: slot.x, y: slot.y, width: slot.width, height: slot.height,
+          props: slot.props ? ({ ...slot.props } as ElementProps) : null,
+        })),
+        0,
+      );
+      return;
+    }
     const d = ELEMENT_DEFAULTS[type];
     const props: ElementProps = {};
     if (d.content) props.content = d.content;
-    if (type === "quiz") {
-      props.question = "Your question here";
-      props.options = ["Option A", "Option B", "Option C"];
-    }
-    if (type === "wordcloud") {
-      props.prompt = "Share a word...";
-    }
     const createArgs = {
       slideId: activeSlideId, type,
       x: d.x, y: d.y, width: d.width, height: d.height,

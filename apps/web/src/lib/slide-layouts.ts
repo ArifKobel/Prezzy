@@ -143,3 +143,25 @@ export const SLIDE_LAYOUTS: SlideLayout[] = [
 export function getLayout(id: string): SlideLayout | undefined {
   return SLIDE_LAYOUTS.find((l) => l.id === id);
 }
+
+export const INTERACTIVE_PRESETS: Record<string, LayoutSlot[]> = {
+  quiz: [
+    {
+      type: "quiz", role: "quiz", x: 5, y: 12, width: 90, height: 72,
+      props: { question: "Your question here", options: ["Option A", "Option B", "Option C"] },
+    },
+  ],
+  wordcloud: [
+    { type: "heading", role: "title", x: 8, y: 8, width: 84, height: 12, props: { content: '<p style="text-align: center"><strong><span style="font-size: 40px;">Share a word</span></strong></p>' } },
+    { type: "wordcloud", role: "cloud", x: 8, y: 24, width: 84, height: 64, props: { prompt: "Share a word..." } },
+  ],
+  leaderboard: [
+    { type: "heading", role: "title", x: 8, y: 8, width: 84, height: 12, props: { content: '<p><strong><span style="font-size: 40px;">Leaderboard</span></strong></p>' } },
+    { type: "leaderboard", role: "board", x: 8, y: 24, width: 84, height: 68 },
+  ],
+  qrcode: [
+    { type: "heading", role: "title", x: 8, y: 16, width: 44, height: 22, props: { content: '<p><strong><span style="font-size: 44px;">Join the presentation</span></strong></p>' } },
+    { type: "text", role: "body", x: 8, y: 42, width: 40, height: 20, props: { content: '<p><span style="font-size: 20px;">Scan the QR code or open the join page and enter the session code.</span></p>' } },
+    { type: "qrcode", role: "qr", x: 58, y: 16, width: 30, height: 62 },
+  ],
+};
