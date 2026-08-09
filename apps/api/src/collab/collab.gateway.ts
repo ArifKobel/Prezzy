@@ -1,3 +1,4 @@
+import { Logger } from "@nestjs/common";
 import {
   ConnectedSocket,
   MessageBody,
@@ -34,6 +35,7 @@ const toBytes = (data: SyncMessage["data"]): Uint8Array =>
 @WebSocketGateway({ cors: { origin: env.webOrigin, credentials: true } })
 export class CollabGateway implements OnGatewayInit, OnGatewayDisconnect {
   private server!: Server;
+  private readonly logger = new Logger(CollabGateway.name);
 
   constructor(
     private readonly auth: AuthService,
@@ -78,7 +80,8 @@ export class CollabGateway implements OnGatewayInit, OnGatewayDisconnect {
       const states = await this.registry.encodeAwareness(presentationId);
       if (states) client.emit("doc:awareness", { presentationId, data: states });
       return { ok: true };
-    } catch {
+    } catch (error) {
+      this.logger.warn(`doc:join failed for ${presentationId}: ${error}`);
       return { ok: false };
     }
   }
