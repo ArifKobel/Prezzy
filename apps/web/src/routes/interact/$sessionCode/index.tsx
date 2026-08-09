@@ -1,10 +1,14 @@
+import type { ElementType, SlideElement } from "@Prezzy/shared";
+import { resolveSlideTheme } from "@Prezzy/shared/theme";
 import { createFileRoute } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { FollowAlong } from "@/components/interact/follow-along";
 import { JoinForm } from "@/components/interact/join-form";
+import { LeaderboardInteraction } from "@/components/interact/leaderboard-interaction";
 import { QuizInteraction } from "@/components/interact/quiz-interaction";
 import { SessionNotFound } from "@/components/interact/session-not-found";
+import { InteractSessionProvider } from "@/components/interact/session-context";
 import { Shell } from "@/components/interact/shell";
 import { WaitingRoom } from "@/components/interact/waiting-room";
 import { WordCloudInteraction } from "@/components/interact/word-cloud-interaction";
@@ -17,6 +21,12 @@ import { useRealtime } from "@/lib/api/socket";
 export const Route = createFileRoute("/interact/$sessionCode/")({
   component: AudiencePage,
 });
+
+const INTERACTIONS: Partial<Record<ElementType, React.ComponentType<{ element: SlideElement }>>> = {
+  quiz: QuizInteraction,
+  wordcloud: WordCloudInteraction,
+  leaderboard: LeaderboardInteraction,
+};
 
 function getParticipantId(): string {
   const key = "prezzy-participant-id";
@@ -67,20 +77,36 @@ function AudiencePage() {
     return () => clearInterval(interval);
   }, [presentation?.id, nameSubmitted, name, heartbeat, sessionCode]);
 
-  const interactiveEl = elements?.find(
-    (el) => el.type === "quiz" || el.type === "wordcloud",
-  );
+  const theme = useMemo(() => resolveSlideTheme(presentation?.theme), [presentation?.theme]);
+
+  const session = useMemo(() => {
+    if (!presentation) return null;
+    return {
+      presentationId: presentation.id,
+      theme,
+      participantId: participantId.current,
+      participantName: name,
+      quizState,
+      submit: (elementId: string, value: string) =>
+        submitResponse({
+          elementId,
+          participantId: participantId.current,
+          participantName: name || undefined,
+          value,
+        }),
+    };
+  }, [presentation, theme, name, quizState, submitResponse]);
 
   if (presentation === undefined) {
     return (
       <Shell>
-        <Loader2 className="size-6 animate-spin text-primary" />
-        <p className="font-sans text-sm text-muted-foreground">Connecting...</p>
+        <Loader2 className="size-6 animate-spin" style={{ color: "var(--slide-accent)" }} />
+        <p className="text-sm" style={{ color: "var(--slide-muted)" }}>Connecting...</p>
       </Shell>
     );
   }
 
-  if (presentation === null) {
+  if (presentation === null || !session) {
     return (
       <Shell>
         <SessionNotFound />
@@ -90,8 +116,9 @@ function AudiencePage() {
 
   if (!nameSubmitted) {
     return (
-      <Shell title={presentation.title}>
+      <Shell theme={theme} title={presentation.title}>
         <JoinForm
+          theme={theme}
           name={name}
           setName={setName}
           onJoin={() => {
@@ -103,43 +130,25 @@ function AudiencePage() {
     );
   }
 
-  if (!liveSlideId) {
-    return (
-      <Shell title={presentation.title} name={name}>
-        <WaitingRoom name={name} />
-      </Shell>
-    );
-  }
-
-  if (!interactiveEl) {
-    return (
-      <Shell title={presentation.title} name={name}>
-        <FollowAlong />
-      </Shell>
-    );
-  }
+  const interactiveEl = elements?.find((el) => el.type in INTERACTIONS);
+  const Interaction = interactiveEl ? INTERACTIONS[interactiveEl.type] : null;
 
   return (
-    <Shell title={presentation.title} name={name}>
-      {interactiveEl.type === "quiz" && (
-        <QuizInteraction
-          element={interactiveEl}
-          participantId={participantId.current}
-          participantName={name}
-          submitResponse={submitResponse}
-          quizState={quizState}
-          theme={presentation.theme}
-        />
-      )}
-      {interactiveEl.type === "wordcloud" && (
-        <WordCloudInteraction
-          element={interactiveEl}
-          participantId={participantId.current}
-          participantName={name}
-          submitResponse={submitResponse}
-          theme={presentation.theme}
-        />
-      )}
-    </Shell>
+    <InteractSessionProvider value={session}>
+      <Shell
+        theme={theme}
+        title={presentation.title}
+        name={name}
+        onChangeName={() => setNameSubmitted(false)}
+      >
+        {!liveSlideId ? (
+          <WaitingRoom />
+        ) : Interaction && interactiveEl ? (
+          <Interaction element={interactiveEl} />
+        ) : (
+          <FollowAlong />
+        )}
+      </Shell>
+    </InteractSessionProvider>
   );
 }

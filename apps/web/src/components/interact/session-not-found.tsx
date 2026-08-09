@@ -1,15 +1,22 @@
+import { contrastOn } from "@/lib/quiz-constants";
+
 export function SessionNotFound() {
   return (
     <div className="flex flex-col items-center gap-4 text-center">
-      <p className="font-display text-lg font-bold text-foreground">
+      <p className="text-lg font-extrabold" style={{ fontFamily: "var(--slide-font-heading)", color: "var(--slide-heading)" }}>
         Session not found
       </p>
-      <p className="font-sans text-sm text-muted-foreground">
+      <p className="text-sm" style={{ color: "var(--slide-muted)" }}>
         Check the code and try again.
       </p>
       <a
         href="/interact"
-        className="mt-1 rounded-xl bg-primary hover:bg-primary-dim px-6 py-2.5 font-sans text-sm font-semibold text-primary-foreground transition-transform hover:scale-[1.02]"
+        className="mt-1 px-6 py-2.5 text-sm font-bold"
+        style={{
+          backgroundColor: "var(--slide-accent)",
+          color: contrastOn("#3b5bdb"),
+          borderRadius: "var(--slide-radius)",
+        }}
       >
         Try another code
       </a>

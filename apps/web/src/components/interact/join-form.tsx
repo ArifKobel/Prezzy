@@ -1,33 +1,31 @@
-import { User } from "lucide-react";
+import type { ResolvedSlideTheme } from "@Prezzy/shared";
+import { contrastOn } from "@/lib/quiz-constants";
 
 export function JoinForm({
+  theme: t,
   name,
   setName,
   onJoin,
 }: {
+  theme: ResolvedSlideTheme;
   name: string;
   setName: (name: string) => void;
   onJoin: () => void;
 }) {
   return (
     <div className="flex w-full max-w-sm flex-col items-center gap-6">
-      <div className="flex size-16 items-center justify-center rounded-full bg-secondary-container">
-        <User className="size-7 text-primary" />
-      </div>
       <div className="text-center">
-        <h2 className="font-display text-lg font-bold text-foreground">
+        <h2 className="text-xl font-extrabold" style={{ fontFamily: t.fontHeading, color: t.heading }}>
           What's your name?
         </h2>
-        <p className="mt-1.5 font-sans text-sm text-muted-foreground">
+        <p className="mt-1.5 text-sm" style={{ color: t.muted }}>
           Enter your name to participate
         </p>
       </div>
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          if (name.trim()) {
-            onJoin();
-          }
+          if (name.trim()) onJoin();
         }}
         className="flex w-full flex-col gap-3"
       >
@@ -37,13 +35,20 @@ export function JoinForm({
           onChange={(e) => setName(e.target.value)}
           placeholder="Your name"
           maxLength={30}
-          className="w-full rounded-xl border border-border bg-card px-4 py-3.5 text-center font-sans text-sm text-foreground outline-none placeholder:text-muted-foreground/60 focus:shadow-[0_2px_16px_rgb(200_64_31_/_0.12)]"
           autoFocus
+          className="w-full px-4 py-3.5 text-center text-base outline-none"
+          style={{
+            backgroundColor: t.surface,
+            color: t.text,
+            borderRadius: t.radius,
+            border: `1px solid ${t.muted}40`,
+          }}
         />
         <button
           type="submit"
           disabled={!name.trim()}
-          className="w-full rounded-xl bg-primary hover:bg-primary-dim py-3.5 font-sans text-sm font-semibold text-primary-foreground transition-transform hover:scale-[1.02] disabled:opacity-40 disabled:hover:scale-100"
+          className="w-full py-3.5 text-sm font-bold transition-opacity disabled:opacity-40"
+          style={{ backgroundColor: t.accent, color: contrastOn(t.accent), borderRadius: t.radius }}
         >
           Join
         </button>
