@@ -10,3 +10,4 @@ docker-compose.yml
 apps/web/public/fonts/.DS_Store
 .env
 **/.env
+**/.output

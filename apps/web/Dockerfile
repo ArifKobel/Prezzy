@@ -8,11 +8,8 @@ RUN pnpm install --frozen-lockfile
 RUN pnpm --filter web build
 
 FROM node:22-alpine AS runtime
-RUN corepack enable
 WORKDIR /app
-ENV NODE_ENV=production CI=true
-COPY --from=build /app .
-RUN pnpm prune --prod
-WORKDIR /app/apps/web
+ENV NODE_ENV=production
+COPY --from=build /app/apps/web/.output ./.output
 EXPOSE 3000
-CMD ["node", "server.mjs"]
+CMD ["node", ".output/server/index.mjs"]
