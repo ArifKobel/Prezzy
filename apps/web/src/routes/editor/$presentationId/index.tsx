@@ -262,7 +262,7 @@ function EditorPage() {
               else if (e.key === "i") ed.chain().toggleItalic().run();
               else ed.chain().toggleUnderline().run();
             });
-            updateContent({ id: el.id, content: html });
+            persistContent(el.id, html);
           }
           return;
         }
@@ -340,7 +340,26 @@ function EditorPage() {
         console.error(error);
       }
     }
-    if (created.length > 0) setSelectedIds(new Set(created.map((el) => el.id)));
+    if (created.length === 0) return;
+    setSelectedIds(new Set(created.map((el) => el.id)));
+    const snapshots = created.map((el) => ({ ...el }));
+    history.push({
+      undo: async () => {
+        for (const el of snapshots) await removeElement({ id: history.liveId(el.id) });
+        setSelectedIds(new Set());
+      },
+      redo: async () => {
+        for (const el of snapshots) {
+          const recreated = await createElement({
+            slideId: el.slideId, type: el.type,
+            x: el.x, y: el.y, width: el.width, height: el.height,
+            props: el.props ?? undefined,
+            zIndex: el.zIndex ?? undefined,
+          });
+          history.aliasId(el.id, recreated.id);
+        }
+      },
+    });
   }
 
   const sortedElements = useMemo(
@@ -582,7 +601,7 @@ function EditorPage() {
               <RichToolbar
                 editor={activeEditor}
                 contentHtml={selectedTextEl?.props?.content ?? ""}
-                onApplyContent={selectedTextEl ? (html) => updateContent({ id: selectedTextEl.id, content: html }) : undefined}
+                onApplyContent={selectedTextEl ? (html) => persistContent(selectedTextEl.id, html) : undefined}
               />
             </div>
           )}
