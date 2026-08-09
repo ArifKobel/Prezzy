@@ -55,6 +55,11 @@ export function lighten(hex: string, amount: number): string {
   return hslToHex(h, s, Math.min(100, l + amount));
 }
 
+export function contrastOn(hex: string): string {
+  const [, , l] = hexToHsl(hex);
+  return l > 62 ? "#1b1e22" : "#ffffff";
+}
+
 export function alpha(hex: string, ratio: number): string {
   const [h, s, l] = hexToHsl(hex);
   const targetL = l + (100 - l) * (1 - ratio);
