@@ -68,7 +68,9 @@ export const SLIDE_THEME_PRESETS: SlideThemePreset[] = [
 export const DEFAULT_SLIDE_THEME_ID = "clean";
 
 function presetById(id?: string): SlideThemePreset {
-  return SLIDE_THEME_PRESETS.find((p) => p.id === id) ?? SLIDE_THEME_PRESETS[0];
+  const preset = SLIDE_THEME_PRESETS.find((p) => p.id === id) ?? SLIDE_THEME_PRESETS[0];
+  if (!preset) throw new Error("no slide theme presets defined");
+  return preset;
 }
 
 function clamp255(n: number): number {
@@ -79,14 +81,14 @@ export function mixHex(a: string, b: string, t: number): string {
   const pa = parseHex(a);
   const pb = parseHex(b);
   if (!pa || !pb) return a;
-  const ch = pa.map((v, i) => clamp255(v + (pb[i] - v) * t));
+  const ch = pa.map((v, i) => clamp255(v + ((pb[i] ?? v) - v) * t));
   return `#${ch.map((v) => v.toString(16).padStart(2, "0")).join("")}`;
 }
 
 function parseHex(hex: string): [number, number, number] | null {
-  const m = /^#?([0-9a-f]{6})$/i.exec(hex.trim());
-  if (!m) return null;
-  const n = parseInt(m[1], 16);
+  const digits = /^#?([0-9a-f]{6})$/i.exec(hex.trim())?.[1];
+  if (!digits) return null;
+  const n = parseInt(digits, 16);
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
 }
 
