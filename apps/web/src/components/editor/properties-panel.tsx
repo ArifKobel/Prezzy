@@ -1,7 +1,7 @@
 import type { SlideElement } from "@Prezzy/shared";
 import {
   AlignLeft, ChevronLeft, Cloud, Heading, HelpCircle, Image,
-  QrCode, Square, Trophy, X,
+  QrCode, Square, Trash2, Trophy,
 } from "lucide-react";
 import { useState } from "react";
 import { useEditorActions, useEditorCtxState } from "@/lib/editor/editor-context";
@@ -27,16 +27,23 @@ export function PropertiesPanel({
   if (selectedEl) {
     return (
       <>
-        <div className="flex shrink-0 items-center gap-2 border-b border-border px-4 py-2.5">
-          <button onClick={actions.deselect} className="flex size-6 items-center justify-center rounded-md text-muted-foreground transition-all hover:bg-surface-container hover:text-foreground">
+        <div className="flex shrink-0 items-center gap-2 border-b border-border px-3 py-2">
+          <button onClick={actions.deselect} className="flex size-6 items-center justify-center text-muted-foreground transition-colors hover:bg-surface-container hover:text-foreground">
             <ChevronLeft className="size-3.5" />
           </button>
-          <span className="font-sans text-xs font-semibold capitalize text-foreground">
-            {{ heading: "Heading", text: "Text Box", image: "Image", shape: "Shape", quiz: "Quiz", wordcloud: "Word Cloud", leaderboard: "Leaderboard", qrcode: "QR Code" }[selectedEl.type] ?? selectedEl.type} Properties
+          <span className="flex-1 font-sans text-xs font-semibold capitalize text-foreground">
+            {{ heading: "Heading", text: "Text Box", image: "Image", shape: "Shape", quiz: "Quiz", wordcloud: "Word Cloud", leaderboard: "Leaderboard", qrcode: "QR Code" }[selectedEl.type] ?? selectedEl.type}
           </span>
+          <button
+            onClick={() => actions.deleteElement(selectedEl.id)}
+            title="Delete (⌫)"
+            className="flex size-6 items-center justify-center text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+          >
+            <Trash2 className="size-3.5" />
+          </button>
         </div>
 
-        <div className="flex flex-1 flex-col gap-4 overflow-y-auto px-4 py-4">
+        <div className="flex flex-1 flex-col gap-4 overflow-y-auto px-3 py-3">
           <PositionSection el={selectedEl} />
 
           {selectedEl.type === "image" && (
@@ -48,7 +55,7 @@ export function PropertiesPanel({
           )}
 
           {(selectedEl.type === "heading" || selectedEl.type === "text") && (
-            <PropSlider label="Opacity" icon={<span className="font-sans text-[9px] font-bold">%</span>} value={selectedEl.props?.opacity ?? 100} min={0} max={100} onChange={(v) => actions.updateProps({ id: selectedEl.id, props: { opacity: v } })} />
+            <PropSlider label="Opacity" value={selectedEl.props?.opacity ?? 100} min={0} max={100} onChange={(v) => actions.updateProps({ id: selectedEl.id, props: { opacity: v } })} />
           )}
 
           {selectedEl.type === "quiz" && (
@@ -63,11 +70,6 @@ export function PropertiesPanel({
             <StyleSection el={selectedEl} />
           )}
 
-          <div className="mt-auto pt-2">
-            <button onClick={() => actions.deleteElement(selectedEl.id)} className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-destructive/20 bg-destructive/5 px-3 py-2 font-sans text-[11px] font-medium text-destructive transition-all hover:bg-destructive/10">
-              <X className="size-3" /> Delete Element
-            </button>
-          </div>
         </div>
       </>
     );

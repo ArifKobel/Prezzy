@@ -73,16 +73,15 @@ export function ShapeIcon({ type, className }: { type: string; className?: strin
   }
 }
 
-export function SectionLabel({ icon, label }: { icon: React.ReactNode; label: string }) {
+export function SectionLabel({ label }: { icon?: React.ReactNode; label: string }) {
   return (
-    <div className="mb-2 flex items-center gap-1.5">
-      <span className="text-muted-foreground">{icon}</span>
-      <span className="font-sans text-[10px] font-medium uppercase tracking-widest text-muted-foreground">{label}</span>
+    <div className="mb-1.5 flex items-center gap-1.5">
+      <span className="font-sans text-[9px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/50">{label}</span>
     </div>
   );
 }
 
-export function PropSlider({ label, value, onChange, min = 0, max = 100, icon }: {
+export function PropSlider({ label, value, onChange, min = 0, max = 100 }: {
   label: string; value: number; onChange: (v: number) => void; min?: number; max?: number; icon?: React.ReactNode;
 }) {
   const [local, setLocal] = useState(value);
@@ -104,19 +103,17 @@ export function PropSlider({ label, value, onChange, min = 0, max = 100, icon }:
   }
 
   return (
-    <section>
-      {icon != null && <SectionLabel icon={icon} label={label} />}
-      <div className="flex items-center gap-3">
-        <input
-          type="range" min={min} max={max} value={local}
-          onChange={(e) => handleChange(Number(e.target.value))}
-          onPointerDown={() => { dragging.current = true; }}
-          onPointerUp={commit}
-          onLostPointerCapture={commit}
-          className="h-1.5 flex-1 cursor-pointer appearance-none rounded-full bg-surface-container accent-primary"
-        />
-        <span className="w-8 text-right font-sans text-[11px] tabular-nums text-muted-foreground">{local}</span>
-      </div>
+    <section className="flex items-center gap-2">
+      <span className="w-[72px] shrink-0 truncate font-sans text-[10px] text-muted-foreground" title={label}>{label}</span>
+      <input
+        type="range" min={min} max={max} value={local}
+        onChange={(e) => handleChange(Number(e.target.value))}
+        onPointerDown={() => { dragging.current = true; }}
+        onPointerUp={commit}
+        onLostPointerCapture={commit}
+        className="h-1 flex-1 cursor-pointer appearance-none rounded-full bg-surface-container-high accent-primary"
+      />
+      <span className="w-7 text-right font-sans text-[10px] tabular-nums text-muted-foreground">{local}</span>
     </section>
   );
 }
@@ -131,29 +128,38 @@ export function PropNumberInput({ label, value, onChange, min, max }: {
     if (!focused) setDraft(String(value));
   }, [value, focused]);
 
+  function clamp(n: number) {
+    return Math.max(min ?? -Infinity, Math.min(max ?? Infinity, n));
+  }
+
   function commit(v: string) {
     const n = parseFloat(v);
-    if (!isNaN(n)) {
-      const clamped = Math.max(min ?? -Infinity, Math.min(max ?? Infinity, n));
-      onChange(Math.round(clamped * 100) / 100);
-    }
+    if (!isNaN(n)) onChange(Math.round(clamp(n) * 100) / 100);
+  }
+
+  function stepBy(delta: number) {
+    const n = clamp((parseFloat(draft) || 0) + delta);
+    setDraft(String(n));
+    onChange(n);
   }
 
   return (
-    <div className="flex flex-col gap-0.5">
-      <label className="font-sans text-[9px] font-medium uppercase tracking-wider text-muted-foreground/60">{label}</label>
+    <label className="flex cursor-text items-center border border-transparent bg-surface-container/70 pl-2 transition-colors focus-within:border-ring hover:border-border">
+      <span className="w-4 shrink-0 select-none font-sans text-[10px] text-muted-foreground/60">{label}</span>
       <input
         type="text" inputMode="numeric" value={draft}
         onChange={(e) => setDraft(e.target.value.replace(/[^0-9.\-]/g, ""))}
-        onFocus={() => setFocused(true)}
+        onFocus={(e) => { setFocused(true); e.target.select(); }}
         onBlur={(e) => { setFocused(false); commit(e.target.value); }}
         onKeyDown={(e) => {
           if (e.key === "Enter") { commit((e.target as HTMLInputElement).value); (e.target as HTMLInputElement).blur(); }
           if (e.key === "Escape") { setDraft(String(value)); (e.target as HTMLInputElement).blur(); }
+          if (e.key === "ArrowUp") { e.preventDefault(); stepBy(e.shiftKey ? 10 : 1); }
+          if (e.key === "ArrowDown") { e.preventDefault(); stepBy(e.shiftKey ? -10 : -1); }
           e.stopPropagation();
         }}
-        className="w-full rounded-md border border-border bg-surface px-2 py-1.5 font-mono text-[11px] text-foreground outline-none placeholder:text-muted-foreground/40 focus:border-ring"
+        className="w-full min-w-0 bg-transparent py-1.5 pr-2 font-sans text-[11px] tabular-nums text-foreground outline-none"
       />
-    </div>
+    </label>
   );
 }
