@@ -54,18 +54,18 @@ export const HEADING_PRESETS = [
 export const FONT_FAMILIES = [
   { label: "Inter", value: "'Inter Variable', sans-serif" },
   { label: "Manrope", value: "'Manrope Variable', sans-serif" },
-  { label: "Space Grotesk", value: "'Space Grotesk', sans-serif" },
-  { label: "Sora", value: "'Sora', sans-serif" },
-  { label: "Outfit", value: "'Outfit', sans-serif" },
-  { label: "Archivo", value: "'Archivo', sans-serif" },
+  { label: "Space Grotesk", value: "'Space Grotesk Variable', sans-serif" },
+  { label: "Sora", value: "'Sora Variable', sans-serif" },
+  { label: "Outfit", value: "'Outfit Variable', sans-serif" },
+  { label: "Archivo", value: "'Archivo Variable', sans-serif" },
   { label: "Bebas Neue", value: "'Bebas Neue', sans-serif" },
-  { label: "Playfair Display", value: "'Playfair Display', serif" },
+  { label: "Playfair Display", value: "'Playfair Display Variable', serif" },
   { label: "DM Serif Display", value: "'DM Serif Display', serif" },
   { label: "Libre Baskerville", value: "'Libre Baskerville', serif" },
   { label: "Crimson Text", value: "'Crimson Text', serif" },
-  { label: "Bitter", value: "'Bitter', serif" },
-  { label: "Caveat", value: "'Caveat', cursive" },
-  { label: "JetBrains Mono", value: "'JetBrains Mono', monospace" },
+  { label: "Bitter", value: "'Bitter Variable', serif" },
+  { label: "Caveat", value: "'Caveat Variable', cursive" },
+  { label: "JetBrains Mono", value: "'JetBrains Mono Variable', monospace" },
 ];
 
 export const FONT_SIZES = ["8", "9", "10", "11", "12", "14", "18", "24", "30", "36", "48", "60", "72", "96"];

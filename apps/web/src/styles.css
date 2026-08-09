@@ -1,3 +1,18 @@
+/* Slide fonts — decoupled from the app UI font; downloaded on demand per @font-face */
+@import "@fontsource-variable/inter";
+@import "@fontsource-variable/manrope";
+@import "@fontsource-variable/space-grotesk";
+@import "@fontsource-variable/sora";
+@import "@fontsource-variable/outfit";
+@import "@fontsource-variable/archivo";
+@import "@fontsource-variable/playfair-display";
+@import "@fontsource-variable/bitter";
+@import "@fontsource-variable/caveat";
+@import "@fontsource-variable/jetbrains-mono";
+@import "@fontsource/bebas-neue";
+@import "@fontsource/dm-serif-display";
+@import "@fontsource/libre-baskerville";
+@import "@fontsource/crimson-text";
 @import "@Prezzy/ui/globals.css";
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
