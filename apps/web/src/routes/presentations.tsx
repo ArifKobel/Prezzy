@@ -3,6 +3,7 @@ import { AuthGuard } from "@/components/auth-guard";
 import { Check, FolderOpen, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { DashboardShell } from "@/components/dashboard/shell";
+import { NewDraftCard } from "@/components/dashboard/new-draft-card";
 import { SelectableCard } from "@/components/presentations/selectable-card";
 import {
   useCreatePresentation,
@@ -20,7 +21,7 @@ function PresentationsRoute() {
       authenticated={<PresentationsPage />}
       unauthenticated={<RedirectToHome />}
       loading={
-        <div className="flex h-full items-center justify-center bg-surface">
+        <div className="flex h-full items-center justify-center">
           <div className="size-5 animate-spin rounded-full border-2 border-primary/30 border-t-primary" />
         </div>
       }
@@ -44,7 +45,7 @@ function PresentationsPage() {
 
   if (presentations === undefined) {
     return (
-      <div className="flex h-full items-center justify-center bg-surface">
+      <div className="flex h-full items-center justify-center">
         <div className="size-5 animate-spin rounded-full border-2 border-primary/30 border-t-primary" />
       </div>
     );
@@ -74,12 +75,11 @@ function PresentationsPage() {
 
   return (
     <DashboardShell activePage="presentations">
-      <p className="font-sans text-[11px] font-medium uppercase tracking-[0.08em] text-muted-foreground/60">Library</p>
-      <h1 className="mt-1 font-display text-[2rem] font-bold tracking-tight text-foreground">
-        My <span className="italic text-primary">Presentations</span>
+      <h1 className="font-display text-5xl font-extrabold tracking-tight text-foreground">
+        Presentations<span className="text-primary">.</span>
       </h1>
 
-      <div className="mt-8 flex items-center justify-between">
+      <div className="mt-10 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <button
             onClick={() => {
@@ -87,7 +87,7 @@ function PresentationsPage() {
               if (allSelected) setSelected(new Set());
               else setSelected(new Set(presentations.map((p) => p.id)));
             }}
-            className={`flex size-[18px] items-center justify-center rounded-[4px] border-[1.5px] transition-all ${
+            className={`flex size-[18px] items-center justify-center border-[1.5px] transition-all ${
               allSelected
                 ? "border-primary bg-primary text-primary-foreground"
                 : someSelected
@@ -127,7 +127,7 @@ function PresentationsPage() {
 
         <button
           onClick={handleCreateNew}
-          className="flex items-center gap-1.5 rounded-md bg-[linear-gradient(135deg,var(--color-primary),var(--color-primary-dim))] px-4 py-2 font-sans text-xs font-medium text-primary-foreground shadow-[0_4px_12px_rgb(34_87_74_/_0.25)] transition-all hover:scale-[1.02] active:scale-[0.99]"
+          className="flex items-center gap-1.5 bg-primary px-4 py-2 font-sans text-xs font-bold text-primary-foreground transition-colors hover:bg-primary-dim"
         >
           <Plus className="size-3.5" /> New Presentation
         </button>
@@ -144,32 +144,22 @@ function PresentationsPage() {
             onToggle={() => toggleSelect(p.id)}
           />
         ))}
-        <button
-          onClick={handleCreateNew}
-          className="group flex aspect-[16/10] flex-col items-center justify-center rounded-xl border border-dashed border-outline-variant/30 bg-surface-container-lowest transition-all hover:border-primary/30 hover:shadow-[0_12px_40px_rgb(35_31_28_/_0.06)]"
-        >
-          <div className="flex size-10 items-center justify-center rounded-full bg-surface-container transition-colors group-hover:bg-secondary-container">
-            <Plus className="size-5 text-muted-foreground transition-colors group-hover:text-primary" />
-          </div>
-          <span className="mt-3 font-sans text-xs font-medium text-muted-foreground transition-colors group-hover:text-foreground">
-            Start a new draft
-          </span>
-          </button>
+        <NewDraftCard onClick={handleCreateNew} />
         </div>
       )}
 
       {count === 0 && (
         <div className="mt-20 flex flex-col items-center gap-4">
-          <div className="flex size-16 items-center justify-center rounded-2xl bg-surface-container">
+          <div className="flex size-16 items-center justify-center bg-surface-container">
             <FolderOpen className="size-7 text-muted-foreground/30" />
           </div>
           <div className="text-center">
-            <p className="font-display text-sm font-semibold text-foreground">No presentations yet</p>
+            <p className="font-display text-sm font-bold text-foreground">No presentations yet</p>
             <p className="mt-1 font-sans text-xs text-muted-foreground/60">Create your first one to get started</p>
           </div>
           <button
             onClick={handleCreateNew}
-            className="mt-2 flex items-center gap-1.5 rounded-md bg-[linear-gradient(135deg,var(--color-primary),var(--color-primary-dim))] px-5 py-2 font-sans text-xs font-medium text-primary-foreground shadow-[0_4px_12px_rgb(34_87_74_/_0.25)] transition-all hover:scale-[1.02] active:scale-[0.99]"
+            className="mt-2 flex items-center gap-1.5 bg-primary px-5 py-2 font-sans text-xs font-bold text-primary-foreground transition-colors hover:bg-primary-dim"
           >
             <Plus className="size-3.5" /> Create Presentation
           </button>

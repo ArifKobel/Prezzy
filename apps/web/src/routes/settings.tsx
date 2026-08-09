@@ -17,7 +17,7 @@ function SettingsRoute() {
       authenticated={<SettingsPage />}
       unauthenticated={<RedirectToHome />}
       loading={
-        <div className="flex h-full items-center justify-center bg-surface">
+        <div className="flex h-full items-center justify-center">
           <div className="size-5 animate-spin rounded-full border-2 border-primary/30 border-t-primary" />
         </div>
       }
@@ -37,7 +37,7 @@ function SettingsPage() {
 
   if (user === undefined) {
     return (
-      <div className="flex h-full items-center justify-center bg-surface">
+      <div className="flex h-full items-center justify-center">
         <div className="size-5 animate-spin rounded-full border-2 border-primary/30 border-t-primary" />
       </div>
     );
@@ -45,9 +45,8 @@ function SettingsPage() {
 
   return (
     <DashboardShell activePage="settings">
-      <p className="font-sans text-[11px] font-medium uppercase tracking-[0.08em] text-muted-foreground/60">Management</p>
-      <h1 className="mt-1 font-display text-[2rem] font-bold tracking-tight text-foreground">
-        <span className="italic text-primary">Settings</span>
+      <h1 className="font-display text-5xl font-extrabold tracking-tight text-foreground">
+        Settings<span className="text-primary">.</span>
       </h1>
 
       <div className="mt-10 max-w-2xl space-y-8">

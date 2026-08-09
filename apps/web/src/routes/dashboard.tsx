@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AuthGuard } from "@/components/auth-guard";
 import { ContinueCard } from "@/components/dashboard/continue-card";
-import { DashboardShell, getGreeting } from "@/components/dashboard/shell";
+import { DashboardShell } from "@/components/dashboard/shell";
 import { NewDraftCard } from "@/components/dashboard/new-draft-card";
 import { PresentationCard } from "@/components/dashboard/presentation-card";
 import { useMe } from "@/lib/api/auth";
@@ -17,7 +17,7 @@ function DashboardRoute() {
       authenticated={<DashboardPage />}
       unauthenticated={<RedirectToHome />}
       loading={
-        <div className="flex h-full items-center justify-center bg-surface">
+        <div className="flex h-full items-center justify-center">
           <div className="size-5 animate-spin rounded-full border-2 border-primary/30 border-t-primary" />
         </div>
       }
@@ -39,14 +39,12 @@ function DashboardPage() {
 
   if (user === undefined || presentations === undefined) {
     return (
-      <div className="flex h-full items-center justify-center bg-surface">
+      <div className="flex h-full items-center justify-center">
         <div className="size-5 animate-spin rounded-full border-2 border-primary/30 border-t-primary" />
       </div>
     );
   }
 
-  const greeting = getGreeting();
-  const firstName = user?.name?.split(" ")[0] ?? "";
   const [mostRecent, ...rest] = presentations;
 
   async function handleCreateNew() {
@@ -56,31 +54,28 @@ function DashboardPage() {
 
   return (
     <DashboardShell activePage="dashboard">
-      <div className="mx-auto max-w-[1180px]">
-        <p className="font-sans text-[11px] font-medium uppercase tracking-[0.08em] text-muted-foreground/60">
-          {greeting}, {firstName.toUpperCase() || "THERE"}
-        </p>
-        <h1 className="mt-1 font-display text-[2rem] font-bold tracking-tight text-foreground">
-          Your Creative <span className="italic text-primary">Workshop</span>
+      <div>
+        <h1 className="font-display text-5xl font-extrabold tracking-tight text-foreground">
+          Dashboard<span className="text-primary">.</span>
         </h1>
 
         {mostRecent && (
-          <section className="mt-8">
-            <h2 className="mb-3 font-display text-base font-semibold text-foreground">Pick up where you left off</h2>
+          <section className="mt-10">
+            <h2 className="mb-4 font-display text-base font-bold text-foreground">Pick up where you left off</h2>
             <ContinueCard presentation={mostRecent} />
           </section>
         )}
 
-        <section className="mt-10">
-          <div className="mb-4 flex items-baseline gap-3">
-            <h2 className="font-display text-base font-semibold text-foreground">
-              {mostRecent ? "All Presentations" : "Recent Presentations"}
+        <section className="mt-12">
+          <div className="mb-5 flex items-baseline gap-4">
+            <h2 className="font-display text-base font-bold text-foreground">
+              {mostRecent ? "All presentations" : "Recent presentations"}
             </h2>
             <button
               onClick={() => navigate({ to: "/presentations" })}
-              className="font-sans text-[11px] font-medium uppercase tracking-wider text-primary hover:underline"
+              className="font-sans text-xs font-semibold text-primary hover:underline"
             >
-              View Gallery
+              View all
             </button>
           </div>
           <div className="grid grid-cols-1 items-stretch gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

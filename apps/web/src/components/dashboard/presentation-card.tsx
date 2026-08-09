@@ -10,13 +10,15 @@ export function PresentationCard({ presentation: p }: { presentation: Presentati
   return (
     <button
       onClick={() => navigate({ to: "/editor/$presentationId", params: { presentationId: p.id } })}
-      className="group flex h-full flex-col rounded-xl bg-surface-container-lowest text-left shadow-[0_12px_40px_rgb(35_31_28_/_0.04)] transition-all hover:scale-[1.02] hover:shadow-[0_12px_40px_rgb(35_31_28_/_0.08)]"
+      className="group flex h-full flex-col gap-3 text-left"
     >
-      <div className="aspect-[16/10] overflow-hidden rounded-t-xl bg-surface-container">
-        <PresentationThumbnail presentationId={p.id} />
+      <div className="w-full bg-[#fffdf8] p-1.5 shadow-[0_1px_3px_rgb(27_30_34_/_0.15),0_8px_20px_rgb(27_30_34_/_0.12)] transition-transform group-hover:scale-[1.02]">
+        <div className="aspect-video overflow-hidden bg-surface-container">
+          <PresentationThumbnail presentationId={p.id} />
+        </div>
       </div>
-      <div className="mt-auto px-4 py-3">
-        <p className="font-display text-sm font-medium text-foreground">{p.title}</p>
+      <div>
+        <p className="font-display text-sm font-bold text-foreground">{p.title}</p>
         {timeAgo && <p className="mt-0.5 font-sans text-[11px] text-muted-foreground">Edited {timeAgo}</p>}
       </div>
     </button>
