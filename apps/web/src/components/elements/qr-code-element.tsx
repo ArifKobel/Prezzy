@@ -19,7 +19,7 @@ export function QRCodeElement({
     : null;
 
   const isLive = !!presentationId && !!joinUrl;
-  const bg = style?.backgroundColor || "#f6f2ea";
+  const bg = style?.backgroundColor;
   const text = style?.textColor || "#231f1c";
   const accentHex = style?.accentColor || "#22574a";
   const textMuted = alpha(text, 0.4);
@@ -64,7 +64,7 @@ export function QRCodeElement({
 
       <div className="flex w-[55%] items-center justify-center" style={{ backgroundColor: surfaceMuted }}>
         {isLive ? (
-          <div className="rounded-2xl bg-white p-[8%] shadow-[0_12px_40px_rgb(35_31_28_/_0.06)]">
+          <div className="rounded-[var(--slide-radius)] bg-white p-[8%]">
             <QRCodeSVG
               value={joinUrl}
               size={200}
@@ -74,9 +74,9 @@ export function QRCodeElement({
             />
           </div>
         ) : (
-          <div className="flex flex-col items-center gap-[8%] text-[#231f1c]/20">
+          <div className="flex flex-col items-center gap-[8%] opacity-25" style={{ color: text }}>
             <QrCode className="size-[40%]" strokeWidth={1} />
-            <p className="font-sans text-[0.4em] text-[#231f1c]/30">
+            <p className="font-sans text-[0.4em]">
               QR code appears during presentation
             </p>
           </div>

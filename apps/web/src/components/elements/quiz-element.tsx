@@ -20,7 +20,7 @@ export function QuizElement({
   const correctOption = el.props?.correctOption as number | undefined;
 
   const s = resolveElementStyle(el.props, theme);
-  const bg = s.backgroundColor || "#f6f2ea";
+  const bg = s.backgroundColor;
   const text = s.textColor || "#231f1c";
   const textMuted = alpha(text, 0.3);
   const textFaint = alpha(text, 0.25);
@@ -32,7 +32,7 @@ export function QuizElement({
       <p className="mb-[3%] text-center font-sans text-[0.3em] font-medium uppercase tracking-[0.1em]" style={{ color: textMuted }}>
         Quiz
       </p>
-      <div className="mb-[5%] text-center text-[1.1em] font-bold [font-family:var(--slide-font-heading)] leading-tight tracking-tight" style={{ color: text }} dangerouslySetInnerHTML={{ __html: question }} />
+      <div className="mb-[5%] text-center text-[1.6em] font-bold [font-family:var(--slide-font-heading)] leading-tight tracking-tight" style={{ color: text }} dangerouslySetInnerHTML={{ __html: question }} />
       <div className="flex flex-1 flex-col justify-center gap-[0.5em]">
         {options.map((opt, i) => {
           const isCorrect = correctOption === i;
@@ -44,7 +44,7 @@ export function QuizElement({
                 "flex items-center gap-[0.6em] rounded-[var(--slide-radius)] px-[0.9em] py-[0.55em]",
                 isCorrect
                   ? ""
-                  : "bg-[var(--slide-bg)]",
+                  : "bg-[var(--slide-surface)]",
               )}
               style={isCorrect ? { backgroundColor: alpha(correctColor, 0.1) } : undefined}
             >

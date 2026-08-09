@@ -106,7 +106,7 @@ export function WordCloudInteraction({ element }: { element: SlideElement }) {
       )}
 
       {(responses?.length ?? 0) > 0 && (
-        <div className="h-56 w-full overflow-hidden" style={{ borderRadius: t.radius }}>
+        <div className="h-56 w-full overflow-hidden" style={{ borderRadius: t.radius, backgroundColor: t.surface }}>
           <WordCloudElement el={element} responses={responses} theme={t} />
         </div>
       )}

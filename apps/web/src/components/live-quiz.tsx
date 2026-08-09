@@ -50,7 +50,7 @@ export function LiveQuizElement({
   const timedOutRef = useRef(false);
 
   const accent = style?.accentColor;
-  const bg = style?.backgroundColor || "#f6f2ea";
+  const bg = style?.backgroundColor;
   const text = style?.textColor || "#231f1c";
   const textMuted = alpha(text, 0.3);
   const textSub = alpha(text, 0.5);

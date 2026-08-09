@@ -11,7 +11,7 @@ export function QuizLobby({
 }: {
   question: string;
   participantCount?: number;
-  bg: string;
+  bg?: string;
   text: string;
   textMuted: string;
   textSub: string;

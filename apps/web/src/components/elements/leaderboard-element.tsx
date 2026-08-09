@@ -1,4 +1,3 @@
-import { Trophy } from "lucide-react";
 import {
   Bar,
   BarChart,
@@ -49,12 +48,9 @@ export function LeaderboardElement({
       className="flex h-full w-full flex-col overflow-hidden p-[4%]"
       style={{ backgroundColor: style?.backgroundColor, borderRadius: "var(--slide-radius)" }}
     >
-      <div className="mb-[3%] flex items-center gap-[2%]">
-        <Trophy className="size-[1.2em] text-yellow-500" />
-        <p className="text-[1em] font-bold [font-family:var(--slide-font-heading)] [color:var(--slide-text)]">
-          Leaderboard
-        </p>
-      </div>
+      <p className="mb-[3%] text-[1em] font-bold [font-family:var(--slide-font-heading)] [color:var(--slide-heading)]">
+        Leaderboard
+      </p>
 
       {data.length === 0 ? (
         <div className="flex flex-1 items-center justify-center">
@@ -97,11 +93,6 @@ export function LeaderboardElement({
                     key={i}
                     fill={podiumFills[i % podiumFills.length]}
                     fillOpacity={entry.score === 0 ? 0.3 : i === 0 ? 1 : 0.85 - i * 0.1}
-                    style={
-                      i === 0
-                        ? { filter: "drop-shadow(4px 0 12px rgba(234, 179, 8, 0.3))" }
-                        : undefined
-                    }
                   />
                 ))}
                 <LabelList
