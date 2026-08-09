@@ -32,20 +32,18 @@ export function useEditorState<T>(select: (state: EditorState) => T): T {
   );
 }
 
-const slideElementsCache = new WeakMap<EditorState, ReturnType<typeof filterSlideElements>>();
-
-function filterSlideElements(state: EditorState) {
-  return state.elements.filter((el) => el.slideId === state.activeSlideId);
-}
+const slideElementsCache = new WeakMap<
+  EditorState["elements"],
+  { slideId: string | null; elements: EditorState["elements"] }
+>();
 
 export function useSlideElements() {
   return useEditorState((state) => {
-    let elements = slideElementsCache.get(state);
-    if (!elements) {
-      elements = filterSlideElements(state);
-      slideElementsCache.set(state, elements);
-    }
-    return elements;
+    const hit = slideElementsCache.get(state.elements);
+    if (hit && hit.slideId === state.activeSlideId) return hit.elements;
+    const filtered = state.elements.filter((el) => el.slideId === state.activeSlideId);
+    slideElementsCache.set(state.elements, { slideId: state.activeSlideId, elements: filtered });
+    return filtered;
   });
 }
 

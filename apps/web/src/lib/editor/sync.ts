@@ -108,11 +108,12 @@ export function createSync(store: EditorStore, transport: SyncTransport, options
 
   markBaseline();
 
-  const unsubscribe = store.subscribe(() => {
+  const onDocUpdate = () => {
     if (stopped) return;
     detect();
     if (dirty.size > 0) schedule(debounceMs);
-  });
+  };
+  store.doc.on("update", onDocUpdate);
 
   return {
     status: () => status,
@@ -129,7 +130,7 @@ export function createSync(store: EditorStore, transport: SyncTransport, options
       stopped = true;
       if (timer !== null) clearTimeout(timer);
       timer = null;
-      unsubscribe();
+      store.doc.off("update", onDocUpdate);
     },
   };
 }

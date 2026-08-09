@@ -46,6 +46,7 @@ export function createEditorStore(doc: Y.Doc = createDoc()) {
   let interaction: Interaction = { kind: "idle" };
 
   let cached: EditorState | null = null;
+  let snapCache: DocSnapshot | null = null;
   const listeners = new Set<() => void>();
 
   const invalidate = () => {
@@ -53,13 +54,19 @@ export function createEditorStore(doc: Y.Doc = createDoc()) {
     for (const listener of listeners) listener();
   };
 
-  doc.on("update", invalidate);
+  const invalidateDoc = () => {
+    snapCache = null;
+    invalidate();
+  };
+
+  doc.on("update", invalidateDoc);
   undoManager.on("stack-item-added", invalidate);
   undoManager.on("stack-item-popped", invalidate);
 
   function getState(): EditorState {
     if (!cached) {
-      const snap = snapshot(doc);
+      if (!snapCache) snapCache = snapshot(doc);
+      const snap = snapCache;
       const slideExists = snap.slides.some((s) => s.id === activeSlideId);
       if (!slideExists) activeSlideId = snap.slides[0]?.id ?? null;
 
@@ -105,7 +112,7 @@ export function createEditorStore(doc: Y.Doc = createDoc()) {
     },
     getState,
     destroy() {
-      doc.off("update", invalidate);
+      doc.off("update", invalidateDoc);
       undoManager.destroy();
       listeners.clear();
     },

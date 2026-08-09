@@ -39,10 +39,40 @@ export function applyServerElements(doc: Y.Doc, slideId: string, elements: Slide
       if (el.get("slideId") === slideId && !keep.has(id)) map.delete(id);
     }
     for (const el of elements) {
-      map.delete(el.id);
+      const existing = map.get(el.id);
+      if (existing && sameElement(existing, el)) continue;
+      if (existing) map.delete(el.id);
       map.set(el.id, elementToY(el));
     }
   }, REMOTE_ORIGIN);
+}
+
+function sameElement(existing: Y.Map<unknown>, el: SlideElement): boolean {
+  if (
+    existing.get("slideId") !== el.slideId ||
+    existing.get("type") !== el.type ||
+    existing.get("x") !== el.x ||
+    existing.get("y") !== el.y ||
+    existing.get("width") !== el.width ||
+    existing.get("height") !== el.height ||
+    ((existing.get("zIndex") as number | null) ?? null) !== (el.zIndex ?? null)
+  ) {
+    return false;
+  }
+  return sameProps(existing.get("props") as Y.Map<unknown> | undefined, el.props);
+}
+
+function sameProps(map: Y.Map<unknown> | undefined, props: SlideElement["props"]): boolean {
+  const target = Object.entries(props ?? {}).filter(([, value]) => value !== undefined);
+  if ((map?.size ?? 0) !== target.length) return false;
+  return target.every(([key, value]) => sameValue(map?.get(key), value));
+}
+
+function sameValue(a: unknown, b: unknown): boolean {
+  if (Array.isArray(a) && Array.isArray(b)) {
+    return a.length === b.length && a.every((item, index) => item === b[index]);
+  }
+  return a === b;
 }
 
 function applySlide(doc: Y.Doc, slide: Slide): void {
