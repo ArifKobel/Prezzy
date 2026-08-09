@@ -1,12 +1,14 @@
 import type { User } from "@Prezzy/shared";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { queryOptions, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/api/client";
 
+export const meQueryOptions = queryOptions({
+  queryKey: ["auth", "me"],
+  queryFn: () => apiFetch<User | null>("/auth/me"),
+});
+
 export function useMe() {
-  return useQuery({
-    queryKey: ["auth", "me"],
-    queryFn: () => apiFetch<User | null>("/auth/me"),
-  });
+  return useQuery(meQueryOptions);
 }
 
 function useAuthMutation<TArgs>(path: string) {

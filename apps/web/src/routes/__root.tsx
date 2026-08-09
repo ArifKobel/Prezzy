@@ -1,11 +1,12 @@
 import { Toaster } from "@Prezzy/ui/components/sonner";
-import { HeadContent, Outlet, Scripts, createRootRoute } from "@tanstack/react-router";
+import type { QueryClient } from "@tanstack/react-query";
+import { HeadContent, Outlet, Scripts, createRootRouteWithContext } from "@tanstack/react-router";
 
 import { ThemeProvider } from "@/components/theme-provider";
 
 import appCss from "@/styles.css?url";
 
-export const Route = createRootRoute({
+export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
     meta: [
       { charSet: "utf-8" },

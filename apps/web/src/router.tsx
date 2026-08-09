@@ -1,23 +1,29 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient } from "@tanstack/react-query";
 import { createRouter as createTanStackRouter } from "@tanstack/react-router";
+import { setupRouterSsrQueryIntegration } from "@tanstack/react-router-ssr-query";
 
 import Loader from "@/components/loader";
 import { routeTree } from "@/routeTree.gen";
 
-const queryClient = new QueryClient();
-
 export function getRouter() {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 30_000,
+      },
+    },
+  });
+
   const router = createTanStackRouter({
     routeTree,
     scrollRestoration: true,
     defaultPreload: "intent",
     defaultPreloadStaleTime: 0,
     defaultPendingComponent: () => <Loader />,
-    context: {},
-    Wrap: function WrapComponent({ children }: { children: React.ReactNode }) {
-      return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
-    },
+    context: { queryClient },
   });
+
+  setupRouterSsrQueryIntegration({ router, queryClient });
 
   return router;
 }

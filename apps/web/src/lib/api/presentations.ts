@@ -1,5 +1,5 @@
 import type { Presentation, PresentationTheme, SlideElement } from "@Prezzy/shared";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { queryOptions, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/api/client";
 
 export function usePresentation(id: string | null) {
@@ -10,11 +10,13 @@ export function usePresentation(id: string | null) {
   });
 }
 
+export const presentationsQueryOptions = queryOptions({
+  queryKey: ["presentations"],
+  queryFn: () => apiFetch<Presentation[]>("/presentations"),
+});
+
 export function usePresentations() {
-  return useQuery({
-    queryKey: ["presentations"],
-    queryFn: () => apiFetch<Presentation[]>("/presentations"),
-  });
+  return useQuery(presentationsQueryOptions);
 }
 
 export function usePresentationElements(presentationId: string | null) {
@@ -25,10 +27,16 @@ export function usePresentationElements(presentationId: string | null) {
   });
 }
 
-export function useFirstSlideElements(presentationId: string | null) {
-  return useQuery({
+export function firstSlideElementsQueryOptions(presentationId: string) {
+  return queryOptions({
     queryKey: ["firstSlideElements", presentationId],
     queryFn: () => apiFetch<SlideElement[]>(`/presentations/${presentationId}/first-slide-elements`),
+  });
+}
+
+export function useFirstSlideElements(presentationId: string | null) {
+  return useQuery({
+    ...firstSlideElementsQueryOptions(presentationId ?? ""),
     enabled: !!presentationId,
   });
 }

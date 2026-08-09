@@ -5,10 +5,11 @@ import { DashboardShell } from "@/components/dashboard/shell";
 import { PasswordForm } from "@/components/settings/password-form";
 import { ProfileForm } from "@/components/settings/profile-form";
 import { SettingsSection } from "@/components/settings/settings-section";
-import { useLogout, useMe } from "@/lib/api/auth";
+import { meQueryOptions, useLogout, useMe } from "@/lib/api/auth";
 
 export const Route = createFileRoute("/settings")({
   component: SettingsRoute,
+  loader: ({ context: { queryClient } }) => queryClient.ensureQueryData(meQueryOptions),
 });
 
 function SettingsRoute() {

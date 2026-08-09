@@ -4,11 +4,25 @@ import { ContinueCard } from "@/components/dashboard/continue-card";
 import { DashboardShell } from "@/components/dashboard/shell";
 import { NewDraftCard } from "@/components/dashboard/new-draft-card";
 import { PresentationCard } from "@/components/dashboard/presentation-card";
-import { useMe } from "@/lib/api/auth";
-import { useCreatePresentation, usePresentations } from "@/lib/api/presentations";
+import { meQueryOptions, useMe } from "@/lib/api/auth";
+import {
+  firstSlideElementsQueryOptions,
+  presentationsQueryOptions,
+  useCreatePresentation,
+  usePresentations,
+} from "@/lib/api/presentations";
 
 export const Route = createFileRoute("/dashboard")({
   component: DashboardRoute,
+  loader: async ({ context: { queryClient } }) => {
+    const [, presentations] = await Promise.all([
+      queryClient.ensureQueryData(meQueryOptions),
+      queryClient.ensureQueryData(presentationsQueryOptions),
+    ]);
+    await Promise.all(
+      presentations.slice(0, 8).map((p) => queryClient.ensureQueryData(firstSlideElementsQueryOptions(p.id))),
+    );
+  },
 });
 
 function DashboardRoute() {

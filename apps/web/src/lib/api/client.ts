@@ -20,6 +20,11 @@ export async function apiFetch<T>(
     const socketId = getSocketId();
     if (socketId) headers["x-socket-id"] = socketId;
   }
+  if (typeof window === "undefined") {
+    const { getRequestHeader } = await import("@tanstack/react-start/server");
+    const cookie = getRequestHeader("cookie");
+    if (cookie) headers["cookie"] = cookie;
+  }
   const res = await fetch(`${env.VITE_API_URL}/api${path}`, {
     method,
     credentials: "include",

@@ -6,13 +6,25 @@ import { DashboardShell } from "@/components/dashboard/shell";
 import { NewDraftCard } from "@/components/dashboard/new-draft-card";
 import { SelectableCard } from "@/components/presentations/selectable-card";
 import {
+  firstSlideElementsQueryOptions,
+  presentationsQueryOptions,
   useCreatePresentation,
   usePresentations,
   useRemovePresentation,
 } from "@/lib/api/presentations";
+import { meQueryOptions } from "@/lib/api/auth";
 
 export const Route = createFileRoute("/presentations")({
   component: PresentationsRoute,
+  loader: async ({ context: { queryClient } }) => {
+    const [, presentations] = await Promise.all([
+      queryClient.ensureQueryData(meQueryOptions),
+      queryClient.ensureQueryData(presentationsQueryOptions),
+    ]);
+    await Promise.all(
+      presentations.map((p) => queryClient.ensureQueryData(firstSlideElementsQueryOptions(p.id))),
+    );
+  },
 });
 
 function PresentationsRoute() {
