@@ -81,8 +81,8 @@ export function SectionLabel({ label }: { icon?: React.ReactNode; label: string 
   );
 }
 
-export function PropSlider({ label, value, onChange, min = 0, max = 100 }: {
-  label: string; value: number; onChange: (v: number) => void; min?: number; max?: number; icon?: React.ReactNode;
+export function PropSlider({ label, value, onChange, onPreview, min = 0, max = 100 }: {
+  label: string; value: number; onChange: (v: number) => void; onPreview?: (v: number) => void; min?: number; max?: number; icon?: React.ReactNode;
 }) {
   const [local, setLocal] = useState(value);
   const dragging = useRef(false);
@@ -95,6 +95,7 @@ export function PropSlider({ label, value, onChange, min = 0, max = 100 }: {
   function handleChange(v: number) {
     setLocal(v);
     localRef.current = v;
+    onPreview?.(v);
   }
 
   function commit() {

@@ -8,7 +8,7 @@ import { PropSlider, SectionLabel } from "@/components/editor/editor-ui";
 import { MirrorSection } from "@/components/editor/properties/mirror-section";
 
 export function ImageProperties({ el }: { el: SlideElement }) {
-  const { updateProps, updateImageSrc, triggerImageUpload, showImageUrlDialog, handleImageUpload } = useEditorActions();
+  const { updateProps, previewProps, updateImageSrc, triggerImageUpload, showImageUrlDialog, handleImageUpload } = useEditorActions();
   const { uploadingImageId } = useEditorCtxState();
 
   return (
@@ -84,9 +84,9 @@ export function ImageProperties({ el }: { el: SlideElement }) {
         </div>
       </section>
 
-      <PropSlider label="Border Radius" icon={<RectangleHorizontal className="size-3" />} value={el.props?.borderRadius ?? 8} min={0} max={50} onChange={(v) => updateProps({ id: el.id, props: { borderRadius: v } })} />
-      <PropSlider label="Opacity" icon={<span className="font-sans text-[9px] font-bold">%</span>} value={el.props?.opacity ?? 100} min={0} max={100} onChange={(v) => updateProps({ id: el.id, props: { opacity: v } })} />
-      <PropSlider label="Rotation" icon={<RotateCw className="size-3" />} value={el.props?.rotation ?? 0} min={0} max={360} onChange={(v) => updateProps({ id: el.id, props: { rotation: v } })} />
+      <PropSlider label="Border Radius" icon={<RectangleHorizontal className="size-3" />} value={el.props?.borderRadius ?? 8} min={0} max={50} onChange={(v) => updateProps({ id: el.id, props: { borderRadius: v } })} onPreview={(v) => previewProps({ id: el.id, props: { borderRadius: v } })} />
+      <PropSlider label="Opacity" icon={<span className="font-sans text-[9px] font-bold">%</span>} value={el.props?.opacity ?? 100} min={0} max={100} onChange={(v) => updateProps({ id: el.id, props: { opacity: v } })} onPreview={(v) => previewProps({ id: el.id, props: { opacity: v } })} />
+      <PropSlider label="Rotation" icon={<RotateCw className="size-3" />} value={el.props?.rotation ?? 0} min={0} max={360} onChange={(v) => updateProps({ id: el.id, props: { rotation: v } })} onPreview={(v) => previewProps({ id: el.id, props: { rotation: v } })} />
 
       <MirrorSection el={el} />
     </>

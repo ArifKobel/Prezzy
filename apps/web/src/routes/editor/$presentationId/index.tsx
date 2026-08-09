@@ -181,6 +181,7 @@ function EditorPage() {
   const [activeEditor, setActiveEditorState] = useState<EditorInstance | null>(null);
   const [elementNodes, setElementNodes]   = useState<Map<string, HTMLElement>>(new Map());
   const [liveRotation, setLiveRotation]   = useState<{ id: string; rotation: number } | null>(null);
+  const [livePropsPreview, setLivePropsPreview] = useState<{ id: string; props: ElementProps } | null>(null);
   const [showThemePanel, setShowThemePanel] = useState(false);
   const [showLayoutPicker, setShowLayoutPicker] = useState(false);
 
@@ -202,6 +203,7 @@ function EditorPage() {
   }, []);
 
   useEffect(() => { if (liveRotation) setLiveRotation(null); }, [elements]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (livePropsPreview) setLivePropsPreview(null); }, [elements]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const setActiveEditor = useCallback((e: EditorInstance | null) => {
     setActiveEditorInstance(e);
@@ -440,6 +442,7 @@ function EditorPage() {
     handleImageUpload,
     addElement: handleAddElement,
     deselect: () => setSelectedIds(new Set()),
+    previewProps: (args: { id: string; props: ElementProps } | null) => setLivePropsPreview(args),
   }), [updatePosition, updateGeometry, updateProps, updateImageSrc, removeElement, handleImageUpload, activeSlideId, elements, hasInteractiveElement]);
 
   const editorCtxState: EditorCtxState = useMemo(() => ({
@@ -597,7 +600,7 @@ function EditorPage() {
               sortedElements.map((el) => (
                 <CanvasElement
                   key={el.id}
-                  el={el}
+                  el={livePropsPreview?.id === el.id ? { ...el, props: { ...el.props, ...livePropsPreview.props } } : el}
                   isSelected={selectedIds.has(el.id)}
                   isEditing={editingId === el.id}
                   multiSelected={selectedIds.size > 1}

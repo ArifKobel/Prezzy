@@ -5,6 +5,7 @@ export interface EditorActions {
   updatePosition: (args: { id: string; x: number; y: number }) => void;
   updateGeometry: (args: { id: string; x: number; y: number; width: number; height: number }) => void;
   updateProps: (args: { id: string; props: ElementProps }) => void;
+  previewProps: (args: { id: string; props: ElementProps } | null) => void;
   updateImageSrc: (args: { id: string; src: string }) => void;
   removeElement: (args: { id: string }) => void;
   deleteElement: (id: string) => void;

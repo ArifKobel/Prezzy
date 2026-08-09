@@ -55,7 +55,7 @@ export function PropertiesPanel({
           )}
 
           {(selectedEl.type === "heading" || selectedEl.type === "text") && (
-            <PropSlider label="Opacity" value={selectedEl.props?.opacity ?? 100} min={0} max={100} onChange={(v) => actions.updateProps({ id: selectedEl.id, props: { opacity: v } })} />
+            <PropSlider label="Opacity" value={selectedEl.props?.opacity ?? 100} min={0} max={100} onChange={(v) => actions.updateProps({ id: selectedEl.id, props: { opacity: v } })} onPreview={(v) => actions.previewProps({ id: selectedEl.id, props: { opacity: v } })} />
           )}
 
           {selectedEl.type === "quiz" && (
