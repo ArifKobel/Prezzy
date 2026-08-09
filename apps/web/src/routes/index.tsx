@@ -1,32 +1,16 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { AuthGuard } from "@/components/auth-guard";
-import { useEffect, useState } from "react";
+import { createFileRoute, redirect } from "@tanstack/react-router";
+import { useState } from "react";
 import SignInForm from "@/components/sign-in-form";
 import SignUpForm from "@/components/sign-up-form";
+import { meQueryOptions } from "@/lib/api/auth";
 
 export const Route = createFileRoute("/")({
-  component: IndexPage,
+  component: AuthPage,
+  loader: async ({ context: { queryClient } }) => {
+    const user = await queryClient.ensureQueryData(meQueryOptions).catch(() => null);
+    if (user) throw redirect({ to: "/dashboard" });
+  },
 });
-
-function IndexPage() {
-  return (
-    <AuthGuard
-      authenticated={<RedirectToDashboard />}
-      unauthenticated={<AuthPage />}
-      loading={
-        <div className="flex h-full items-center justify-center bg-surface">
-          <div className="size-5 animate-spin rounded-full border-2 border-primary/30 border-t-primary" />
-        </div>
-      }
-    />
-  );
-}
-
-function RedirectToDashboard() {
-  const navigate = useNavigate();
-  useEffect(() => { navigate({ to: "/dashboard" }); }, [navigate]);
-  return null;
-}
 
 function AuthPage() {
   const [mode, setMode] = useState<"signin" | "signup">("signin");
