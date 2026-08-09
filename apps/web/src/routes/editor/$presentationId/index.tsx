@@ -54,6 +54,12 @@ export const Route = createFileRoute("/editor/$presentationId/")({
   component: EditorPage,
 });
 
+const INTERACTIVE_TYPES = new Set(["quiz", "wordcloud", "leaderboard", "qrcode"]);
+
+type ElementSnapshot = Pick<SlideElement, "type" | "x" | "y" | "width" | "height" | "props">;
+
+let elementClipboard: ElementSnapshot[] = [];
+
 function EditorPage() {
   const { presentationId } = Route.useParams();
   const pid = presentationId;
@@ -222,21 +228,101 @@ function EditorPage() {
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
+      const target = e.target as HTMLElement;
+      if (target?.tagName === "INPUT" || target?.tagName === "TEXTAREA" || target?.closest?.(".ProseMirror")) return;
       if (editingId) return;
-      if ((e.key === "Delete" || e.key === "Backspace") && selectedIds.size > 0) {
+      const mod = e.metaKey || e.ctrlKey;
+      const selected = (elements ?? []).filter((el) => selectedIds.has(el.id));
+
+      if ((e.key === "Delete" || e.key === "Backspace") && selected.length > 0) {
         deleteElements(selectedIds);
+        return;
       }
       if (e.key === "Escape") {
         if (showImageUrlDialog) { setShowImageUrlDialog(null); return; }
         setSelectedIds(new Set());
+        return;
+      }
+      if (mod && e.key === "a") {
+        e.preventDefault();
+        setSelectedIds(new Set((elements ?? []).map((el) => el.id)));
+        return;
+      }
+      if (mod && e.key === "d" && selected.length > 0) {
+        e.preventDefault();
+        pasteElements(selected);
+        return;
+      }
+      if (mod && (e.key === "c" || e.key === "x") && selected.length > 0) {
+        e.preventDefault();
+        elementClipboard = selected.map((el) => ({
+          type: el.type, x: el.x, y: el.y, width: el.width, height: el.height,
+          props: el.props ? { ...el.props } : null,
+        }));
+        if (e.key === "x") deleteElements(selectedIds);
+        return;
+      }
+      if (mod && e.key === "v" && elementClipboard.length > 0) {
+        e.preventDefault();
+        pasteElements(elementClipboard);
+        return;
+      }
+      if (!mod && e.key.startsWith("Arrow") && selected.length > 0) {
+        e.preventDefault();
+        const step = e.shiftKey ? 5 : 1;
+        const dx = e.key === "ArrowLeft" ? -step : e.key === "ArrowRight" ? step : 0;
+        const dy = e.key === "ArrowUp" ? -step : e.key === "ArrowDown" ? step : 0;
+        if (dx === 0 && dy === 0) return;
+        const moves = selected.map((el) => ({
+          id: el.id, oldX: el.x, oldY: el.y, newX: el.x + dx, newY: el.y + dy,
+        }));
+        for (const m of moves) updatePosition({ id: m.id, x: m.newX, y: m.newY });
+        history.push({
+          undo: () => Promise.all(moves.map((m) => updatePosition({ id: history.liveId(m.id), x: m.oldX, y: m.oldY }))),
+          redo: () => Promise.all(moves.map((m) => updatePosition({ id: history.liveId(m.id), x: m.newX, y: m.newY }))),
+        });
+        return;
+      }
+      if (!mod && (e.key === "[" || e.key === "]") && selected.length === 1) {
+        reorderElement({ id: selected[0].id, action: e.key === "]" ? "forward" : "backward" });
+        return;
+      }
+      if (e.key === "PageDown" || e.key === "PageUp") {
+        e.preventDefault();
+        if (!slides || slides.length === 0) return;
+        const idx = slides.findIndex((s) => s.id === activeSlideId);
+        const next = slides[idx + (e.key === "PageDown" ? 1 : -1)];
+        if (next) switchSlide(next.id);
       }
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [selectedIds, editingId, elements, removeElement, showImageUrlDialog]);
+  }, [selectedIds, editingId, elements, removeElement, showImageUrlDialog, slides, activeSlideId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const INTERACTIVE_TYPES = new Set(["quiz", "wordcloud", "leaderboard", "qrcode"]);
   const hasInteractiveElement = elements?.some((el) => INTERACTIVE_TYPES.has(el.type)) ?? false;
+
+  async function pasteElements(source: ElementSnapshot[]) {
+    if (!activeSlideId) return;
+    let hasInteractive = elements?.some((el) => INTERACTIVE_TYPES.has(el.type)) ?? false;
+    const created: SlideElement[] = [];
+    for (const c of source) {
+      if (INTERACTIVE_TYPES.has(c.type)) {
+        if (hasInteractive) continue;
+        hasInteractive = true;
+      }
+      try {
+        created.push(await createElement({
+          slideId: activeSlideId, type: c.type,
+          x: Math.min(c.x + 3, 95), y: Math.min(c.y + 3, 95),
+          width: c.width, height: c.height,
+          props: c.props ?? undefined,
+        }));
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    if (created.length > 0) setSelectedIds(new Set(created.map((el) => el.id)));
+  }
 
   const sortedElements = useMemo(
     () => elements ? [...elements].sort((a, b) => (a.zIndex ?? 0) - (b.zIndex ?? 0) || a.createdAt - b.createdAt) : [],
@@ -316,10 +402,7 @@ function EditorPage() {
   }
 
   function handleDuplicateElement(el: SlideElement) {
-    if (!activeSlideId) return;
-    createElement({ slideId: activeSlideId, type: el.type, x: el.x + 3, y: el.y + 3, width: el.width, height: el.height, props: el.props ?? undefined })
-      .then((created) => setSelectedIds(new Set([created.id])))
-      .catch(console.error);
+    pasteElements([el]);
   }
 
   const handleFitHeight = useCallback((id: string, height: number) => {
