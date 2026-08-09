@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { Inject, Injectable, Logger } from "@nestjs/common";
 import { and, asc, eq, inArray, notInArray, sql } from "drizzle-orm";
 import * as awarenessProtocol from "y-protocols/awareness";
@@ -16,6 +17,12 @@ export type DocBroadcaster = (
   originSocketId: string | null,
 ) => void;
 
+interface DocSnapshot {
+  meta: string;
+  slides: string;
+  elementsBySlide: Map<string, string>;
+}
+
 interface DocEntry {
   doc: Y.Doc;
   awareness: awarenessProtocol.Awareness;
@@ -26,8 +33,25 @@ interface DocEntry {
   saveTimer: NodeJS.Timeout | null;
   dirty: boolean;
   saving: Promise<void> | null;
-  lastContent: DocContent;
+  lastSnapshot: DocSnapshot;
 }
+
+const hashOf = (value: unknown): string =>
+  createHash("sha1").update(JSON.stringify(value)).digest("base64");
+
+const snapshotOf = (content: DocContent): DocSnapshot => {
+  const groups = new Map<string, DocContent["elements"]>();
+  for (const element of content.elements) {
+    const list = groups.get(element.slideId);
+    if (list) list.push(element);
+    else groups.set(element.slideId, [element]);
+  }
+  return {
+    meta: hashOf([content.title, content.theme]),
+    slides: hashOf(content.slides),
+    elementsBySlide: new Map([...groups].map(([slideId, list]) => [slideId, hashOf(list)])),
+  };
+};
 
 @Injectable()
 export class DocRegistryService {
@@ -161,7 +185,7 @@ export class DocRegistryService {
       saveTimer: null,
       dirty: false,
       saving: null,
-      lastContent: readDoc(doc),
+      lastSnapshot: snapshotOf(readDoc(doc)),
     };
 
     doc.on("update", (update: Uint8Array, origin: unknown) => {
@@ -214,7 +238,6 @@ export class DocRegistryService {
         const state = Buffer.from(Y.encodeStateAsUpdate(entry.doc));
         await this.materialize(entry.presentationId, content, state);
         this.emitChanges(entry, content);
-        entry.lastContent = content;
       } catch (error) {
         entry.dirty = true;
         this.scheduleSave(entry);
@@ -314,33 +337,23 @@ export class DocRegistryService {
 
   private emitChanges(entry: DocEntry, content: DocContent): void {
     const target = { presentationId: entry.presentationId, joinCode: entry.joinCode };
-    const previous = entry.lastContent;
+    const previous = entry.lastSnapshot;
+    const current = snapshotOf(content);
 
-    if (content.title !== previous.title || JSON.stringify(content.theme) !== JSON.stringify(previous.theme)) {
+    if (current.meta !== previous.meta) {
       this.events.presentationUpdated(target);
     }
-    if (JSON.stringify(content.slides) !== JSON.stringify(previous.slides)) {
+    if (current.slides !== previous.slides) {
       this.events.slidesChanged(target);
     }
 
-    const groupBySlide = (elements: DocContent["elements"]) => {
-      const map = new Map<string, string>();
-      const groups = new Map<string, DocContent["elements"]>();
-      for (const element of elements) {
-        const list = groups.get(element.slideId);
-        if (list) list.push(element);
-        else groups.set(element.slideId, [element]);
-      }
-      for (const [slideId, list] of groups) map.set(slideId, JSON.stringify(list));
-      return map;
-    };
-    const before = groupBySlide(previous.elements);
-    const after = groupBySlide(content.elements);
-    const slideIds = new Set([...before.keys(), ...after.keys()]);
+    const slideIds = new Set([...previous.elementsBySlide.keys(), ...current.elementsBySlide.keys()]);
     for (const slideId of slideIds) {
-      if (before.get(slideId) !== after.get(slideId)) {
+      if (previous.elementsBySlide.get(slideId) !== current.elementsBySlide.get(slideId)) {
         this.events.elementsChanged(target, slideId);
       }
     }
+
+    entry.lastSnapshot = current;
   }
 }
