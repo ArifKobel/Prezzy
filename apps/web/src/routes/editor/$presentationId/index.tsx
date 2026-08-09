@@ -6,6 +6,7 @@ import {
   ContextMenuShortcut, ContextMenuTrigger,
 } from "@Prezzy/ui/components/context-menu";
 import { cn } from "@Prezzy/ui/lib/utils";
+import { useIsMutating } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
   ExternalLink, Heading, Image, Paintbrush, Play,
@@ -155,6 +156,7 @@ function EditorPage() {
   const { data: elements } = useSlideElements(activeSlideId);
 
   const history = useHistory();
+  const isSaving = useIsMutating() > 0;
 
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
@@ -479,10 +481,10 @@ function EditorPage() {
       <div className="flex items-center gap-3 border-b border-border bg-surface px-3 py-1.5">
         <button
           onClick={() => navigate({ to: "/dashboard" })}
-          className="flex shrink-0 items-center gap-2 rounded-md px-1.5 py-1 transition-colors hover:bg-surface-container"
+          className="flex shrink-0 items-center px-1.5 py-1 font-display text-sm font-extrabold tracking-tight text-foreground transition-colors hover:bg-surface-container"
           title="Back to dashboard"
         >
-          <img src="/logo.svg" alt="" className="size-6" />
+          Prezzy<span className="text-primary">.</span>
         </button>
 
         <div className="flex min-w-0 flex-1 flex-col">
@@ -498,6 +500,28 @@ function EditorPage() {
         </div>
 
         <div className="flex items-center gap-2">
+          <span className="mr-1 font-sans text-[10px] text-muted-foreground/60">
+            {isSaving ? "Saving…" : "Saved"}
+          </span>
+          <div className="flex items-center gap-0.5">
+            <button
+              onClick={() => history.undo()}
+              disabled={!history.canUndo}
+              title="Undo (⌘Z)"
+              className="flex size-7 items-center justify-center text-muted-foreground transition-colors hover:bg-surface-container hover:text-foreground disabled:pointer-events-none disabled:opacity-30"
+            >
+              <RotateCcw className="size-3.5" />
+            </button>
+            <button
+              onClick={() => history.redo()}
+              disabled={!history.canRedo}
+              title="Redo (⌘⇧Z)"
+              className="flex size-7 items-center justify-center text-muted-foreground transition-colors hover:bg-surface-container hover:text-foreground disabled:pointer-events-none disabled:opacity-30"
+            >
+              <RotateCw className="size-3.5" />
+            </button>
+          </div>
+          <div className="mx-1 h-4 w-px bg-border" />
           <button
             onClick={() => { setShowThemePanel((v) => !v); }}
             className={cn(
@@ -525,28 +549,6 @@ function EditorPage() {
             </button>
           </div>
         </div>
-      </div>
-
-      <div className="flex items-center border-b border-border bg-surface px-3 py-1">
-        <div className="flex items-center gap-0.5">
-          <button
-            onClick={() => history.undo()}
-            disabled={!history.canUndo}
-            title="Undo (⌘Z)"
-            className="flex size-7 items-center justify-center rounded-md text-muted-foreground transition-all hover:bg-surface-container hover:text-foreground disabled:opacity-30 disabled:pointer-events-none"
-          >
-            <RotateCcw className="size-3.5" />
-          </button>
-          <button
-            onClick={() => history.redo()}
-            disabled={!history.canRedo}
-            title="Redo (⌘⇧Z)"
-            className="flex size-7 items-center justify-center rounded-md text-muted-foreground transition-all hover:bg-surface-container hover:text-foreground disabled:opacity-30 disabled:pointer-events-none"
-          >
-            <RotateCw className="size-3.5" />
-          </button>
-        </div>
-
       </div>
 
       <div className="flex flex-1 overflow-hidden">
