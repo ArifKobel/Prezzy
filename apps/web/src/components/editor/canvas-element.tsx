@@ -146,19 +146,28 @@ export function CanvasElement({
                 opacity={el.props?.opacity}
               >
                 {uploadingImageId === el.id ? (
-                  <div className="flex flex-col items-center gap-2">
-                    <div className="size-5 animate-spin rounded-full border-2 border-white/40 border-t-white/80" />
-                    <span className="text-[10px] font-medium text-white/60">Uploading...</span>
+                  <div className="flex flex-col items-center gap-2 [color:var(--slide-muted)]">
+                    <div className="size-5 animate-spin rounded-full border-2 border-current opacity-70 [border-top-color:var(--slide-text)]" />
+                    <span className="text-[10px] font-medium">Uploading...</span>
                   </div>
                 ) : (
                   <div className="flex flex-col items-center gap-2">
-                    <ImagePlus className="size-6 text-white/50" />
+                    <ImagePlus className="size-6 opacity-60 [color:var(--slide-muted)]" />
                     {isSelected && (
                       <div className="flex flex-col items-center gap-1.5">
-                        <button onPointerDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); onTriggerImageUpload(el.id); }} className="flex items-center gap-1 rounded-md bg-white/20 px-3 py-1 text-[10px] font-medium text-white/80 transition-all hover:bg-white/30">
+                        <button
+                          onPointerDown={(e) => e.stopPropagation()}
+                          onClick={(e) => { e.stopPropagation(); onTriggerImageUpload(el.id); }}
+                          className="flex items-center gap-1 px-3 py-1 text-[10px] font-bold transition-opacity hover:opacity-80"
+                          style={{ backgroundColor: "var(--slide-text)", color: "var(--slide-bg)", borderRadius: "var(--slide-radius)" }}
+                        >
                           <Upload className="size-3" /> Upload Image
                         </button>
-                        <button onPointerDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); onShowImageUrlDialog(el.id); }} className="flex items-center gap-1 text-[10px] text-white/50 transition-all hover:text-white/70">
+                        <button
+                          onPointerDown={(e) => e.stopPropagation()}
+                          onClick={(e) => { e.stopPropagation(); onShowImageUrlDialog(el.id); }}
+                          className="flex items-center gap-1 text-[10px] opacity-70 transition-opacity hover:opacity-100 [color:var(--slide-muted)]"
+                        >
                           <Link className="size-3" /> or paste URL
                         </button>
                       </div>

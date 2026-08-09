@@ -1,4 +1,3 @@
-import { cn } from "@Prezzy/ui/lib/utils";
 import { Image } from "lucide-react";
 
 export function ImageElement({
@@ -16,13 +15,16 @@ export function ImageElement({
 }) {
   return (
     <div
-      className={cn(
-        "flex h-full w-full items-center justify-center overflow-hidden",
-        !src && "bg-[#e8c9a8]",
-      )}
+      className="flex h-full w-full items-center justify-center overflow-hidden"
       style={{
-        borderRadius: borderRadius != null ? `${borderRadius}px` : "8px",
+        borderRadius: borderRadius != null ? `${borderRadius}px` : "var(--slide-radius)",
         opacity: opacity != null ? opacity / 100 : 1,
+        ...(src
+          ? {}
+          : {
+              backgroundColor: "var(--slide-surface)",
+              border: "1px dashed color-mix(in srgb, var(--slide-muted) 50%, transparent)",
+            }),
       }}
     >
       {src ? (
@@ -35,7 +37,7 @@ export function ImageElement({
       ) : children ? (
         children
       ) : (
-        <Image className="size-6 text-white/60" />
+        <Image className="size-6 opacity-50 [color:var(--slide-muted)]" />
       )}
     </div>
   );
