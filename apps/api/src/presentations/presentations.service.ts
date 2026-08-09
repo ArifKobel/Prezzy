@@ -1,14 +1,12 @@
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { desc, eq } from "drizzle-orm";
 import { AccessService } from "@/access/access.service";
-import { mergePatch } from "@/common/merge";
 import { DRIZZLE } from "@/db/db.constants";
 import type { Database } from "@/db/db.types";
 import { presentations, slides } from "@/db/schema";
 import { EventsService } from "@/events/events.service";
-import type { Presentation, PresentationTheme } from "@/shared";
+import type { Presentation } from "@/shared";
 import type { CreatePresentationDto } from "@/presentations/dto/create-presentation.dto";
-import type { UpdatePresentationDto } from "@/presentations/dto/update-presentation.dto";
 import { generateJoinCode } from "@/presentations/join-code";
 import { toPresentation } from "@/presentations/presentation.serializer";
 
@@ -46,24 +44,6 @@ export class PresentationsService {
     this.events.presentationUpdated(target);
     this.events.slidesChanged(target);
     return toPresentation(created);
-  }
-
-  async update(id: string, userId: string, dto: UpdatePresentationDto): Promise<Presentation> {
-    const existing = await this.access.ownedPresentation(id, userId);
-    const [updated] = await this.db
-      .update(presentations)
-      .set({
-        ...(dto.title === undefined ? {} : { title: dto.title }),
-        ...(dto.theme === undefined
-          ? {}
-          : { theme: mergePatch<PresentationTheme>(existing.theme, dto.theme) }),
-        updatedAt: new Date(),
-      })
-      .where(eq(presentations.id, id))
-      .returning();
-    if (!updated) throw new NotFoundException("Presentation not found");
-    this.events.presentationUpdated(this.access.target(updated));
-    return toPresentation(updated);
   }
 
   async remove(id: string, userId: string): Promise<void> {

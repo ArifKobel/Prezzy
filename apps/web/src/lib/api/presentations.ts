@@ -1,4 +1,4 @@
-import type { FirstSlidePreview, Presentation, PresentationTheme } from "@Prezzy/shared";
+import type { FirstSlidePreview, Presentation } from "@Prezzy/shared";
 import { queryOptions, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/api/client";
 
@@ -39,30 +39,6 @@ export function useCreatePresentation() {
     mutationFn: (args: { title: string }) =>
       apiFetch<Presentation>("/presentations", { method: "POST", body: args }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["presentations"] }),
-  });
-  return mutation.mutateAsync;
-}
-
-export function useUpdatePresentationTitle() {
-  const queryClient = useQueryClient();
-  const mutation = useMutation({
-    mutationFn: (args: { id: string; title: string }) =>
-      apiFetch<Presentation>(`/presentations/${args.id}`, { method: "PATCH", body: { title: args.title } }),
-    onSuccess: (_, args) => {
-      queryClient.invalidateQueries({ queryKey: ["presentation", args.id] });
-      queryClient.invalidateQueries({ queryKey: ["presentations"] });
-    },
-  });
-  return mutation.mutateAsync;
-}
-
-export function useUpdatePresentationTheme() {
-  const queryClient = useQueryClient();
-  const mutation = useMutation({
-    mutationFn: (args: { id: string; theme: { [K in keyof PresentationTheme]?: PresentationTheme[K] | null } }) =>
-      apiFetch<Presentation>(`/presentations/${args.id}`, { method: "PATCH", body: { theme: args.theme } }),
-    onSuccess: (_, args) =>
-      queryClient.invalidateQueries({ queryKey: ["presentation", args.id] }),
   });
   return mutation.mutateAsync;
 }

@@ -1,9 +1,8 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpCode, Param, Post, UseGuards } from "@nestjs/common";
 import { AuthGuard } from "@/auth/auth.guard";
 import { CurrentUser } from "@/auth/current-user.decorator";
 import type { Presentation, User } from "@/shared";
 import { CreatePresentationDto } from "@/presentations/dto/create-presentation.dto";
-import { UpdatePresentationDto } from "@/presentations/dto/update-presentation.dto";
 import { PresentationsService } from "@/presentations/presentations.service";
 
 @Controller("presentations")
@@ -24,15 +23,6 @@ export class PresentationsController {
   @Get(":id")
   get(@Param("id") id: string, @CurrentUser() user: User): Promise<Presentation> {
     return this.presentations.get(id, user.id);
-  }
-
-  @Patch(":id")
-  update(
-    @Param("id") id: string,
-    @CurrentUser() user: User,
-    @Body() dto: UpdatePresentationDto,
-  ): Promise<Presentation> {
-    return this.presentations.update(id, user.id, dto);
   }
 
   @Delete(":id")
