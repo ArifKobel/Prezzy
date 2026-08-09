@@ -14,7 +14,7 @@ const config = defineConfig({
     tsconfigPaths({ projects: ['./tsconfig.json'] }),
     tailwindcss(),
     tanstackStart(),
-    nitroV2Plugin(),
+    nitroV2Plugin({ compatibilityDate: "2026-08-09" }),
     viteReact(),
   ],
   test: {

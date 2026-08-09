@@ -1,7 +1,11 @@
 packages:
   - apps/*
-  - "!apps/web-old"
   - packages/*
+
+onlyBuiltDependencies:
+  - "@swc/core"
+  - esbuild
+  - lightningcss
 
 catalog:
   '@types/react': ^19.2.10
