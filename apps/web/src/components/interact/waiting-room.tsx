@@ -1,26 +1,22 @@
 import { Check } from "lucide-react";
 import { LiveDot } from "@/components/interact/live-dot";
 import { useInteractSession } from "@/components/interact/session-context";
-import { contrastOn } from "@/lib/quiz-constants";
 
 export function WaitingRoom() {
-  const { theme: t, participantName } = useInteractSession();
+  const { participantName } = useInteractSession();
 
   return (
-    <div className="flex flex-col items-center gap-4 text-center">
-      <div
-        className="flex size-14 items-center justify-center"
-        style={{ backgroundColor: t.accent, color: contrastOn(t.accent), borderRadius: t.radius * 2 }}
-      >
+    <div className="flex flex-col items-center gap-4 border border-border bg-card px-6 py-10 text-center">
+      <div className="flex size-14 items-center justify-center bg-primary text-primary-foreground">
         <Check className="size-6" />
       </div>
-      <p className="text-lg font-bold" style={{ fontFamily: t.fontHeading, color: t.heading }}>
-        You're in, {participantName}!
+      <p className="font-display text-xl font-extrabold tracking-tight text-foreground">
+        You're in, {participantName}<span className="text-primary">.</span>
       </p>
-      <p className="text-sm" style={{ color: t.muted }}>
+      <p className="font-sans text-sm text-muted-foreground">
         The presentation hasn't started yet. Hang tight...
       </p>
-      <LiveDot color={t.accent} />
+      <LiveDot />
     </div>
   );
 }

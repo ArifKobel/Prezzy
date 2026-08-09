@@ -1,39 +1,33 @@
 import type { SlideElement } from "@Prezzy/shared";
-import { mixHex } from "@Prezzy/shared/theme";
 import { Check, Loader2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useResponses } from "@/lib/api/interact";
 import { useInteractSession } from "@/components/interact/session-context";
 import {
   QUIZ_OPTION_LABELS,
-  contrastOn,
   deriveOptionAccents,
   timerColor,
 } from "@/lib/quiz-constants";
 
-const WRONG = "#e0714f";
+const KRAN = "#c8401f";
+const OPTION_ACCENTS = deriveOptionAccents(KRAN);
+const CORRECT = OPTION_ACCENTS[1]?.bg ?? "#4e8f6f";
 
-function QuizFrame({ children, accent, bg }: { children: React.ReactNode; accent: string; bg: string }) {
+function Eyebrow({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex w-full flex-col items-center gap-5">
-      <p className="text-xs font-semibold uppercase tracking-[0.12em]" style={{ color: mixHex(accent, bg, 0.3) }}>
-        Quiz
-      </p>
+    <p className="font-sans text-[11px] font-bold uppercase tracking-[0.14em] text-primary">
       {children}
-    </div>
+    </p>
   );
 }
 
 export function QuizInteraction({ element }: { element: SlideElement }) {
-  const { theme: t, participantId, quizState, submit } = useInteractSession();
+  const { participantId, quizState, submit } = useInteractSession();
 
   const question = element.props?.question || "Question";
   const options: string[] = element.props?.options ?? [];
   const correctOption: number | undefined = element.props?.correctOption;
   const timerSeconds: number = element.props?.timerSeconds ?? 20;
-
-  const optionAccents = deriveOptionAccents(t.accent);
-  const correctColor = optionAccents[1]?.bg ?? t.accent;
 
   const phase = quizState?.elementId === element.id ? quizState.phase : null;
   const startedAt = quizState?.startedAt ?? 0;
@@ -88,38 +82,40 @@ export function QuizInteraction({ element }: { element: SlideElement }) {
 
   if (phase === null || phase === "question") {
     return (
-      <QuizFrame accent={t.accent} bg={t.bg}>
-        <h2 className="text-center text-xl font-bold" style={{ fontFamily: t.fontHeading, color: t.heading }}>
+      <div className="flex w-full flex-col items-center gap-3 border border-border bg-card px-5 py-8 text-center">
+        <Eyebrow>Quiz</Eyebrow>
+        <h2 className="font-display text-xl font-extrabold tracking-tight text-foreground">
           {question}
         </h2>
-        <p className="text-sm" style={{ color: t.muted }}>
+        <p className="font-sans text-sm text-muted-foreground">
           {phase === "question" ? "Get ready — options are coming!" : "Waiting for the presenter to start..."}
         </p>
-        <Loader2 className="size-5 animate-spin" style={{ color: mixHex(t.accent, t.bg, 0.5) }} />
-      </QuizFrame>
+        <Loader2 className="size-5 animate-spin text-primary/50" />
+      </div>
     );
   }
 
   return (
-    <QuizFrame accent={t.accent} bg={t.bg}>
-      <h2 className="text-center text-lg font-bold" style={{ fontFamily: t.fontHeading, color: t.heading }}>
+    <div className="flex w-full flex-col items-center gap-4">
+      <Eyebrow>Quiz</Eyebrow>
+      <h2 className="text-center font-display text-lg font-extrabold tracking-tight text-foreground">
         {question}
       </h2>
 
       {phase === "answering" && (
-        <div className="flex w-full flex-col items-center gap-2">
-          <div className="h-1.5 w-full overflow-hidden rounded-full" style={{ backgroundColor: t.surface }}>
+        <div className="flex w-full flex-col items-center gap-1.5">
+          <div className="h-1.5 w-full overflow-hidden bg-surface-container">
             <div
-              className="h-full rounded-full transition-all duration-200"
+              className="h-full transition-all duration-200"
               style={{
                 width: `${(remaining / timerSeconds) * 100}%`,
-                backgroundColor: timerColor(remaining / timerSeconds, t.accent),
+                backgroundColor: timerColor(remaining / timerSeconds, KRAN),
               }}
             />
           </div>
           <span
-            className="text-2xl font-extrabold tabular-nums"
-            style={{ fontFamily: t.fontHeading, color: timerColor(remaining / timerSeconds, t.accent) }}
+            className="font-display text-3xl font-extrabold tabular-nums tracking-tight"
+            style={{ color: timerColor(remaining / timerSeconds, KRAN) }}
           >
             {Math.ceil(remaining)}
           </span>
@@ -127,67 +123,56 @@ export function QuizInteraction({ element }: { element: SlideElement }) {
       )}
 
       {voted && !isResults && (
-        <div
-          className="flex w-full flex-col items-center gap-2 py-5"
-          style={{ backgroundColor: t.surface, borderRadius: t.radius }}
-        >
-          <Check className="size-5" style={{ color: t.accent }} />
-          <p className="text-sm font-semibold" style={{ color: t.accent }}>
-            Answer locked in!
-          </p>
-          <p className="text-xs" style={{ color: t.muted }}>
-            Waiting for results...
-          </p>
+        <div className="flex w-full flex-col items-center gap-1.5 border border-border bg-card py-5">
+          <Check className="size-5 text-primary" />
+          <p className="font-sans text-sm font-bold text-foreground">Answer locked in!</p>
+          <p className="font-sans text-xs text-muted-foreground">Waiting for results...</p>
         </div>
       )}
 
       {(!voted || isResults) && (
-        <div className="flex w-full flex-col gap-2.5">
+        <div className="flex w-full flex-col gap-2">
           {options.map((opt, i) => {
             const isThisCorrect = correctOption === i;
             const wasChosen = voted === opt;
-            const optAccent = optionAccents[i % optionAccents.length];
+            const optAccent = OPTION_ACCENTS[i % OPTION_ACCENTS.length];
 
-            const bg = revealed
+            const cardStyle = revealed
               ? isThisCorrect
-                ? correctColor
+                ? { backgroundColor: CORRECT, borderColor: CORRECT }
                 : wasChosen
-                  ? WRONG
-                  : t.surface
-              : t.surface;
-            const fg = revealed
-              ? isThisCorrect || wasChosen
-                ? contrastOn(bg)
-                : t.muted
-              : t.text;
+                  ? { backgroundColor: "var(--destructive)", borderColor: "var(--destructive)" }
+                  : undefined
+              : undefined;
+            const onFill = revealed && (isThisCorrect || wasChosen);
 
             return (
               <button
                 key={i}
                 onClick={() => handleVote(opt)}
                 disabled={!canAnswer || submitting}
-                className="flex w-full items-center gap-3.5 px-4 py-3.5 text-left transition-transform active:scale-[0.98] disabled:active:scale-100"
-                style={{
-                  backgroundColor: bg,
-                  color: fg,
-                  borderRadius: t.radius,
-                  opacity: revealed && !isThisCorrect && !wasChosen ? 0.5 : 1,
-                }}
+                className={`flex w-full items-center gap-3 border border-border bg-card px-3.5 py-3 text-left transition-transform active:scale-[0.98] disabled:active:scale-100 ${
+                  revealed && !isThisCorrect && !wasChosen ? "opacity-45" : ""
+                }`}
+                style={cardStyle}
               >
                 <span
-                  className="grid size-8 shrink-0 place-items-center text-xs font-bold"
-                  style={{
-                    backgroundColor: revealed ? mixHex(bg, fg, 0.15) : optAccent?.bg,
-                    color: revealed ? fg : optAccent?.fg,
-                    borderRadius: Math.max(0, t.radius - 2),
-                    fontFamily: t.fontHeading,
-                  }}
+                  className="grid size-8 shrink-0 place-items-center font-display text-xs font-extrabold"
+                  style={
+                    onFill
+                      ? { backgroundColor: "rgb(255 255 255 / 0.2)", color: "#ffffff" }
+                      : { backgroundColor: optAccent?.bg, color: optAccent?.fg }
+                  }
                 >
                   {QUIZ_OPTION_LABELS[i]}
                 </span>
-                <span className="flex-1 text-sm font-semibold">{opt}</span>
-                {revealed && isThisCorrect && <Check className="size-5" />}
-                {revealed && wasChosen && !isThisCorrect && <X className="size-5 opacity-70" />}
+                <span
+                  className={`flex-1 font-sans text-sm font-semibold ${onFill ? "text-white" : "text-foreground"}`}
+                >
+                  {opt}
+                </span>
+                {revealed && isThisCorrect && <Check className="size-5 text-white" />}
+                {revealed && wasChosen && !isThisCorrect && <X className="size-5 text-white/70" />}
               </button>
             );
           })}
@@ -195,39 +180,37 @@ export function QuizInteraction({ element }: { element: SlideElement }) {
       )}
 
       {error && (
-        <p className="text-center text-xs font-semibold" style={{ color: WRONG }}>
+        <p className="font-sans text-xs font-bold text-destructive">
           Couldn't send your answer — tap again.
         </p>
       )}
 
       {!voted && phase === "answering" && remaining <= 0 && (
-        <div className="w-full py-4 text-center" style={{ backgroundColor: t.surface, borderRadius: t.radius }}>
-          <p className="text-sm font-semibold" style={{ color: WRONG }}>
-            Time's up!
-          </p>
+        <div className="w-full border border-border bg-card py-4 text-center">
+          <p className="font-sans text-sm font-bold text-destructive">Time's up!</p>
         </div>
       )}
 
       {revealed && voted && (
-        <div
-          className="w-full py-5 text-center"
-          style={{ backgroundColor: t.surface, borderRadius: t.radius }}
-        >
-          <p className="text-base font-bold" style={{ fontFamily: t.fontHeading, color: isCorrect ? correctColor : WRONG }}>
+        <div className="w-full border border-border bg-card py-5 text-center">
+          <p
+            className="font-display text-lg font-extrabold tracking-tight"
+            style={{ color: isCorrect ? CORRECT : "var(--destructive)" }}
+          >
             {isCorrect ? "Correct!" : "Wrong!"}
           </p>
           {isCorrect && myResponse?.score != null && (
-            <p className="mt-1 text-sm" style={{ color: t.muted }}>
+            <p className="mt-1 font-sans text-sm text-muted-foreground">
               +{myResponse.score.toLocaleString()} points
             </p>
           )}
           {!isCorrect && (
-            <p className="mt-1 text-sm" style={{ color: t.muted }}>
-              The correct answer was <strong style={{ color: t.text }}>{correctAnswer}</strong>
+            <p className="mt-1 font-sans text-sm text-muted-foreground">
+              The correct answer was <strong className="text-foreground">{correctAnswer}</strong>
             </p>
           )}
         </div>
       )}
-    </QuizFrame>
+    </div>
   );
 }

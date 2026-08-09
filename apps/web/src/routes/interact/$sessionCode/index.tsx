@@ -10,6 +10,7 @@ import { QuizInteraction } from "@/components/interact/quiz-interaction";
 import { SessionNotFound } from "@/components/interact/session-not-found";
 import { InteractSessionProvider } from "@/components/interact/session-context";
 import { Shell } from "@/components/interact/shell";
+import { SlidePeek } from "@/components/interact/slide-peek";
 import { WaitingRoom } from "@/components/interact/waiting-room";
 import { WordCloudInteraction } from "@/components/interact/word-cloud-interaction";
 import { useSlideElements } from "@/lib/api/elements";
@@ -100,8 +101,10 @@ function AudiencePage() {
   if (presentation === undefined) {
     return (
       <Shell>
-        <Loader2 className="size-6 animate-spin" style={{ color: "var(--slide-accent)" }} />
-        <p className="text-sm" style={{ color: "var(--slide-muted)" }}>Connecting...</p>
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="size-6 animate-spin text-primary" />
+          <p className="font-sans text-sm text-muted-foreground">Connecting...</p>
+        </div>
       </Shell>
     );
   }
@@ -116,9 +119,8 @@ function AudiencePage() {
 
   if (!nameSubmitted) {
     return (
-      <Shell theme={theme} title={presentation.title}>
+      <Shell title={presentation.title}>
         <JoinForm
-          theme={theme}
           name={name}
           setName={setName}
           onJoin={() => {
@@ -136,17 +138,21 @@ function AudiencePage() {
   return (
     <InteractSessionProvider value={session}>
       <Shell
-        theme={theme}
         title={presentation.title}
         name={name}
         onChangeName={() => setNameSubmitted(false)}
       >
         {!liveSlideId ? (
           <WaitingRoom />
-        ) : Interaction && interactiveEl ? (
-          <Interaction element={interactiveEl} />
         ) : (
-          <FollowAlong />
+          <>
+            <SlidePeek elements={elements ?? []} theme={presentation.theme} />
+            {Interaction && interactiveEl ? (
+              <Interaction element={interactiveEl} />
+            ) : (
+              <FollowAlong />
+            )}
+          </>
         )}
       </Shell>
     </InteractSessionProvider>
