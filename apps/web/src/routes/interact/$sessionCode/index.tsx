@@ -151,19 +151,25 @@ function AudiencePage() {
       >
         {!liveSlideId ? (
           <WaitingRoom />
+        ) : Interaction && interactiveEl ? (
+          <>
+            <div className="pt-2">
+              <Interaction element={interactiveEl} />
+            </div>
+            <div className="mt-auto pt-4">
+              <SlidePeek
+                variant="bar"
+                elements={elements ?? []}
+                theme={presentation.theme}
+                responses={interactionResponses ? { [interactiveEl.id]: interactionResponses } : undefined}
+                leaderboard={leaderboard}
+              />
+            </div>
+          </>
         ) : (
           <>
-            <SlidePeek
-              elements={elements ?? []}
-              theme={presentation.theme}
-              responses={interactiveEl && interactionResponses ? { [interactiveEl.id]: interactionResponses } : undefined}
-              leaderboard={leaderboard}
-            />
-            {Interaction && interactiveEl ? (
-              <Interaction element={interactiveEl} />
-            ) : (
-              <FollowAlong />
-            )}
+            <SlidePeek elements={elements ?? []} theme={presentation.theme} />
+            <FollowAlong />
           </>
         )}
       </Shell>

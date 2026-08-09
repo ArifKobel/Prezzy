@@ -98,7 +98,7 @@ export function QuizInteraction({ element }: { element: SlideElement }) {
   return (
     <div className="flex w-full flex-col items-center gap-4">
       <Eyebrow>Quiz</Eyebrow>
-      <h2 className="text-center font-display text-lg font-extrabold tracking-tight text-foreground">
+      <h2 className="text-balance text-center font-display text-2xl font-extrabold tracking-tight text-foreground">
         {question}
       </h2>
 
@@ -131,48 +131,41 @@ export function QuizInteraction({ element }: { element: SlideElement }) {
       )}
 
       {(!voted || isResults) && (
-        <div className="flex w-full flex-col gap-2">
+        <div className="flex w-full flex-col gap-2.5">
           {options.map((opt, i) => {
             const isThisCorrect = correctOption === i;
             const wasChosen = voted === opt;
             const optAccent = OPTION_ACCENTS[i % OPTION_ACCENTS.length];
 
-            const cardStyle = revealed
+            const faded = revealed && !isThisCorrect && !wasChosen;
+            const fill = revealed
               ? isThisCorrect
-                ? { backgroundColor: CORRECT, borderColor: CORRECT }
+                ? CORRECT
                 : wasChosen
-                  ? { backgroundColor: "var(--destructive)", borderColor: "var(--destructive)" }
-                  : undefined
-              : undefined;
-            const onFill = revealed && (isThisCorrect || wasChosen);
+                  ? "var(--destructive)"
+                  : "var(--surface-container)"
+              : optAccent?.bg;
+            const ink = faded ? "var(--muted-foreground)" : revealed ? "#ffffff" : optAccent?.fg;
 
             return (
               <button
                 key={i}
                 onClick={() => handleVote(opt)}
                 disabled={!canAnswer || submitting}
-                className={`flex w-full items-center gap-3 border border-border bg-card px-3.5 py-3 text-left transition-transform active:scale-[0.98] disabled:active:scale-100 ${
-                  revealed && !isThisCorrect && !wasChosen ? "opacity-45" : ""
+                className={`flex w-full items-center gap-3.5 px-4 py-4 text-left shadow-[0_2px_8px_rgb(27_30_34_/_0.12)] transition-transform active:scale-[0.97] disabled:active:scale-100 ${
+                  faded ? "opacity-60 shadow-none" : ""
                 }`}
-                style={cardStyle}
+                style={{ backgroundColor: fill, color: ink }}
               >
                 <span
-                  className="grid size-8 shrink-0 place-items-center font-display text-xs font-extrabold"
-                  style={
-                    onFill
-                      ? { backgroundColor: "rgb(255 255 255 / 0.2)", color: "#ffffff" }
-                      : { backgroundColor: optAccent?.bg, color: optAccent?.fg }
-                  }
+                  className="grid size-8 shrink-0 place-items-center font-display text-sm font-extrabold"
+                  style={{ backgroundColor: faded ? "rgb(27 30 34 / 0.08)" : "rgb(255 255 255 / 0.22)" }}
                 >
                   {QUIZ_OPTION_LABELS[i]}
                 </span>
-                <span
-                  className={`flex-1 font-sans text-sm font-semibold ${onFill ? "text-white" : "text-foreground"}`}
-                >
-                  {opt}
-                </span>
-                {revealed && isThisCorrect && <Check className="size-5 text-white" />}
-                {revealed && wasChosen && !isThisCorrect && <X className="size-5 text-white/70" />}
+                <span className="flex-1 font-sans text-base font-bold">{opt}</span>
+                {revealed && isThisCorrect && <Check className="size-5" />}
+                {revealed && wasChosen && !isThisCorrect && <X className="size-5 opacity-70" />}
               </button>
             );
           })}

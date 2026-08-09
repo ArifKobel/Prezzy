@@ -43,7 +43,7 @@ export function WordCloudInteraction({ element }: { element: SlideElement }) {
         Word Cloud
       </p>
 
-      <h2 className="text-center font-display text-lg font-extrabold tracking-tight text-foreground">
+      <h2 className="text-balance text-center font-display text-2xl font-extrabold tracking-tight text-foreground">
         {prompt}
       </h2>
 
@@ -56,24 +56,22 @@ export function WordCloudInteraction({ element }: { element: SlideElement }) {
           <p className="font-sans text-xs text-muted-foreground">Thanks for participating.</p>
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className="flex w-full flex-col gap-2">
-          <div className="relative">
-            <input
-              type="text"
-              value={value}
-              onChange={(e) => setValue(e.target.value)}
-              placeholder="Type a word..."
-              maxLength={30}
-              className="w-full border border-border bg-card px-4 py-3.5 pr-12 font-sans text-base text-foreground outline-none placeholder:text-muted-foreground/50 focus:border-primary"
-            />
-            <button
-              type="submit"
-              disabled={!value.trim() || submitting}
-              className="absolute right-2 top-1/2 -translate-y-1/2 bg-primary p-2 text-primary-foreground transition-colors hover:bg-primary-dim disabled:opacity-30"
-            >
-              <Send className="size-4" />
-            </button>
-          </div>
+        <form onSubmit={handleSubmit} className="flex w-full flex-col gap-2.5">
+          <input
+            type="text"
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            placeholder="Type a word..."
+            maxLength={30}
+            className="w-full border border-border bg-card px-4 py-4 text-center font-sans text-lg font-semibold text-foreground outline-none placeholder:font-normal placeholder:text-muted-foreground/50 focus:border-primary"
+          />
+          <button
+            type="submit"
+            disabled={!value.trim() || submitting}
+            className="flex w-full items-center justify-center gap-2 bg-primary py-3.5 font-sans text-sm font-bold text-primary-foreground transition-colors hover:bg-primary-dim active:scale-[0.98] disabled:opacity-40"
+          >
+            <Send className="size-4" /> Send
+          </button>
           {error && (
             <p className="text-center font-sans text-xs font-bold text-destructive">
               Couldn't send — try again.

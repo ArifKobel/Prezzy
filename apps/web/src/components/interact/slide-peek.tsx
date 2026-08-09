@@ -9,11 +9,13 @@ export function SlidePeek({
   theme,
   responses,
   leaderboard,
+  variant = "panel",
 }: {
   elements: SlideElement[];
   theme?: PresentationTheme | null;
   responses?: ElementResponses;
   leaderboard?: LeaderboardEntry[];
+  variant?: "panel" | "bar";
 }) {
   const [open, setOpen] = useState(false);
 
@@ -30,22 +32,42 @@ export function SlidePeek({
 
   return (
     <>
-      <div className="w-full bg-[#1b1e22] p-3 shadow-[0_10px_30px_rgb(27_30_34_/_0.3)]">
-        <div className="mb-2 flex items-center justify-between">
-          <LiveDot />
-          <span className="flex items-center gap-1 font-sans text-[10px] font-bold uppercase tracking-wider text-[#f6f3ed]/50">
-            <Maximize2 className="size-3" /> Enlarge
-          </span>
+      {variant === "panel" ? (
+        <div className="w-full bg-[#1b1e22] p-3 shadow-[0_10px_30px_rgb(27_30_34_/_0.3)]">
+          <div className="mb-2 flex items-center justify-between">
+            <LiveDot />
+            <span className="flex items-center gap-1 font-sans text-[10px] font-bold uppercase tracking-wider text-[#f6f3ed]/50">
+              <Maximize2 className="size-3" /> Enlarge
+            </span>
+          </div>
+          <button
+            onClick={() => setOpen(true)}
+            className="w-full bg-[#fffdf8] p-1 text-left shadow-[0_4px_16px_rgb(0_0_0_/_0.4)] transition-transform active:scale-[0.98]"
+          >
+            <div className="pointer-events-none aspect-video w-full overflow-hidden bg-surface-container">
+              {canvas}
+            </div>
+          </button>
         </div>
+      ) : (
         <button
           onClick={() => setOpen(true)}
-          className="w-full bg-[#fffdf8] p-1 text-left shadow-[0_4px_16px_rgb(0_0_0_/_0.4)] transition-transform active:scale-[0.98]"
+          className="flex w-full items-center gap-3 bg-[#1b1e22] p-2 pr-3.5 text-left shadow-[0_8px_24px_rgb(27_30_34_/_0.3)] transition-transform active:scale-[0.99]"
         >
-          <div className="pointer-events-none aspect-video w-full overflow-hidden bg-surface-container">
-            {canvas}
+          <div className="w-24 shrink-0 bg-[#fffdf8] p-0.5">
+            <div className="pointer-events-none aspect-video w-full overflow-hidden bg-surface-container">
+              {canvas}
+            </div>
           </div>
+          <div className="flex min-w-0 flex-1 flex-col items-start gap-1">
+            <LiveDot />
+            <span className="font-sans text-[11px] font-semibold text-[#f6f3ed]/60">
+              Tap to view the slide
+            </span>
+          </div>
+          <Maximize2 className="size-4 shrink-0 text-[#f6f3ed]/50" />
         </button>
-      </div>
+      )}
 
       {open && (
         <div
