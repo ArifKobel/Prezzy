@@ -25,11 +25,14 @@
     "drizzle-kit": "^0.31.6",
     "drizzle-orm": "^0.44.7",
     "jsonwebtoken": "^9.0.2",
+    "lib0": "^0.2.99",
     "multer": "^2.0.2",
     "postgres": "^3.4.7",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",
-    "socket.io": "^4.8.1"
+    "socket.io": "^4.8.1",
+    "y-protocols": "^1.0.6",
+    "yjs": "^13.6.32"
   },
   "devDependencies": {
     "@Prezzy/config": "workspace:*",

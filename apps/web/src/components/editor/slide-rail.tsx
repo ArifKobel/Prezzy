@@ -24,17 +24,9 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { arrayMove } from "@dnd-kit/sortable";
 import { Copy, GripVertical, LayoutGrid, Plus } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
 import { SlideCanvas } from "@/components/slide-canvas";
 
-import { useReorderSlides, useUpdateSlide } from "@/lib/api/slides";
 import type { PresentationTheme } from "@Prezzy/shared";
-
-function sameSlideSet(a: Slide[], b: Slide[]): boolean {
-  if (a.length !== b.length) return false;
-  const ids = new Set(a.map((s) => s.id));
-  return b.every((s) => ids.has(s.id));
-}
 
 function SortableThumbnail({
   slide,
@@ -141,70 +133,43 @@ function SortableThumbnail({
 export function SlideRail({
   slides,
   activeSlideId,
-  presentationId,
   elementsBySlide,
   onSwitchSlide,
   onAddSlide,
   onDuplicateSlide,
   onDeleteSlide,
+  onReorderSlides,
+  onSetSlideBg,
   onPickLayout,
   theme,
 }: {
   slides: Slide[];
   activeSlideId: string | null;
-  presentationId: string;
   elementsBySlide: Map<string, SlideElement[]>;
   onSwitchSlide: (id: string) => void;
   onAddSlide: (afterSlideId?: string) => void;
   onDuplicateSlide: (id: string) => void;
   onDeleteSlide: (id: string) => void;
+  onReorderSlides: (slideIds: string[]) => void;
+  onSetSlideBg: (slideId: string, bg: string | null) => void;
   onPickLayout: () => void;
   theme?: PresentationTheme | null;
 }) {
-  const reorder = useReorderSlides();
-  const updateSlide = useUpdateSlide();
-
-  const [localSlides, setLocalSlides] = useState(slides);
-  const serverSlides = useRef(slides);
-  const pendingReorders = useRef(0);
-
-  useEffect(() => {
-    serverSlides.current = slides;
-    setLocalSlides((prev) =>
-      pendingReorders.current > 0 && sameSlideSet(prev, slides) ? prev : slides,
-    );
-  }, [slides]);
-
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
 
-  const handleDragEnd = useCallback(
-    async (event: DragEndEvent) => {
-      const { active, over } = event;
-      if (!over || active.id === over.id) return;
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const oldIndex = slides.findIndex((s) => s.id === active.id);
+    const newIndex = slides.findIndex((s) => s.id === over.id);
+    if (oldIndex === -1 || newIndex === -1) return;
+    onReorderSlides(arrayMove(slides, oldIndex, newIndex).map((s) => s.id));
+  }
 
-      const oldIndex = localSlides.findIndex((s) => s.id === active.id);
-      const newIndex = localSlides.findIndex((s) => s.id === over.id);
-      if (oldIndex === -1 || newIndex === -1) return;
-
-      const reordered = arrayMove(localSlides, oldIndex, newIndex);
-      setLocalSlides(reordered);
-      pendingReorders.current += 1;
-
-      try {
-        await reorder({ presentationId, slideIds: reordered.map((s) => s.id) });
-      } catch {
-        setLocalSlides(serverSlides.current);
-      } finally {
-        pendingReorders.current -= 1;
-      }
-    },
-    [localSlides, presentationId, reorder],
-  );
-
-  const slideIds = localSlides.map((s) => s.id);
+  const slideIds = slides.map((s) => s.id);
 
   return (
     <div className="flex w-[180px] shrink-0 flex-col overflow-hidden bg-surface-container-low">
@@ -216,7 +181,7 @@ export function SlideRail({
           onDragEnd={handleDragEnd}
         >
           <SortableContext items={slideIds} strategy={verticalListSortingStrategy}>
-            {localSlides.map((slide, i) => (
+            {slides.map((slide, i) => (
               <SortableThumbnail
                 key={slide.id}
                 slide={slide}
@@ -228,8 +193,8 @@ export function SlideRail({
                 onDelete={() => onDeleteSlide(slide.id)}
                 onAddAfter={() => onAddSlide(slide.id)}
                 onPickLayout={onPickLayout}
-                onSetBg={(bg) => updateSlide({ slideId: slide.id, bg })}
-                canDelete={localSlides.length > 1}
+                onSetBg={(bg) => onSetSlideBg(slide.id, bg)}
+                canDelete={slides.length > 1}
                 theme={theme}
               />
             ))}

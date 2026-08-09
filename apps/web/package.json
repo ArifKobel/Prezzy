@@ -63,9 +63,11 @@
     "react-dom": "^19.2.0",
     "react-moveable": "^0.56.0",
     "recharts": "^3.8.0",
+    "lib0": "^0.2.99",
     "socket.io-client": "^4.8.1",
     "sonner": "catalog:",
     "tailwindcss": "^4.1.18",
+    "y-protocols": "^1.0.6",
     "yjs": "^13.6.32",
     "zod": "catalog:"
   },

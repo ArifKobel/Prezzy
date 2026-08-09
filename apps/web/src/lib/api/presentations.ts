@@ -1,4 +1,4 @@
-import type { FirstSlidePreview, Presentation, PresentationTheme, SlideElement } from "@Prezzy/shared";
+import type { FirstSlidePreview, Presentation, PresentationTheme } from "@Prezzy/shared";
 import { queryOptions, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/api/client";
 
@@ -17,14 +17,6 @@ export const presentationsQueryOptions = queryOptions({
 
 export function usePresentations() {
   return useQuery(presentationsQueryOptions);
-}
-
-export function usePresentationElements(presentationId: string | null) {
-  return useQuery({
-    queryKey: ["presentationElements", presentationId],
-    queryFn: () => apiFetch<SlideElement[]>(`/presentations/${presentationId}/elements`),
-    enabled: !!presentationId,
-  });
 }
 
 export function firstSlideElementsQueryOptions(presentationId: string) {

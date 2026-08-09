@@ -1,4 +1,4 @@
-import type { ElementProps, ElementType, Presentation, Slide, SlideElement } from "@Prezzy/shared";
+import type { ElementProps, ElementType, SlideElement } from "@Prezzy/shared";
 import { resolveSlideTheme } from "@Prezzy/shared/theme";
 import { DESIGN_W, DESIGN_H, slideThemeStyle } from "@/components/slide-canvas";
 import {
@@ -39,17 +39,11 @@ import {
 import {
   EditorContext, useEditorState, useEditorStore, useInteraction, useSlideElements,
 } from "@/lib/editor/use-editor";
-import type { SyncStatus } from "@/lib/editor/sync";
+import type { ProviderStatus } from "@/lib/editor/provider";
 import { useCanvasPointer } from "@/lib/editor/use-canvas-pointer";
 import { useEditorDoc } from "@/lib/editor/use-editor-doc";
 import { useImageUpload } from "@/lib/editor/use-image-upload";
 import { useZoomPan } from "@/lib/editor/use-zoom-pan";
-import {
-  useUpdatePresentationTheme, useUpdatePresentationTitle,
-} from "@/lib/api/presentations";
-import {
-  useCreateSlide, useCreateSlideFromLayout, useDuplicateSlide, useRemoveSlide,
-} from "@/lib/api/slides";
 import { useRealtime } from "@/lib/api/socket";
 
 export const Route = createFileRoute("/editor/$presentationId/")({
@@ -72,35 +66,30 @@ function EditorPage() {
 
 function EditorShell({ pid }: { pid: string }) {
   useRealtime(`presentation:${pid}`);
-  const { store, interaction, ready, syncStatus, presentation, adoptSlide } = useEditorDoc(pid);
+  const { store, interaction, ready, status } = useEditorDoc(pid);
   const contextValue = useMemo(() => ({ store, interaction }), [store, interaction]);
 
-  if (presentation === null) {
+  if (status === "denied") {
     return <div className="flex h-full items-center justify-center bg-surface"><p className="font-sans text-sm text-muted-foreground">Presentation not found.</p></div>;
   }
-  if (presentation === undefined || !ready) {
+  if (!ready) {
     return <div className="flex h-full items-center justify-center bg-surface"><p className="font-sans text-sm text-muted-foreground">Loading…</p></div>;
   }
 
   return (
     <EditorContext.Provider value={contextValue}>
-      <EditorBody pid={pid} presentation={presentation} syncStatus={syncStatus} adoptSlide={adoptSlide} />
+      <EditorBody pid={pid} status={status} />
     </EditorContext.Provider>
   );
 }
 
-function EditorBody({
-  pid, presentation, syncStatus, adoptSlide,
-}: {
-  pid: string;
-  presentation: Presentation;
-  syncStatus: SyncStatus;
-  adoptSlide: (slide: Slide) => Promise<void>;
-}) {
+function EditorBody({ pid, status }: { pid: string; status: ProviderStatus }) {
   const navigate = useNavigate();
   const store = useEditorStore();
   const interaction = useInteraction();
 
+  const title = useEditorState((state) => state.title);
+  const theme = useEditorState((state) => state.theme);
   const slides = useEditorState((state) => state.slides);
   const activeSlideId = useEditorState((state) => state.activeSlideId);
   const selectedIds = useEditorState((state) => state.selectedIds);
@@ -123,15 +112,7 @@ function EditorBody({
 
   const activeSlide = slides.find((s) => s.id === activeSlideId) ?? null;
 
-  const createSlide = useCreateSlide();
-  const createFromLayout = useCreateSlideFromLayout();
-  const duplicateSlide = useDuplicateSlide();
-  const removeSlide = useRemoveSlide();
-  const updateTitle = useUpdatePresentationTitle();
-  const updateTheme = useUpdatePresentationTheme();
-
   const isMutating = useIsMutating() > 0;
-  const isSaving = syncStatus === "saving" || isMutating;
 
   const [activeEditor, setActiveEditorState] = useState<EditorInstance | null>(null);
   const [elementNodes, setElementNodes] = useState<Map<string, HTMLElement>>(new Map());
@@ -268,59 +249,33 @@ function EditorBody({
   }, [pasteElements]);
 
   function handleAddSlide(afterSlideId?: string) {
-    const after = afterSlideId ? slides.find((s) => s.id === afterSlideId) : activeSlide;
-    createSlide({ presentationId: pid, afterOrder: after?.order })
-      .then(async (slide) => {
-        await adoptSlide(slide);
-        store.setActiveSlide(slide.id);
-      })
-      .catch(console.error);
+    store.addSlide(afterSlideId);
   }
 
   function handlePickLayout(layoutId: string) {
     const layout = SLIDE_LAYOUTS.find((l) => l.id === layoutId);
     if (!layout) return;
     setShowLayoutPicker(false);
-
-    const request = layout.slots.length === 0
-      ? createSlide({ presentationId: pid, afterOrder: activeSlide?.order })
-      : createFromLayout({
-          presentationId: pid,
-          afterOrder: activeSlide?.order,
-          elements: layout.slots.map((slot) => ({
-            type: slot.type,
-            x: slot.x,
-            y: slot.y,
-            width: slot.width,
-            height: slot.height,
-            props: slot.props,
-          })),
-        });
-
-    request
-      .then(async (slide) => {
-        await adoptSlide(slide);
-        store.setActiveSlide(slide.id);
-      })
-      .catch(console.error);
+    store.addSlide();
+    for (const slot of layout.slots) {
+      store.addElement({
+        type: slot.type,
+        x: slot.x,
+        y: slot.y,
+        width: slot.width,
+        height: slot.height,
+        props: slot.props as ElementProps | undefined,
+      });
+    }
+    store.clearSelection();
   }
 
   function handleDuplicateSlide(slideId: string) {
-    duplicateSlide({ slideId })
-      .then(async (slide) => {
-        await adoptSlide(slide);
-        store.setActiveSlide(slide.id);
-      })
-      .catch(console.error);
+    store.duplicateSlide(slideId);
   }
 
   function handleDeleteSlide(slideId: string) {
-    if (slides.length <= 1) return;
-    const idx = slides.findIndex((s) => s.id === slideId);
-    if (idx === -1) return;
-    const next = slides[idx + 1] ?? slides[idx - 1];
-    removeSlide({ slideId }).catch(console.error);
-    if (slideId === activeSlideId && next) store.setActiveSlide(next.id);
+    store.removeSlide(slideId);
   }
 
   useEffect(() => {
@@ -479,8 +434,8 @@ function EditorBody({
 
         <div className="flex min-w-0 flex-1 flex-col">
           <EditableTitle
-            title={presentation.title}
-            onRename={(title) => updateTitle({ id: pid, title })}
+            title={title}
+            onRename={(next) => store.setTitle(next)}
           />
           <div className="flex items-center gap-0.5 -mt-0.5">
             <span className="rounded px-1.5 py-0.5 font-sans text-[10px] text-muted-foreground/60 transition-colors hover:bg-surface-container hover:text-muted-foreground cursor-default">
@@ -491,7 +446,7 @@ function EditorBody({
 
         <div className="flex items-center gap-2">
           <span className="mr-1 font-sans text-[10px] text-muted-foreground/60">
-            {syncStatus === "error" ? "Retrying…" : isSaving ? "Saving…" : "Saved"}
+            {status === "offline" ? "Offline" : status === "connecting" ? "Syncing…" : isMutating ? "Saving…" : "Saved"}
           </span>
           <div className="flex items-center gap-0.5">
             <button
@@ -546,14 +501,15 @@ function EditorBody({
         <SlideRail
           slides={slides}
           activeSlideId={activeSlideId}
-          presentationId={pid}
           elementsBySlide={elementsBySlide}
           onSwitchSlide={(id) => store.setActiveSlide(id)}
           onAddSlide={handleAddSlide}
           onDuplicateSlide={handleDuplicateSlide}
           onDeleteSlide={handleDeleteSlide}
+          onReorderSlides={(ids) => store.reorderSlides(ids)}
+          onSetSlideBg={(id, bg) => store.setSlideBg(id, bg)}
           onPickLayout={() => setShowLayoutPicker(true)}
-          theme={presentation.theme}
+          theme={theme}
         />
         <div
           ref={canvasAreaRef}
@@ -589,7 +545,7 @@ function EditorBody({
               left: `calc(50% + ${panOffset.x}px)`, top: `calc(50% + ${panOffset.y}px)`,
               transform: `translate(-50%, -50%) scale(${effectiveScale})`,
               transformOrigin: "center",
-              ...slideThemeStyle(resolveSlideTheme(presentation.theme, activeSlide?.bg)),
+              ...slideThemeStyle(resolveSlideTheme(theme, activeSlide?.bg)),
             }}
             onClick={(e: React.MouseEvent) => {
               e.stopPropagation();
@@ -611,7 +567,7 @@ function EditorBody({
                 <CanvasElement
                   key={el.id}
                   el={livePropsPreview?.id === el.id ? { ...el, props: { ...el.props, ...livePropsPreview.props } } : el}
-                  theme={resolveSlideTheme(presentation.theme, activeSlide?.bg)}
+                  theme={resolveSlideTheme(theme, activeSlide?.bg)}
                   isSelected={selectedIds.has(el.id)}
                   isEditing={editingId === el.id}
                   multiSelected={selectedIds.size > 1}
@@ -726,8 +682,8 @@ function EditorBody({
           <EditorStateProvider value={editorCtxState}>
           {showThemePanel ? (
             <ThemePanel
-              theme={presentation.theme}
-              onUpdate={(t) => updateTheme({ id: pid, theme: t })}
+              theme={theme}
+              onUpdate={(t) => store.setTheme(t)}
               onClose={() => setShowThemePanel(false)}
             />
           ) : (

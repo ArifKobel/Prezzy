@@ -1,6 +1,7 @@
 import { Module } from "@nestjs/common";
 import { AccessModule } from "@/access/access.module";
 import { AuthModule } from "@/auth/auth.module";
+import { CollabModule } from "@/collab/collab.module";
 import { DbModule } from "@/db/db.module";
 import { ElementsModule } from "@/elements/elements.module";
 import { EventsModule } from "@/events/events.module";
@@ -15,6 +16,7 @@ import { SlidesModule } from "@/slides/slides.module";
     DbModule,
     EventsModule,
     AccessModule,
+    CollabModule,
     PresenceModule,
     AuthModule,
     PresentationsModule,

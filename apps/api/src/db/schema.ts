@@ -1,6 +1,7 @@
 import {
   bigint,
   boolean,
+  customType,
   doublePrecision,
   integer,
   jsonb,
@@ -60,6 +61,20 @@ export const slideElements = pgTable("slide_elements", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+const bytea = customType<{ data: Buffer }>({
+  dataType() {
+    return "bytea";
+  },
+});
+
+export const presentationDocs = pgTable("presentation_docs", {
+  presentationId: uuid("presentation_id")
+    .primaryKey()
+    .references(() => presentations.id, { onDelete: "cascade" }),
+  state: bytea("state").notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export const participants = pgTable(
   "participants",
   {
@@ -88,6 +103,7 @@ export const audienceResponses = pgTable("audience_responses", {
 });
 
 export type UserRow = typeof users.$inferSelect;
+export type PresentationDocRow = typeof presentationDocs.$inferSelect;
 export type PresentationRow = typeof presentations.$inferSelect;
 export type SlideRow = typeof slides.$inferSelect;
 export type SlideElementRow = typeof slideElements.$inferSelect;

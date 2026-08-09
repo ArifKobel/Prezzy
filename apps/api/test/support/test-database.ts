@@ -16,6 +16,7 @@ export const TEST_JWT_SECRET = "prezzy-test-secret";
 const TRUNCATE = [
   "audience_responses",
   "participants",
+  "presentation_docs",
   "slide_elements",
   "slides",
   "presentations",

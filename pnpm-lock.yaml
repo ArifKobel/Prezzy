@@ -105,6 +105,9 @@ importers:
       jsonwebtoken:
         specifier: ^9.0.2
         version: 9.0.3
+      lib0:
+        specifier: ^0.2.99
+        version: 0.2.117
       multer:
         specifier: ^2.0.2
         version: 2.2.0
@@ -120,6 +123,12 @@ importers:
       socket.io:
         specifier: ^4.8.1
         version: 4.8.3
+      y-protocols:
+        specifier: ^1.0.6
+        version: 1.0.7(yjs@13.6.32)
+      yjs:
+        specifier: ^13.6.32
+        version: 13.6.32
     devDependencies:
       '@Prezzy/config':
         specifier: workspace:*
@@ -292,6 +301,9 @@ importers:
       dotenv:
         specifier: 'catalog:'
         version: 17.3.1
+      lib0:
+        specifier: ^0.2.99
+        version: 0.2.117
       lucide-react:
         specifier: 'catalog:'
         version: 0.546.0(react@19.2.4)
@@ -322,6 +334,9 @@ importers:
       tailwindcss:
         specifier: ^4.1.18
         version: 4.2.2
+      y-protocols:
+        specifier: ^1.0.6
+        version: 1.0.7(yjs@13.6.32)
       yjs:
         specifier: ^13.6.32
         version: 13.6.32
@@ -6931,6 +6946,12 @@ packages:
   xmlhttprequest-ssl@2.1.2:
     resolution: {integrity: sha512-TEU+nJVUUnA4CYJFLvK5X9AOeH4KvDvhIfm0vV1GaQRtchnG0hgK5p8hw/xjv8cunWYCsiPCSDzObPyhEwq3KQ==}
     engines: {node: '>=0.4.0'}
+
+  y-protocols@1.0.7:
+    resolution: {integrity: sha512-YSVsLoXxO67J6eE/nV4AtFtT3QEotZf5sK5BHxFBXso7VDUT3Tx07IfA6hsu5Q5OmBdMkQVmFZ9QOA7fikWvnw==}
+    engines: {node: '>=16.0.0', npm: '>=8.0.0'}
+    peerDependencies:
+      yjs: ^13.0.0
 
   y18n@5.0.8:
     resolution: {integrity: sha512-0pfFzegeDWJHJIAmTLRP2DwHjdF5s7jo9tuztdQxAhINCdvS+3nGINqPd00AphqJR/0LhANUS6/+7SCb98YOfA==}
@@ -13572,6 +13593,11 @@ snapshots:
   xmlchars@2.2.0: {}
 
   xmlhttprequest-ssl@2.1.2: {}
+
+  y-protocols@1.0.7(yjs@13.6.32):
+    dependencies:
+      lib0: 0.2.117
+      yjs: 13.6.32
 
   y18n@5.0.8: {}
 

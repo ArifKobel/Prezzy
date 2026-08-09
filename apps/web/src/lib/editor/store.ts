@@ -202,6 +202,7 @@ export function createEditorStore(doc: Y.Doc = createDoc()) {
     },
     reorderSlides(ids: string[]) { cmd.reorderSlides(doc, ids); },
     setSlideTitle(slideId: string, title: string) { cmd.setSlideTitle(doc, slideId, title); },
+    setSlideBg(slideId: string, bg: string | null) { cmd.setSlideBg(doc, slideId, bg); },
 
     addElement(input: Omit<cmd.NewElement, "slideId">) {
       const slideId = active();
@@ -242,6 +243,6 @@ export function createEditorStore(doc: Y.Doc = createDoc()) {
     reorderElement(id: string, action: cmd.ReorderAction) { cmd.reorderElement(doc, id, action); },
 
     setTitle(title: string) { cmd.setTitle(doc, title); },
-    setTheme(patch: PresentationTheme) { cmd.setTheme(doc, patch); },
+    setTheme(patch: cmd.ThemePatch) { cmd.setTheme(doc, patch); },
   };
 }

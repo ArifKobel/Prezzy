@@ -123,6 +123,10 @@ export function setSlideTitle(doc: Y.Doc, slideId: string, title: string): void 
   edit(doc, () => { slidesOf(doc).get(slideId)?.set("title", title); });
 }
 
+export function setSlideBg(doc: Y.Doc, slideId: string, bg: string | null): void {
+  edit(doc, () => { slidesOf(doc).get(slideId)?.set("bg", bg); });
+}
+
 export function addElement(doc: Y.Doc, input: NewElement, createdAt = Date.now()): string {
   return edit(doc, () => {
     const id = newId();
@@ -226,7 +230,9 @@ export function setTitle(doc: Y.Doc, title: string): void {
   edit(doc, () => { metaOf(doc).set("title", title); });
 }
 
-export function setTheme(doc: Y.Doc, patch: PresentationTheme): void {
+export type ThemePatch = { [K in keyof PresentationTheme]?: PresentationTheme[K] | null };
+
+export function setTheme(doc: Y.Doc, patch: ThemePatch): void {
   edit(doc, () => {
     const meta = metaOf(doc);
     let theme = meta.get("theme") as Y.Map<unknown> | null;
