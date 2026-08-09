@@ -43,7 +43,7 @@ export function ProfileForm({ name, email }: { name: string; email: string }) {
           <button
             onClick={handleSave}
             disabled={saving}
-            className="rounded-md bg-[linear-gradient(135deg,var(--color-primary),var(--color-primary-dim))] px-5 py-2 font-sans text-xs font-medium text-primary-foreground shadow-[0_4px_12px_rgb(34_87_74_/_0.25)] transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50"
+            className="rounded-md bg-primary hover:bg-primary-dim px-5 py-2 font-sans text-xs font-medium text-primary-foreground transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50"
           >
             {saving ? "Saving…" : "Save Changes"}
           </button>

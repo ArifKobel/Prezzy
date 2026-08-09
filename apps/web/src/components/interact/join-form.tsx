@@ -37,13 +37,13 @@ export function JoinForm({
           onChange={(e) => setName(e.target.value)}
           placeholder="Your name"
           maxLength={30}
-          className="w-full rounded-xl bg-white px-4 py-3.5 text-center font-sans text-sm text-foreground shadow-[0_2px_12px_rgb(35_31_28_/_0.04)] outline-none placeholder:text-muted-foreground/60 focus:shadow-[0_2px_16px_rgb(34_87_74_/_0.12)]"
+          className="w-full rounded-xl border border-border bg-card px-4 py-3.5 text-center font-sans text-sm text-foreground outline-none placeholder:text-muted-foreground/60 focus:shadow-[0_2px_16px_rgb(200_64_31_/_0.12)]"
           autoFocus
         />
         <button
           type="submit"
           disabled={!name.trim()}
-          className="w-full rounded-xl bg-[linear-gradient(135deg,var(--color-primary),var(--color-primary-dim))] py-3.5 font-sans text-sm font-semibold text-primary-foreground transition-transform hover:scale-[1.02] disabled:opacity-40 disabled:hover:scale-100"
+          className="w-full rounded-xl bg-primary hover:bg-primary-dim py-3.5 font-sans text-sm font-semibold text-primary-foreground transition-transform hover:scale-[1.02] disabled:opacity-40 disabled:hover:scale-100"
         >
           Join
         </button>
