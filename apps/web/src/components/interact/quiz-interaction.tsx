@@ -1,4 +1,5 @@
-import type { AudienceResponse, SlideElement } from "@Prezzy/shared";
+import type { AudienceResponse, PresentationTheme, SlideElement } from "@Prezzy/shared";
+import { resolveSlideTheme } from "@Prezzy/shared/theme";
 import { cn } from "@Prezzy/ui/lib/utils";
 import { Check, Loader2, X } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -10,7 +11,6 @@ import {
   timerTextColor,
   alpha,
   resolveElementStyle,
-  type PresentationTheme,
 } from "@/lib/quiz-constants";
 
 export function QuizInteraction({
@@ -39,7 +39,7 @@ export function QuizInteraction({
   const timerSeconds: number = element.props?.timerSeconds ?? 20;
   const elementId = element.id;
 
-  const s = resolveElementStyle(element.props, theme);
+  const s = resolveElementStyle(element.props, resolveSlideTheme(theme));
   const accentHex = s.accentColor || "#22574a";
   const text = s.textColor || "#231f1c";
   const textMuted = alpha(text, 0.4);

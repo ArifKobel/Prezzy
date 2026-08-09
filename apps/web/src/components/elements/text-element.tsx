@@ -23,7 +23,7 @@ export function TextElement({
       }}
       dangerouslySetInnerHTML={{
         __html: content || (showPlaceholder
-          ? `<p class="text-muted-foreground opacity-25">${isHeading ? "Heading" : "Text box"}</p>`
+          ? `<p style="color: var(--slide-muted); opacity: 0.5">${isHeading ? "Heading" : "Text box"}</p>`
           : ""),
       }}
     />

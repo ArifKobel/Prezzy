@@ -1,10 +1,10 @@
+import type { ResolvedSlideTheme } from "@Prezzy/shared";
 import { cn } from "@Prezzy/ui/lib/utils";
 import {
   QUIZ_OPTION_LABELS,
   deriveOptionAccents,
   alpha,
   resolveElementStyle,
-  type PresentationTheme,
 } from "@/lib/quiz-constants";
 import type { SlideElement } from "@/components/slide-canvas";
 
@@ -13,7 +13,7 @@ export function QuizElement({
   theme,
 }: {
   el: SlideElement;
-  theme?: PresentationTheme | null;
+  theme?: ResolvedSlideTheme | null;
 }) {
   const question = el.props?.question || "Your question here";
   const options: string[] = el.props?.options ?? ["Option A", "Option B"];
@@ -28,11 +28,11 @@ export function QuizElement({
   const correctColor = s.accentColor ? optionAccents[1].bg : "#4e8f6f";
 
   return (
-    <div className="flex h-full w-full flex-col overflow-hidden rounded-xl px-[6%] py-[5%]" style={{ backgroundColor: bg }}>
+    <div className="flex h-full w-full flex-col overflow-hidden px-[6%] py-[5%]" style={{ backgroundColor: bg, borderRadius: "var(--slide-radius)" }}>
       <p className="mb-[3%] text-center font-sans text-[0.3em] font-medium uppercase tracking-[0.1em]" style={{ color: textMuted }}>
         Quiz
       </p>
-      <div className="mb-[5%] text-center font-display text-[1.1em] font-bold leading-tight tracking-tight" style={{ color: text }} dangerouslySetInnerHTML={{ __html: question }} />
+      <div className="mb-[5%] text-center text-[1.1em] font-bold [font-family:var(--slide-font-heading)] leading-tight tracking-tight" style={{ color: text }} dangerouslySetInnerHTML={{ __html: question }} />
       <div className="flex flex-1 flex-col justify-center gap-[0.5em]">
         {options.map((opt, i) => {
           const isCorrect = correctOption === i;
@@ -41,15 +41,15 @@ export function QuizElement({
             <div
               key={i}
               className={cn(
-                "flex items-center gap-[0.6em] rounded-xl px-[0.9em] py-[0.55em]",
+                "flex items-center gap-[0.6em] rounded-[var(--slide-radius)] px-[0.9em] py-[0.55em]",
                 isCorrect
                   ? ""
-                  : "bg-white shadow-[0_2px_12px_rgb(35_31_28_/_0.04)]",
+                  : "bg-[var(--slide-bg)]",
               )}
               style={isCorrect ? { backgroundColor: alpha(correctColor, 0.1) } : undefined}
             >
               <span
-                className="grid size-[1.5em] shrink-0 place-items-center rounded-lg font-display text-[0.48em] font-bold leading-[1.7]"
+                className="grid size-[1.5em] shrink-0 place-items-center rounded-[calc(var(--slide-radius)*0.6)] text-[0.48em] font-bold leading-[1.7]"
                 style={{
                   backgroundColor: isCorrect ? correctColor : optAccent.bg,
                   color: optAccent.fg,

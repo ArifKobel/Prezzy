@@ -100,7 +100,7 @@ export function LiveQuizElement({
       <div className="flex h-full w-full flex-col items-center justify-center" style={{ backgroundColor: bg }}>
         <QuestionCountdown onDone={onQuestionEnd} accentColor={accent} textColor={text} surfaceColor={surfaceMuted} />
 
-        <h2 className="mt-[5%] max-w-[70%] text-center font-display text-[1.8em] font-bold leading-[1.1] tracking-tight" style={{ color: text }} dangerouslySetInnerHTML={{ __html: question }} />
+        <h2 className="mt-[5%] max-w-[70%] text-center [font-family:var(--slide-font-heading)] text-[1.8em] font-bold leading-[1.1] tracking-tight" style={{ color: text }} dangerouslySetInnerHTML={{ __html: question }} />
 
         <p className="mt-[5%] font-sans text-[0.36em] font-medium" style={{ color: textMuted }}>
           Answer on your device
@@ -132,7 +132,7 @@ export function LiveQuizElement({
         </div>
 
         <div className="flex w-[62%] flex-col justify-center pr-[6%]">
-          <h2 className="mb-[5%] font-display text-[1.1em] font-bold leading-[1.2] tracking-tight" style={{ color: text }} dangerouslySetInnerHTML={{ __html: question }} />
+          <h2 className="mb-[5%] [font-family:var(--slide-font-heading)] text-[1.1em] font-bold leading-[1.2] tracking-tight" style={{ color: text }} dangerouslySetInnerHTML={{ __html: question }} />
 
           <div className="flex flex-col gap-[0.5em]">
             {options.map((opt, i) => {
@@ -167,7 +167,7 @@ export function LiveQuizElement({
           <p className="mb-1 font-sans text-[0.3em] font-medium uppercase tracking-[0.1em]" style={{ color: textMuted }}>
             Results
           </p>
-          <h2 className="font-display text-[1.1em] font-bold leading-[1.15] tracking-tight" style={{ color: text }} dangerouslySetInnerHTML={{ __html: question }} />
+          <h2 className="[font-family:var(--slide-font-heading)] text-[1.1em] font-bold leading-[1.15] tracking-tight" style={{ color: text }} dangerouslySetInnerHTML={{ __html: question }} />
         </div>
         <div className="ml-4 mt-1 flex shrink-0 items-center justify-center rounded-full px-[10px] py-[3px]" style={{ backgroundColor: surfaceMuted }}>
           <span className="font-sans text-[10px] font-medium leading-none" style={{ color: textSub }}>

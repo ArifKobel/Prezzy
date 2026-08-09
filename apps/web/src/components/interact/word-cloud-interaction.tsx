@@ -1,4 +1,5 @@
-import type { AudienceResponse, SlideElement } from "@Prezzy/shared";
+import type { AudienceResponse, PresentationTheme, SlideElement } from "@Prezzy/shared";
+import { resolveSlideTheme } from "@Prezzy/shared/theme";
 import { Check, Send } from "lucide-react";
 import { useState } from "react";
 import { useResponses } from "@/lib/api/interact";
@@ -6,7 +7,6 @@ import {
   deriveOptionAccents,
   alpha,
   resolveElementStyle,
-  type PresentationTheme,
 } from "@/lib/quiz-constants";
 
 export function WordCloudInteraction({
@@ -31,7 +31,7 @@ export function WordCloudInteraction({
   const maxResponses = element.props?.maxResponses ?? 1;
   const elementId = element.id;
 
-  const s = resolveElementStyle(element.props, theme);
+  const s = resolveElementStyle(element.props, resolveSlideTheme(theme));
   const accentHex = s.accentColor || "#22574a";
   const text = s.textColor || "#231f1c";
   const textFaint = alpha(text, 0.35);
@@ -97,7 +97,7 @@ export function WordCloudInteraction({
               onChange={(e) => setValue(e.target.value)}
               placeholder="Type a word..."
               maxLength={30}
-              className="w-full rounded-xl bg-white px-4 py-3.5 pr-12 font-sans text-sm shadow-[0_2px_12px_rgb(35_31_28_/_0.04)] outline-none focus:shadow-[0_2px_16px_rgb(34_87_74_/_0.12)]"
+              className="w-full rounded-xl border border-border bg-card px-4 py-3.5 pr-12 font-sans text-sm text-foreground outline-none focus:shadow-[0_2px_16px_rgb(200_64_31_/_0.12)]"
               style={{ color: text, ["--tw-placeholder-opacity" as any]: 0.25 }}
             />
             <button

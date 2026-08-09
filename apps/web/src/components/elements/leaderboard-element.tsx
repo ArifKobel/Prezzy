@@ -46,17 +46,20 @@ export function LeaderboardElement({
   }));
 
   return (
-    <div className="flex h-full w-full flex-col overflow-hidden rounded-xl bg-surface-container p-[4%]">
+    <div
+      className="flex h-full w-full flex-col overflow-hidden p-[4%]"
+      style={{ backgroundColor: style?.backgroundColor, borderRadius: "var(--slide-radius)" }}
+    >
       <div className="mb-[3%] flex items-center gap-[2%]">
         <Trophy className="size-[1.2em] text-yellow-500" />
-        <p className="font-display text-[1em] font-bold text-foreground">
+        <p className="text-[1em] font-bold [font-family:var(--slide-font-heading)] [color:var(--slide-text)]">
           Leaderboard
         </p>
       </div>
 
       {data.length === 0 ? (
         <div className="flex flex-1 items-center justify-center">
-          <p className="text-[0.6em] text-muted-foreground/40">
+          <p className="text-[0.6em] opacity-40 [color:var(--slide-muted)]">
             No quiz responses yet
           </p>
         </div>
@@ -80,7 +83,7 @@ export function LeaderboardElement({
                   fontFamily: "var(--font-sans)",
                   fontWeight: 600,
                   fontSize: "0.55em",
-                  fill: "var(--color-foreground)",
+                  fill: "var(--slide-text)",
                 }}
               />
               <Bar
@@ -108,7 +111,7 @@ export function LeaderboardElement({
                   fontFamily="var(--font-sans)"
                   fontWeight="700"
                   fontSize="0.5em"
-                  fill="var(--color-foreground)"
+                  fill="var(--slide-text)"
                   formatter={(v: unknown) => Number(v).toLocaleString()}
                 />
               </Bar>
@@ -118,7 +121,7 @@ export function LeaderboardElement({
       )}
 
       {showPlaceholder && entries.length === 0 && (
-        <p className="mt-auto text-center text-[0.4em] text-muted-foreground/30">
+        <p className="mt-auto text-center text-[0.4em] opacity-30 [color:var(--slide-muted)]">
           Preview — live data during presentation
         </p>
       )}

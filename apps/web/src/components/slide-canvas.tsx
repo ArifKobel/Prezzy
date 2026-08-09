@@ -1,11 +1,15 @@
-import type { ElementProps, LeaderboardEntry, SlideElement } from "@Prezzy/shared";
+import type {
+  ElementProps,
+  LeaderboardEntry,
+  PresentationTheme,
+  ResolvedSlideTheme,
+  SlideElement,
+} from "@Prezzy/shared";
+import { resolveSlideTheme } from "@Prezzy/shared/theme";
 import { cn } from "@Prezzy/ui/lib/utils";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { LiveQuizElement, type QuizPhase } from "@/components/live-quiz";
-import {
-  resolveElementStyle,
-  type PresentationTheme,
-} from "@/lib/quiz-constants";
+import { resolveElementStyle } from "@/lib/quiz-constants";
 import { TextElement } from "@/components/elements/text-element";
 import { ImageElement } from "@/components/elements/image-element";
 import { ShapeElement } from "@/components/elements/shape-element";
@@ -22,12 +26,29 @@ export const DESIGN_H = 540;
 const LIST_CLS = "[&_ul]:list-disc [&_ul]:list-inside [&_ol]:list-decimal [&_ol]:list-inside [&_li]:pl-0.5 [&_li>p]:inline";
 
 export const HEADING_CLS =
-  "h-full w-full overflow-hidden max-w-none font-display text-foreground leading-snug " +
+  "h-full w-full overflow-hidden max-w-none leading-snug [font-family:var(--slide-font-heading)] [color:var(--slide-heading)] " +
   `[&_h1]:font-bold [&_h2]:font-bold [&_h3]:font-bold [&_p]:text-xl ${LIST_CLS}`;
 
 export const TEXT_CLS =
-  "h-full w-full overflow-hidden max-w-none font-sans text-foreground leading-normal " +
+  "h-full w-full overflow-hidden max-w-none leading-normal [font-family:var(--slide-font-body)] [color:var(--slide-text)] " +
   `[&_p]:text-sm ${LIST_CLS}`;
+
+export function slideThemeStyle(t: ResolvedSlideTheme): React.CSSProperties {
+  return {
+    backgroundColor: t.bg,
+    color: t.text,
+    fontFamily: t.fontBody,
+    "--slide-bg": t.bg,
+    "--slide-surface": t.surface,
+    "--slide-text": t.text,
+    "--slide-muted": t.muted,
+    "--slide-heading": t.heading,
+    "--slide-accent": t.accent,
+    "--slide-font-heading": t.fontHeading,
+    "--slide-font-body": t.fontBody,
+    "--slide-radius": `${t.radius}px`,
+  } as React.CSSProperties;
+}
 
 export const SHAPE_TYPES = [
   { id: "rectangle", label: "Rectangle" },
@@ -113,6 +134,7 @@ export function SlideCanvas({
 }: SlideCanvasProps) {
   const outerRef = useRef<HTMLDivElement>(null);
   const [fitScale, setFitScale] = useState(1);
+  const resolved = useMemo(() => resolveSlideTheme(theme), [theme]);
 
   useEffect(() => {
     if (!scaleToFit) return;
@@ -194,23 +216,23 @@ export function SlideCanvas({
                 participantCount={participantCount}
                 onTimerEnd={onQuizTimerEnd}
                 onQuestionEnd={onQuizQuestionEnd}
-                style={resolveElementStyle(el.props, theme)}
+                style={resolveElementStyle(el.props, resolved)}
               />
             )}
             {el.type === "quiz" && !presentationId && (
-              <QuizElement el={el} theme={theme} />
+              <QuizElement el={el} theme={resolved} />
             )}
 
             {el.type === "wordcloud" && (
-              <WordCloudElement el={el} responses={responses?.[el.id]} showPlaceholder={showPlaceholders} theme={theme} />
+              <WordCloudElement el={el} responses={responses?.[el.id]} showPlaceholder={showPlaceholders} theme={resolved} />
             )}
 
             {el.type === "leaderboard" && (
-              <LeaderboardElement leaderboard={leaderboard} showPlaceholder={showPlaceholders} style={resolveElementStyle(el.props, theme)} />
+              <LeaderboardElement leaderboard={leaderboard} showPlaceholder={showPlaceholders} style={resolveElementStyle(el.props, resolved)} />
             )}
 
             {el.type === "qrcode" && (
-              <QRCodeElement presentationId={presentationId} showPlaceholder={showPlaceholders} style={resolveElementStyle(el.props, theme)} />
+              <QRCodeElement presentationId={presentationId} showPlaceholder={showPlaceholders} style={resolveElementStyle(el.props, resolved)} />
             )}
           </div>
         );
@@ -218,30 +240,11 @@ export function SlideCanvas({
     </>
   );
 
-  const themeVars: React.CSSProperties = useMemo(() => {
-    const vars: Record<string, string> = {};
-    if (theme?.primaryColor) {
-      vars["--color-primary"] = theme.primaryColor;
-      vars["--color-primary-dim"] = theme.primaryColor;
-    }
-    if (theme?.secondaryColor) {
-      vars["--color-secondary"] = theme.secondaryColor;
-      vars["--color-secondary-container"] = theme.secondaryColor;
-    }
-    if (theme?.backgroundColor) {
-      vars["backgroundColor"] = theme.backgroundColor;
-    }
-    if (theme?.textColor) {
-      vars["--color-foreground"] = theme.textColor;
-    }
-    return vars as React.CSSProperties;
-  }, [theme]);
-
-  const hasThemeBg = !!theme?.backgroundColor;
+  const themeVars = useMemo(() => slideThemeStyle(resolved), [resolved]);
 
   if (!scaleToFit) {
     return (
-      <div className={cn("relative h-full w-full overflow-hidden text-left", !hasThemeBg && "bg-card", className)} style={themeVars}>
+      <div className={cn("relative h-full w-full overflow-hidden text-left", className)} style={themeVars}>
         {inner}
       </div>
     );
@@ -250,7 +253,7 @@ export function SlideCanvas({
   return (
     <div ref={outerRef} className={cn("flex items-center justify-center overflow-hidden text-left", className)}>
       <div
-        className={cn("relative", !hasThemeBg && "bg-card")}
+        className="relative"
         style={{
           width: DESIGN_W,
           height: DESIGN_H,

@@ -1,5 +1,6 @@
 import type { ElementProps, SlideElement } from "@Prezzy/shared";
-import { DESIGN_W, DESIGN_H } from "@/components/slide-canvas";
+import { resolveSlideTheme } from "@Prezzy/shared/theme";
+import { DESIGN_W, DESIGN_H, slideThemeStyle } from "@/components/slide-canvas";
 import {
   ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSeparator,
   ContextMenuShortcut, ContextMenuTrigger,
@@ -410,13 +411,13 @@ function EditorPage() {
           <div className="flex items-center">
             <button
               onClick={() => navigate({ to: `/present/${presentationId}${activeSlideId ? `?slide=${activeSlideId}` : ""}` })}
-              className="flex items-center gap-1.5 rounded-l-md bg-[linear-gradient(135deg,var(--color-primary),var(--color-primary-dim))] px-4 py-1.5 text-xs font-medium tracking-wide text-primary-foreground shadow-[0_4px_12px_rgba(78,96,115,0.3)] transition-all hover:brightness-110 active:scale-[0.99]"
+              className="flex items-center gap-1.5 rounded-l-md bg-primary hover:bg-primary-dim px-4 py-1.5 text-xs font-medium tracking-wide text-primary-foreground transition-all hover:brightness-110 active:scale-[0.99]"
             >
               <Play className="size-3 fill-current" />Present
             </button>
             <button
               onClick={() => window.open(`/present/${presentationId}${activeSlideId ? `?slide=${activeSlideId}` : ""}`, "_blank")}
-              className="flex items-center self-stretch rounded-r-md border-l border-primary-foreground/20 bg-[linear-gradient(135deg,var(--color-primary),var(--color-primary-dim))] px-2.5 text-primary-foreground shadow-[0_4px_12px_rgba(78,96,115,0.3)] transition-all hover:brightness-110 active:scale-[0.99]"
+              className="flex items-center self-stretch rounded-r-md border-l border-primary-foreground/20 bg-primary hover:bg-primary-dim px-2.5 text-primary-foreground transition-all hover:brightness-110 active:scale-[0.99]"
               title="Open in new window"
             >
               <ExternalLink className="size-3" />
@@ -492,18 +493,7 @@ function EditorPage() {
               left: `calc(50% + ${panOffset.x}px)`, top: `calc(50% + ${panOffset.y}px)`,
               transform: `translate(-50%, -50%) scale(${effectiveScale})`,
               transformOrigin: "center",
-              backgroundColor: presentation.theme?.backgroundColor || "var(--color-card)",
-              ...(presentation.theme?.primaryColor && {
-                "--color-primary": presentation.theme.primaryColor,
-                "--color-primary-dim": presentation.theme.primaryColor,
-              } as React.CSSProperties),
-              ...(presentation.theme?.secondaryColor && {
-                "--color-secondary": presentation.theme.secondaryColor,
-                "--color-secondary-container": presentation.theme.secondaryColor,
-              } as React.CSSProperties),
-              ...(presentation.theme?.textColor && {
-                "--color-foreground": presentation.theme.textColor,
-              } as React.CSSProperties),
+              ...slideThemeStyle(resolveSlideTheme(presentation.theme)),
             }}
             onClick={(e: React.MouseEvent) => {
               e.stopPropagation();

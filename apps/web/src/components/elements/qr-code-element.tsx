@@ -28,12 +28,12 @@ export function QRCodeElement({
   const surfaceMuted = alpha(text, 0.04);
 
   return (
-    <div className="flex h-full w-full items-stretch overflow-hidden rounded-xl" style={{ backgroundColor: bg }}>
+    <div className="flex h-full w-full items-stretch overflow-hidden rounded-[var(--slide-radius)]" style={{ backgroundColor: bg }}>
       <div className="flex w-[45%] flex-col justify-center pl-[8%] pr-[4%]">
         <p className="mb-[3%] font-sans text-[0.35em] font-medium uppercase tracking-[0.05em]" style={{ color: textMuted }}>
           Interactive Session
         </p>
-        <p className="mb-[5%] font-display text-[1.1em] font-bold leading-[1.15] tracking-[-0.02em]" style={{ color: text }}>
+        <p className="mb-[5%] [font-family:var(--slide-font-heading)] text-[1.1em] font-bold leading-[1.15] tracking-[-0.02em]" style={{ color: text }}>
           Join the
           <br />
           presentation
@@ -55,7 +55,7 @@ export function QRCodeElement({
             <p className="mb-[2%] font-sans text-[0.3em] font-medium uppercase tracking-[0.05em]" style={{ color: textFaint }}>
               Session Code
             </p>
-            <p className="font-display text-[1.2em] font-bold tracking-[0.25em]" style={{ color: text }}>
+            <p className="[font-family:var(--slide-font-heading)] text-[1.2em] font-bold tracking-[0.25em]" style={{ color: text }}>
               {isLive ? joinCode : "A B C D E F"}
             </p>
           </>

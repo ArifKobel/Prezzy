@@ -1,4 +1,4 @@
-import type { ElementProps } from "@Prezzy/shared";
+import type { ElementProps, ResolvedSlideTheme } from "@Prezzy/shared";
 
 export const QUIZ_OPTION_LABELS = ["A", "B", "C", "D", "E", "F"];
 
@@ -129,16 +129,6 @@ export interface ElementStyle {
   textColor?: string;
 }
 
-export interface PresentationTheme {
-  primaryColor?: string;
-  secondaryColor?: string;
-  backgroundColor?: string;
-  surfaceColor?: string;
-  textColor?: string;
-  headingFont?: string;
-  bodyFont?: string;
-}
-
 export function getElementStyle(props?: ElementProps | null): ElementStyle {
   return {
     accentColor: props?.accentColor,
@@ -149,13 +139,13 @@ export function getElementStyle(props?: ElementProps | null): ElementStyle {
 
 export function resolveElementStyle(
   props?: ElementProps | null,
-  theme?: PresentationTheme | null,
+  theme?: ResolvedSlideTheme | null,
 ): ElementStyle {
   const el = getElementStyle(props);
   return {
-    accentColor: el.accentColor || theme?.primaryColor,
-    backgroundColor: el.backgroundColor || theme?.backgroundColor,
-    textColor: el.textColor || theme?.textColor,
+    accentColor: el.accentColor || theme?.accent,
+    backgroundColor: el.backgroundColor || theme?.surface,
+    textColor: el.textColor || theme?.text,
   };
 }
 

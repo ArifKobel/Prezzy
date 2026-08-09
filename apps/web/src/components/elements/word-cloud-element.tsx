@@ -1,9 +1,6 @@
+import type { ResolvedSlideTheme } from "@Prezzy/shared";
 import { useEffect, useMemo, useRef, useState } from "react";
-import {
-  deriveCloudPalette,
-  resolveElementStyle,
-  type PresentationTheme,
-} from "@/lib/quiz-constants";
+import { deriveCloudPalette, resolveElementStyle } from "@/lib/quiz-constants";
 import type { SlideElement } from "@/components/slide-canvas";
 
 const DEFAULT_CLOUD_PALETTE = ["#22574a", "#a48246", "#6d3622", "#518fb8", "#44315e", "#4e7956", "#8e5775", "#8e8780"];
@@ -108,7 +105,7 @@ export function WordCloudElement({
   el: SlideElement;
   responses?: Array<{ value: string }>;
   showPlaceholder?: boolean;
-  theme?: PresentationTheme | null;
+  theme?: ResolvedSlideTheme | null;
 }) {
   const prompt = el.props?.prompt || "Share a word...";
   const s = resolveElementStyle(el.props, theme);
@@ -161,14 +158,17 @@ export function WordCloudElement({
   const hasWords = words.length > 0;
 
   return (
-    <div className="flex h-full w-full flex-col overflow-hidden rounded-xl bg-surface-container p-[3%]">
-      <div className="shrink-0 text-center font-display text-[0.8em] font-semibold text-foreground" dangerouslySetInnerHTML={{ __html: prompt }} />
+    <div
+      className="flex h-full w-full flex-col overflow-hidden p-[3%]"
+      style={{ backgroundColor: s.backgroundColor, borderRadius: "var(--slide-radius)" }}
+    >
+      <div className="shrink-0 text-center text-[0.8em] font-semibold [font-family:var(--slide-font-heading)] [color:var(--slide-text)]" dangerouslySetInnerHTML={{ __html: prompt }} />
       <div ref={containerRef} className="relative flex-1 overflow-hidden">
         {hasWords && placedWords.length > 0 ? (
           placedWords.map((w) => (
             <span
               key={w.text}
-              className="absolute whitespace-nowrap font-display font-bold leading-none"
+              className="absolute whitespace-nowrap font-bold leading-none [font-family:var(--slide-font-heading)]"
               style={{
                 left: w.x,
                 top: w.y,
@@ -183,7 +183,7 @@ export function WordCloudElement({
           ))
         ) : !hasWords ? (
           <div className="flex h-full items-center justify-center">
-            <p className="text-[0.5em] text-muted-foreground/40">
+            <p className="text-[0.5em] opacity-40 [color:var(--slide-muted)]">
               Waiting for responses...
             </p>
           </div>

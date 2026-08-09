@@ -29,7 +29,7 @@ import { SlideCanvas } from "@/components/slide-canvas";
 
 import { usePresentationElements } from "@/lib/api/presentations";
 import { useReorderSlides } from "@/lib/api/slides";
-import type { PresentationTheme } from "@/lib/quiz-constants";
+import type { PresentationTheme } from "@Prezzy/shared";
 
 function sameSlideSet(a: Slide[], b: Slide[]): boolean {
   if (a.length !== b.length) return false;
