@@ -32,10 +32,21 @@ export function useEditorState<T>(select: (state: EditorState) => T): T {
   );
 }
 
+const slideElementsCache = new WeakMap<EditorState, ReturnType<typeof filterSlideElements>>();
+
+function filterSlideElements(state: EditorState) {
+  return state.elements.filter((el) => el.slideId === state.activeSlideId);
+}
+
 export function useSlideElements() {
-  return useEditorState((state) =>
-    state.elements.filter((el) => el.slideId === state.activeSlideId),
-  );
+  return useEditorState((state) => {
+    let elements = slideElementsCache.get(state);
+    if (!elements) {
+      elements = filterSlideElements(state);
+      slideElementsCache.set(state, elements);
+    }
+    return elements;
+  });
 }
 
 export function useIsSelected(id: string): boolean {

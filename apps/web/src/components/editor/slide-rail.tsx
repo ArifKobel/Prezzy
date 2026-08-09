@@ -24,10 +24,9 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { arrayMove } from "@dnd-kit/sortable";
 import { Copy, GripVertical, LayoutGrid, Plus } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { SlideCanvas } from "@/components/slide-canvas";
 
-import { usePresentationElements } from "@/lib/api/presentations";
 import { useReorderSlides, useUpdateSlide } from "@/lib/api/slides";
 import type { PresentationTheme } from "@Prezzy/shared";
 
@@ -143,6 +142,7 @@ export function SlideRail({
   slides,
   activeSlideId,
   presentationId,
+  elementsBySlide,
   onSwitchSlide,
   onAddSlide,
   onDuplicateSlide,
@@ -153,6 +153,7 @@ export function SlideRail({
   slides: Slide[];
   activeSlideId: string | null;
   presentationId: string;
+  elementsBySlide: Map<string, SlideElement[]>;
   onSwitchSlide: (id: string) => void;
   onAddSlide: (afterSlideId?: string) => void;
   onDuplicateSlide: (id: string) => void;
@@ -162,18 +163,6 @@ export function SlideRail({
 }) {
   const reorder = useReorderSlides();
   const updateSlide = useUpdateSlide();
-  const { data: allElements } = usePresentationElements(presentationId);
-
-  const elementsBySlide = useMemo(() => {
-    const map = new Map<string, SlideElement[]>();
-    if (!allElements) return map;
-    for (const el of allElements) {
-      const list = map.get(el.slideId) ?? [];
-      list.push(el);
-      map.set(el.slideId, list);
-    }
-    return map;
-  }, [allElements]);
 
   const [localSlides, setLocalSlides] = useState(slides);
   const serverSlides = useRef(slides);

@@ -92,7 +92,7 @@ export function elementsOfSlide(doc: Y.Doc, slideId: string): SlideElement[] {
   return snapshot(doc).elements.filter((el) => el.slideId === slideId);
 }
 
-function slideToY(slide: Slide): YSlide {
+export function slideToY(slide: Slide): YSlide {
   const map = new Y.Map<unknown>();
   map.set("order", slide.order);
   map.set("title", slide.title);
@@ -101,7 +101,7 @@ function slideToY(slide: Slide): YSlide {
   return map;
 }
 
-function elementToY(element: SlideElement): YElement {
+export function elementToY(element: SlideElement): YElement {
   const map = new Y.Map<unknown>();
   map.set("slideId", element.slideId);
   map.set("type", element.type);

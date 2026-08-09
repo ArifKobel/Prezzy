@@ -118,6 +118,12 @@ export function createSync(store: EditorStore, transport: SyncTransport, options
     status: () => status,
     pending: () => new Set(dirty),
     reset: markBaseline,
+    baselineSlide(slideId: string) {
+      const elements = bySlide(store.getState().elements).get(slideId) ?? [];
+      synced.set(slideId, fingerprint(elements));
+      dirty.delete(slideId);
+      if (dirty.size === 0) setStatus("idle");
+    },
     flushNow: () => flush(),
     stop() {
       stopped = true;

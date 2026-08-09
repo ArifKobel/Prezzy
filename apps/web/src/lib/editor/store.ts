@@ -165,6 +165,16 @@ export function createEditorStore(doc: Y.Doc = createDoc()) {
     undo() { undoManager.undo(); },
     redo() { undoManager.redo(); },
 
+    silently<T>(fn: () => T): T {
+      undoManager.trackedOrigins.delete(LOCAL_ORIGIN);
+      try {
+        return fn();
+      } finally {
+        undoManager.trackedOrigins.add(LOCAL_ORIGIN);
+        undoManager.stopCapturing();
+      }
+    },
+
     addSlide(afterSlideId?: string) {
       const id = cmd.addSlide(doc, afterSlideId ?? active() ?? undefined);
       this.setActiveSlide(id);

@@ -11,10 +11,31 @@ import {
 export const clearProps = (...keys: (keyof ElementProps)[]): ElementProps =>
   Object.fromEntries(keys.map((key) => [key, null])) as ElementProps;
 
+export const fetchSlideElements = (slideId: string) =>
+  apiFetch<SlideElement[]>(`/slides/${slideId}/elements`);
+
+export function putSlideElements(slideId: string, elements: SlideElement[]): Promise<SlideElement[]> {
+  return apiFetch<SlideElement[]>(`/slides/${slideId}/elements`, {
+    method: "PUT",
+    body: {
+      elements: elements.map((el) => ({
+        id: el.id,
+        type: el.type,
+        x: el.x,
+        y: el.y,
+        width: el.width,
+        height: el.height,
+        zIndex: el.zIndex ?? undefined,
+        props: el.props ?? undefined,
+      })),
+    },
+  });
+}
+
 export function useSlideElements(slideId: string | null) {
   return useQuery({
     queryKey: ["elements", slideId],
-    queryFn: () => apiFetch<SlideElement[]>(`/slides/${slideId}/elements`),
+    queryFn: () => fetchSlideElements(slideId!),
     enabled: !!slideId,
   });
 }
