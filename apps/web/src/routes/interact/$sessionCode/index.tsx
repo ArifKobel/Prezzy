@@ -15,7 +15,7 @@ import { WaitingRoom } from "@/components/interact/waiting-room";
 import { WordCloudInteraction } from "@/components/interact/word-cloud-interaction";
 import { useSlideElements } from "@/lib/api/elements";
 import {
-  useHeartbeat, usePresentationByJoinCode, useSubmitResponse,
+  useHeartbeat, useLeaderboard, usePresentationByJoinCode, useResponses, useSubmitResponse,
 } from "@/lib/api/interact";
 import { useRealtime } from "@/lib/api/socket";
 
@@ -80,6 +80,14 @@ function AudiencePage() {
 
   const theme = useMemo(() => resolveSlideTheme(presentation?.theme), [presentation?.theme]);
 
+  const interactiveEl = elements?.find((el) => el.type in INTERACTIONS);
+  const { data: interactionResponses } = useResponses(
+    interactiveEl?.type === "wordcloud" ? interactiveEl.id : null,
+  );
+  const { data: leaderboard } = useLeaderboard(
+    interactiveEl?.type === "leaderboard" ? (presentation?.id ?? null) : null,
+  );
+
   const session = useMemo(() => {
     if (!presentation) return null;
     return {
@@ -132,7 +140,6 @@ function AudiencePage() {
     );
   }
 
-  const interactiveEl = elements?.find((el) => el.type in INTERACTIONS);
   const Interaction = interactiveEl ? INTERACTIONS[interactiveEl.type] : null;
 
   return (
@@ -146,7 +153,12 @@ function AudiencePage() {
           <WaitingRoom />
         ) : (
           <>
-            <SlidePeek elements={elements ?? []} theme={presentation.theme} />
+            <SlidePeek
+              elements={elements ?? []}
+              theme={presentation.theme}
+              responses={interactiveEl && interactionResponses ? { [interactiveEl.id]: interactionResponses } : undefined}
+              leaderboard={leaderboard}
+            />
             {Interaction && interactiveEl ? (
               <Interaction element={interactiveEl} />
             ) : (

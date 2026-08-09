@@ -3,10 +3,9 @@ import { Check, Send } from "lucide-react";
 import { useState } from "react";
 import { useResponses } from "@/lib/api/interact";
 import { useInteractSession } from "@/components/interact/session-context";
-import { WordCloudElement } from "@/components/elements/word-cloud-element";
 
 export function WordCloudInteraction({ element }: { element: SlideElement }) {
-  const { theme, participantId, submit } = useInteractSession();
+  const { participantId, submit } = useInteractSession();
   const prompt = element.props?.prompt || "Share a word...";
   const maxResponses = element.props?.maxResponses ?? 1;
 
@@ -91,13 +90,6 @@ export function WordCloudInteraction({ element }: { element: SlideElement }) {
         </form>
       )}
 
-      {(responses?.length ?? 0) > 0 && (
-        <div className="w-full bg-[#fffdf8] p-1.5 shadow-[0_1px_3px_rgb(27_30_34_/_0.15),0_8px_20px_rgb(27_30_34_/_0.12)]">
-          <div className="h-52 w-full overflow-hidden bg-surface-container">
-            <WordCloudElement el={element} responses={responses} theme={theme} />
-          </div>
-        </div>
-      )}
     </div>
   );
 }

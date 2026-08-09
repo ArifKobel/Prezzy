@@ -30,8 +30,8 @@ export function Shell({
           )}
         </div>
       </header>
-      <main className="flex w-full flex-1 flex-col items-center px-4 py-5">
-        <div className="flex w-full max-w-sm flex-1 flex-col justify-center gap-5">{children}</div>
+      <main className="flex w-full flex-1 flex-col items-center px-4 py-4">
+        <div className="flex w-full max-w-sm flex-1 flex-col gap-4 [&>:only-child]:my-auto">{children}</div>
       </main>
     </div>
   );
