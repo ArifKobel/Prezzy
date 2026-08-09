@@ -1,0 +1,12 @@
+node_modules
+**/node_modules
+**/dist
+**/.turbo
+.git
+.github
+uploads
+docker-compose.yml
+**/*.md
+apps/web/public/fonts/.DS_Store
+.env
+**/.env
