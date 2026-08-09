@@ -44,12 +44,20 @@ export function QRCodeElement({
         )}
       </div>
       {(isLive || showPlaceholder) && (
-        <p
-          className="text-[1.3em] font-bold tracking-[0.25em] [font-family:var(--slide-font-heading)]"
-          style={{ color: text }}
-        >
-          {isLive ? joinCode : "ABC123"}
-        </p>
+        <div className="flex flex-col items-center gap-[0.15em]">
+          <p
+            className="text-[0.75em] [font-family:var(--slide-font-body)]"
+            style={{ color: text, opacity: 0.65 }}
+          >
+            {typeof window !== "undefined" ? window.location.host : ""}/interact
+          </p>
+          <p
+            className="text-[1.3em] font-bold tracking-[0.25em] [font-family:var(--slide-font-heading)]"
+            style={{ color: text }}
+          >
+            {isLive ? joinCode : "ABC123"}
+          </p>
+        </div>
       )}
     </div>
   );
