@@ -15,13 +15,15 @@ import {
 export const Route = createFileRoute("/dashboard")({
   component: DashboardRoute,
   loader: async ({ context: { queryClient } }) => {
-    const [, presentations] = await Promise.all([
-      queryClient.ensureQueryData(meQueryOptions),
-      queryClient.ensureQueryData(presentationsQueryOptions),
-    ]);
-    await Promise.all(
-      presentations.slice(0, 8).map((p) => queryClient.ensureQueryData(firstSlideElementsQueryOptions(p.id))),
-    );
+    try {
+      const [, presentations] = await Promise.all([
+        queryClient.ensureQueryData(meQueryOptions),
+        queryClient.ensureQueryData(presentationsQueryOptions),
+      ]);
+      await Promise.all(
+        presentations.slice(0, 8).map((p) => queryClient.ensureQueryData(firstSlideElementsQueryOptions(p.id))),
+      );
+    } catch {}
   },
 });
 

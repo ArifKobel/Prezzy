@@ -9,7 +9,7 @@ import { meQueryOptions, useLogout, useMe } from "@/lib/api/auth";
 
 export const Route = createFileRoute("/settings")({
   component: SettingsRoute,
-  loader: ({ context: { queryClient } }) => queryClient.ensureQueryData(meQueryOptions),
+  loader: ({ context: { queryClient } }) => queryClient.ensureQueryData(meQueryOptions).catch(() => null),
 });
 
 function SettingsRoute() {
