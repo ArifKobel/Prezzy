@@ -22,16 +22,11 @@ export function QuizElement({
   const s = resolveElementStyle(el.props, theme);
   const bg = s.backgroundColor;
   const text = s.textColor || "#231f1c";
-  const textMuted = alpha(text, 0.3);
-  const textFaint = alpha(text, 0.25);
   const optionAccents = deriveOptionAccents(s.accentColor);
   const correctColor = s.accentColor ? optionAccents[1].bg : "#4e8f6f";
 
   return (
     <div className="flex h-full w-full flex-col overflow-hidden px-[6%] py-[5%]" style={{ backgroundColor: bg, borderRadius: "var(--slide-radius)" }}>
-      <p className="mb-[3%] text-center font-sans text-[0.3em] font-medium uppercase tracking-[0.1em]" style={{ color: textMuted }}>
-        Quiz
-      </p>
       <div className="mb-[5%] text-center text-[1.6em] font-bold [font-family:var(--slide-font-heading)] leading-tight tracking-tight" style={{ color: text }} dangerouslySetInnerHTML={{ __html: question }} />
       <div className="flex flex-1 flex-col justify-center gap-[0.5em]">
         {options.map((opt, i) => {
@@ -72,16 +67,6 @@ export function QuizElement({
             </div>
           );
         })}
-      </div>
-      <div className="mt-[4%] flex items-center justify-center gap-[0.5em]">
-        <span className="font-sans text-[0.28em]" style={{ color: textFaint }}>
-          {el.props?.timerSeconds ?? 20}s
-        </span>
-        {el.props?.timeScoring !== false && (
-          <span className="font-sans text-[0.28em]" style={{ color: textFaint }}>
-            · speed bonus
-          </span>
-        )}
       </div>
     </div>
   );

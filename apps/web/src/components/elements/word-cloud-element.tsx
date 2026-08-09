@@ -107,7 +107,6 @@ export function WordCloudElement({
   showPlaceholder?: boolean;
   theme?: ResolvedSlideTheme | null;
 }) {
-  const prompt = el.props?.prompt || "Share a word...";
   const s = resolveElementStyle(el.props, theme);
   const cloudPalette = s.accentColor ? deriveCloudPalette(s.accentColor) : DEFAULT_CLOUD_PALETTE;
   const containerRef = useRef<HTMLDivElement>(null);
@@ -162,7 +161,6 @@ export function WordCloudElement({
       className="flex h-full w-full flex-col overflow-hidden p-[3%]"
       style={{ backgroundColor: s.backgroundColor, borderRadius: "var(--slide-radius)" }}
     >
-      <div className="shrink-0 text-center text-[0.8em] font-semibold [font-family:var(--slide-font-heading)] [color:var(--slide-text)]" dangerouslySetInnerHTML={{ __html: prompt }} />
       <div ref={containerRef} className="relative flex-1 overflow-hidden">
         {hasWords && placedWords.length > 0 ? (
           placedWords.map((w) => (

@@ -48,9 +48,6 @@ export function LeaderboardElement({
       className="flex h-full w-full flex-col overflow-hidden p-[4%]"
       style={{ backgroundColor: style?.backgroundColor, borderRadius: "var(--slide-radius)" }}
     >
-      <p className="mb-[3%] text-[1em] font-bold [font-family:var(--slide-font-heading)] [color:var(--slide-heading)]">
-        Leaderboard
-      </p>
 
       {data.length === 0 ? (
         <div className="flex flex-1 items-center justify-center">
