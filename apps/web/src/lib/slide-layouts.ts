@@ -111,31 +111,35 @@ export const SLIDE_LAYOUTS: SlideLayout[] = [
     label: "Quiz",
     description: "Interactive quiz slide",
     slots: [
-      { type: "quiz", role: "quiz", x: 5, y: 5, width: 90, height: 85, props: { question: "Your question here", options: ["Option A", "Option B", "Option C"] } },
+      { type: "quiz", role: "quiz", x: 5, y: 10, width: 90, height: 75, props: { question: "Your question here", options: ["Option A", "Option B", "Option C"] } },
     ],
   },
   {
     id: "wordcloud",
     label: "Word Cloud",
-    description: "Interactive word cloud",
+    description: "Prompt heading with live word cloud",
     slots: [
-      { type: "wordcloud", role: "wordcloud", x: 10, y: 5, width: 80, height: 85, props: { prompt: "Share a word..." } },
+      { type: "heading", role: "title", x: 8, y: 8, width: 84, height: 12, props: { content: '<p style="text-align: center"><strong><span style="font-size: 40px;">Share a word</span></strong></p>' } },
+      { type: "wordcloud", role: "cloud", x: 8, y: 24, width: 84, height: 64, props: { prompt: "Share a word..." } },
     ],
   },
   {
     id: "leaderboard",
     label: "Leaderboard",
-    description: "Live quiz scoreboard",
+    description: "Heading with live quiz scoreboard",
     slots: [
-      { type: "leaderboard", role: "leaderboard", x: 10, y: 5, width: 80, height: 90, props: {} },
+      { type: "heading", role: "title", x: 8, y: 8, width: 84, height: 12, props: { content: '<p><strong><span style="font-size: 40px;">Leaderboard</span></strong></p>' } },
+      { type: "leaderboard", role: "board", x: 8, y: 24, width: 84, height: 68 },
     ],
   },
   {
-    id: "qrcode",
-    label: "QR Code",
-    description: "Join link for audience",
+    id: "join-page",
+    label: "Join Page",
+    description: "Headline, instructions and QR code",
     slots: [
-      { type: "qrcode", role: "qrcode", x: 10, y: 5, width: 80, height: 90, props: {} },
+      { type: "heading", role: "title", x: 8, y: 16, width: 44, height: 22, props: { content: '<p><strong><span style="font-size: 44px;">Join the presentation</span></strong></p>' } },
+      { type: "text", role: "body", x: 8, y: 42, width: 40, height: 20, props: { content: '<p><span style="font-size: 20px;">Scan the QR code or open the join page and enter the session code.</span></p>' } },
+      { type: "qrcode", role: "qr", x: 58, y: 16, width: 30, height: 62 },
     ],
   },
 ];
@@ -144,24 +148,3 @@ export function getLayout(id: string): SlideLayout | undefined {
   return SLIDE_LAYOUTS.find((l) => l.id === id);
 }
 
-export const INTERACTIVE_PRESETS: Record<string, LayoutSlot[]> = {
-  quiz: [
-    {
-      type: "quiz", role: "quiz", x: 5, y: 12, width: 90, height: 72,
-      props: { question: "Your question here", options: ["Option A", "Option B", "Option C"] },
-    },
-  ],
-  wordcloud: [
-    { type: "heading", role: "title", x: 8, y: 8, width: 84, height: 12, props: { content: '<p style="text-align: center"><strong><span style="font-size: 40px;">Share a word</span></strong></p>' } },
-    { type: "wordcloud", role: "cloud", x: 8, y: 24, width: 84, height: 64, props: { prompt: "Share a word..." } },
-  ],
-  leaderboard: [
-    { type: "heading", role: "title", x: 8, y: 8, width: 84, height: 12, props: { content: '<p><strong><span style="font-size: 40px;">Leaderboard</span></strong></p>' } },
-    { type: "leaderboard", role: "board", x: 8, y: 24, width: 84, height: 68 },
-  ],
-  qrcode: [
-    { type: "heading", role: "title", x: 8, y: 16, width: 44, height: 22, props: { content: '<p><strong><span style="font-size: 44px;">Join the presentation</span></strong></p>' } },
-    { type: "text", role: "body", x: 8, y: 42, width: 40, height: 20, props: { content: '<p><span style="font-size: 20px;">Scan the QR code or open the join page and enter the session code.</span></p>' } },
-    { type: "qrcode", role: "qr", x: 58, y: 16, width: 30, height: 62 },
-  ],
-};

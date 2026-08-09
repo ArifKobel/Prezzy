@@ -80,9 +80,9 @@ export const ELEMENT_DEFAULTS = {
   image:     { x: 56, y: 25, width: 36, height: 50, content: "" },
   shape:     { x: 20, y: 30, width: 30, height: 30, content: "" },
   quiz:        { x: 5, y: 10, width: 90, height: 75, content: "" },
-  wordcloud:   { x: 10, y: 10, width: 80, height: 70, content: "" },
-  leaderboard: { x: 10, y: 5, width: 80, height: 85, content: "" },
-  qrcode:      { x: 25, y: 10, width: 50, height: 80, content: "" },
+  wordcloud:   { x: 8, y: 18, width: 84, height: 64, content: "" },
+  leaderboard: { x: 8, y: 16, width: 84, height: 68, content: "" },
+  qrcode:      { x: 36, y: 18, width: 28, height: 60, content: "" },
 } as const;
 
 export const EDITOR_EXTENSIONS = [
