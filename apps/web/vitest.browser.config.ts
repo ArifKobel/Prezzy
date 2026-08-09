@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vitest/config'
 import tsconfigPaths from 'vite-tsconfig-paths'
 import viteReact from '@vitejs/plugin-react'
@@ -9,6 +10,13 @@ export default defineConfig({
     tailwindcss(),
     viteReact(),
   ],
+  resolve: {
+    alias: {
+      '@tanstack/react-start/server': fileURLToPath(
+        new URL('./src/tests/browser/start-server-stub.ts', import.meta.url),
+      ),
+    },
+  },
   test: {
     name: 'browser',
     include: ['src/**/*.browser.test.{ts,tsx}'],
