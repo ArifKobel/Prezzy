@@ -10,6 +10,7 @@
     "dev": "turbo dev",
     "build": "turbo build",
     "check-types": "turbo check-types",
+    "test": "turbo test test:browser",
     "dev:web": "turbo -F web dev",
     "dev:api": "turbo -F api dev",
     "db:up": "docker compose up -d",
