@@ -67,7 +67,7 @@ export function useUpdatePresentationTitle() {
 export function useUpdatePresentationTheme() {
   const queryClient = useQueryClient();
   const mutation = useMutation({
-    mutationFn: (args: { id: string; theme: PresentationTheme }) =>
+    mutationFn: (args: { id: string; theme: { [K in keyof PresentationTheme]?: PresentationTheme[K] | null } }) =>
       apiFetch<Presentation>(`/presentations/${args.id}`, { method: "PATCH", body: { theme: args.theme } }),
     onSuccess: (_, args) =>
       queryClient.invalidateQueries({ queryKey: ["presentation", args.id] }),

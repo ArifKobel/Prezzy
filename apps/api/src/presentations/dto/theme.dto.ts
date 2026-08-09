@@ -1,31 +1,50 @@
-import { IsOptional, IsString } from "class-validator";
+import { IsObject, IsOptional, IsString, ValidateIf } from "class-validator";
+
+const unlessNull = ValidateIf((_: object, value: unknown) => value !== null);
 
 export class ThemeDto {
   @IsOptional()
+  @unlessNull
   @IsString()
-  primaryColor?: string;
+  base?: string | null;
 
   @IsOptional()
-  @IsString()
-  secondaryColor?: string;
+  @unlessNull
+  @IsObject()
+  overrides?: Record<string, unknown> | null;
 
   @IsOptional()
+  @unlessNull
   @IsString()
-  backgroundColor?: string;
+  primaryColor?: string | null;
 
   @IsOptional()
+  @unlessNull
   @IsString()
-  surfaceColor?: string;
+  secondaryColor?: string | null;
 
   @IsOptional()
+  @unlessNull
   @IsString()
-  textColor?: string;
+  backgroundColor?: string | null;
 
   @IsOptional()
+  @unlessNull
   @IsString()
-  headingFont?: string;
+  surfaceColor?: string | null;
 
   @IsOptional()
+  @unlessNull
   @IsString()
-  bodyFont?: string;
+  textColor?: string | null;
+
+  @IsOptional()
+  @unlessNull
+  @IsString()
+  headingFont?: string | null;
+
+  @IsOptional()
+  @unlessNull
+  @IsString()
+  bodyFont?: string | null;
 }
