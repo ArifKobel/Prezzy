@@ -11,11 +11,16 @@ export default defineConfig({
     viteReact(),
   ],
   resolve: {
-    alias: {
-      '@tanstack/react-start/server': fileURLToPath(
-        new URL('./src/tests/browser/start-server-stub.ts', import.meta.url),
-      ),
-    },
+    alias: [
+      {
+        find: '@tanstack/react-start/server',
+        replacement: fileURLToPath(new URL('./src/tests/browser/start-server-stub.ts', import.meta.url)),
+      },
+      {
+        find: /^@tanstack\/react-start$/,
+        replacement: fileURLToPath(new URL('./src/tests/browser/start-stub.ts', import.meta.url)),
+      },
+    ],
   },
   test: {
     name: 'browser',
