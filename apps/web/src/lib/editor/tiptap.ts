@@ -1,4 +1,8 @@
+import { TextAlign } from "@tiptap/extension-text-align";
 import { TextStyle } from "@tiptap/extension-text-style";
+import { Underline } from "@tiptap/extension-underline";
+import { Editor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
 
 export const ExtendedTextStyle = TextStyle.extend({
   addAttributes() {
@@ -80,6 +84,28 @@ export const ELEMENT_DEFAULTS = {
   leaderboard: { x: 10, y: 5, width: 80, height: 85, content: "" },
   qrcode:      { x: 25, y: 10, width: 50, height: 80, content: "" },
 } as const;
+
+export const EDITOR_EXTENSIONS = [
+  StarterKit.configure({ trailingNode: false }),
+  Underline,
+  TextAlign.configure({ types: ["heading", "paragraph"] }),
+  ExtendedTextStyle,
+];
+
+export function applyToContentHtml(html: string, fn: (ed: Editor) => void): string {
+  const ed = new Editor({
+    element: document.createElement("div"),
+    extensions: EDITOR_EXTENSIONS,
+    content: html,
+  });
+  try {
+    ed.commands.selectAll();
+    fn(ed);
+    return ed.getHTML();
+  } finally {
+    ed.destroy();
+  }
+}
 
 export function parseUniformStyle(html: string, cssProp: string): string {
   const escaped = cssProp.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");

@@ -68,6 +68,17 @@ export function RichTextElement({
       },
     },
     onUpdate: () => { setActiveEditorInstance(editor); },
+    onTransaction: ({ editor: ed }) => {
+      if (!isHeading || !ed.isEmpty) return;
+      const stored = ed.state.storedMarks;
+      const hasBold = stored?.some((m) => m.type.name === "bold");
+      const hasSize = stored?.some((m) => m.type.name === "textStyle" && m.attrs.fontSize);
+      if (hasBold && hasSize) return;
+      ed.view.dispatch(ed.state.tr.setStoredMarks([
+        ed.state.schema.marks.bold.create(),
+        ed.state.schema.marks.textStyle.create({ fontSize: "48px" }),
+      ]));
+    },
     onFocus: () => { setSavedSelection(null); setFakeSelRects([]); },
     onBlur: ({ editor }) => {
       const { from, to } = editor.state.selection;

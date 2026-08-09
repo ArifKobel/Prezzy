@@ -6,7 +6,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
-  FONT_FAMILIES, HEADING_PRESETS, parseUniformStyle,
+  FONT_FAMILIES, HEADING_PRESETS, applyToContentHtml, parseUniformStyle,
 } from "@/lib/editor/tiptap";
 import {
   useEnterEditForSelection, useSavedSelection,
@@ -20,13 +20,29 @@ import { TextColorPicker } from "@/components/editor/toolbar/text-color-picker";
 import { ToolbarSelect } from "@/components/editor/toolbar/toolbar-select";
 
 
-export function RichToolbar({ editor, contentHtml = "" }: {
+export function RichToolbar({ editor, contentHtml = "", onApplyContent }: {
   editor: ReturnType<typeof useEditor> | null;
   contentHtml?: string;
+  onApplyContent?: (html: string) => void;
 }) {
   const [, forceUpdate] = useState(0);
   const savedSel = useSavedSelection();
   const enterEdit = useEnterEditForSelection();
+
+  function applyWhole(fn: (ed: NonNullable<typeof editor>) => void) {
+    if (onApplyContent) {
+      onApplyContent(applyToContentHtml(contentHtml, fn as (ed: unknown) => void));
+      return;
+    }
+    if (enterEdit) {
+      setPendingCommandFn((ed) => { ed.commands.selectAll(); fn(ed); });
+      enterEdit();
+    }
+  }
+
+  function htmlHas(...needles: string[]) {
+    return needles.some((n) => contentHtml.includes(n));
+  }
 
   useEffect(() => {
     if (!editor) return;
@@ -46,11 +62,7 @@ export function RichToolbar({ editor, contentHtml = "" }: {
       }
       fn(editor);
     } else {
-      const enter = enterEdit;
-      if (enter) {
-        setPendingCommandFn((ed) => { ed.commands.selectAll(); fn(ed); });
-        enter();
-      }
+      applyWhole(fn);
     }
   }
 
@@ -88,16 +100,9 @@ export function RichToolbar({ editor, contentHtml = "" }: {
 
   function stepFontSize(delta: number) {
     if (!editor) {
-      const enter = enterEdit;
-      if (enter) {
-        setPendingCommandFn((ed) => {
-          ed.commands.selectAll();
-          const cur = parseInt(parseUniformStyle(contentHtml, "font-size").replace("px", "") || "14", 10);
-          const next = Math.max(1, Math.min(400, cur + delta));
-          (ed.chain() as any).setFontSize(next + "px").run();
-        });
-        enter();
-      }
+      const cur = parseInt(parseUniformStyle(contentHtml, "font-size").replace("px", "") || "14", 10);
+      const next = Math.max(1, Math.min(400, cur + delta));
+      applyWhole((ed) => { (ed.chain() as any).setFontSize(next + "px").run(); });
       return;
     }
     const sel = getSavedSelection() ?? editor.state.selection;
@@ -162,9 +167,8 @@ export function RichToolbar({ editor, contentHtml = "" }: {
             const sel = getSavedSelection() ?? editor.state.selection;
             if (sel.from !== sel.to) applyMarkDirect(sel.from, sel.to, { fontSize: size });
             else (editor.chain() as any).setFontSize(size).run();
-          } else if (enterEdit) {
-            setPendingCommandFn((ed) => { ed.commands.selectAll(); (ed.chain() as any).setFontSize(size).run(); });
-            enterEdit();
+          } else {
+            applyWhole((ed) => { (ed.chain() as any).setFontSize(size).run(); });
           }
         }}
         onStep={stepFontSize}
@@ -217,16 +221,16 @@ export function RichToolbar({ editor, contentHtml = "" }: {
 
       <Sep />
 
-      <FmtBtn active={editor?.isActive("bold")} onClick={() => execCmd((e) => e.chain().toggleBold().run())} title="Bold (⌘B)">
+      <FmtBtn active={editor ? editor.isActive("bold") : htmlHas("<strong", "font-weight: bold", "font-weight:bold")} onClick={() => execCmd((e) => e.chain().toggleBold().run())} title="Bold (⌘B)">
         <Bold className="size-3.5" />
       </FmtBtn>
-      <FmtBtn active={editor?.isActive("italic")} onClick={() => execCmd((e) => e.chain().toggleItalic().run())} title="Italic (⌘I)">
+      <FmtBtn active={editor ? editor.isActive("italic") : htmlHas("<em", "font-style: italic")} onClick={() => execCmd((e) => e.chain().toggleItalic().run())} title="Italic (⌘I)">
         <Italic className="size-3.5" />
       </FmtBtn>
-      <FmtBtn active={editor?.isActive("underline")} onClick={() => execCmd((e) => e.chain().toggleUnderline().run())} title="Underline (⌘U)">
+      <FmtBtn active={editor ? editor.isActive("underline") : htmlHas("<u>", "<u ", "text-decoration: underline")} onClick={() => execCmd((e) => e.chain().toggleUnderline().run())} title="Underline (⌘U)">
         <UnderlineIcon className="size-3.5" />
       </FmtBtn>
-      <FmtBtn active={editor?.isActive("strike")} onClick={() => execCmd((e) => e.chain().toggleStrike().run())} title="Strikethrough">
+      <FmtBtn active={editor ? editor.isActive("strike") : htmlHas("<s>", "<s ", "line-through")} onClick={() => execCmd((e) => e.chain().toggleStrike().run())} title="Strikethrough">
         <Strikethrough className="size-3.5" />
       </FmtBtn>
 
@@ -240,22 +244,22 @@ export function RichToolbar({ editor, contentHtml = "" }: {
 
       <Sep />
 
-      <FmtBtn active={editor?.isActive({ textAlign: "left" })} onClick={() => execCmd((e) => e.chain().setTextAlign("left").run())} title="Align left">
+      <FmtBtn active={editor ? editor.isActive({ textAlign: "left" }) : !htmlHas("text-align: center", "text-align: right")} onClick={() => execCmd((e) => e.chain().setTextAlign("left").run())} title="Align left">
         <AlignLeft className="size-3.5" />
       </FmtBtn>
-      <FmtBtn active={editor?.isActive({ textAlign: "center" })} onClick={() => execCmd((e) => e.chain().setTextAlign("center").run())} title="Center">
+      <FmtBtn active={editor ? editor.isActive({ textAlign: "center" }) : htmlHas("text-align: center")} onClick={() => execCmd((e) => e.chain().setTextAlign("center").run())} title="Center">
         <AlignCenter className="size-3.5" />
       </FmtBtn>
-      <FmtBtn active={editor?.isActive({ textAlign: "right" })} onClick={() => execCmd((e) => e.chain().setTextAlign("right").run())} title="Align right">
+      <FmtBtn active={editor ? editor.isActive({ textAlign: "right" }) : htmlHas("text-align: right")} onClick={() => execCmd((e) => e.chain().setTextAlign("right").run())} title="Align right">
         <AlignRight className="size-3.5" />
       </FmtBtn>
 
       <Sep />
 
-      <FmtBtn active={editor?.isActive("bulletList")} onClick={() => execCmd((e) => e.chain().toggleBulletList().run())} title="Bullet list">
+      <FmtBtn active={editor ? editor.isActive("bulletList") : htmlHas("<ul")} onClick={() => execCmd((e) => e.chain().toggleBulletList().run())} title="Bullet list">
         <List className="size-3.5" />
       </FmtBtn>
-      <FmtBtn active={editor?.isActive("orderedList")} onClick={() => execCmd((e) => e.chain().toggleOrderedList().run())} title="Numbered list">
+      <FmtBtn active={editor ? editor.isActive("orderedList") : htmlHas("<ol")} onClick={() => execCmd((e) => e.chain().toggleOrderedList().run())} title="Numbered list">
         <ListOrdered className="size-3.5" />
       </FmtBtn>
 

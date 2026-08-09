@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import { ELEMENT_DEFAULTS } from "@/lib/editor/tiptap";
+import { ELEMENT_DEFAULTS, applyToContentHtml } from "@/lib/editor/tiptap";
 import { SLIDE_LAYOUTS } from "@/lib/slide-layouts";
 import {
   setActiveEditorInstance, setEnterEditForSelection,
@@ -249,6 +249,21 @@ function EditorPage() {
         e.preventDefault();
         setSelectedIds(new Set((elements ?? []).map((el) => el.id)));
         return;
+      }
+      if (mod && (e.key === "b" || e.key === "i" || e.key === "u")) {
+        const textEls = selected.filter((el) => el.type === "heading" || el.type === "text");
+        if (textEls.length > 0) {
+          e.preventDefault();
+          for (const el of textEls) {
+            const html = applyToContentHtml(el.props?.content ?? "", (ed) => {
+              if (e.key === "b") ed.chain().toggleBold().run();
+              else if (e.key === "i") ed.chain().toggleItalic().run();
+              else ed.chain().toggleUnderline().run();
+            });
+            updateContent({ id: el.id, content: html });
+          }
+          return;
+        }
       }
       if (mod && e.key === "d" && selected.length > 0) {
         e.preventDefault();
@@ -565,6 +580,7 @@ function EditorPage() {
               <RichToolbar
                 editor={activeEditor}
                 contentHtml={selectedTextEl?.props?.content ?? ""}
+                onApplyContent={selectedTextEl ? (html) => updateContent({ id: selectedTextEl.id, content: html }) : undefined}
               />
             </div>
           )}
