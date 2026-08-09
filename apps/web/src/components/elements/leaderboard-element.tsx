@@ -12,7 +12,6 @@ import { deriveBarFills, type ElementStyle } from "@/lib/quiz-constants";
 import type { LeaderboardEntry } from "@/components/slide-canvas";
 
 const DEFAULT_PODIUM_FILLS = ["#eab308", "#94a3b8", "#b45309", "#6366f1", "#8b5cf6"];
-const MEDALS = ["🥇", "🥈", "🥉"];
 
 export function LeaderboardElement({
   leaderboard,
@@ -42,7 +41,7 @@ export function LeaderboardElement({
     ...entry,
     rank: i,
     barValue: entry.score === 0 ? maxScore * 0.02 : entry.score,
-    displayName: `${MEDALS[i] ?? `${i + 1}.`}  ${entry.name}`,
+    displayName: `${i + 1}.  ${entry.name}`,
   }));
 
   return (
