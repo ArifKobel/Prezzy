@@ -1,4 +1,20 @@
+export interface SlideThemeTokens {
+  bg?: string;
+  surface?: string;
+  text?: string;
+  muted?: string;
+  heading?: string;
+  accent?: string;
+  fontHeading?: string;
+  fontBody?: string;
+  radius?: number;
+}
+
+export type ResolvedSlideTheme = Required<SlideThemeTokens>;
+
 export interface PresentationTheme {
+  base?: string;
+  overrides?: SlideThemeTokens;
   primaryColor?: string;
   secondaryColor?: string;
   backgroundColor?: string;
