@@ -102,7 +102,7 @@ export function RichToolbar({ editor, contentHtml = "", onApplyContent }: {
     if (!editor) {
       const cur = parseInt(parseUniformStyle(contentHtml, "font-size").replace("px", "") || "14", 10);
       const next = Math.max(1, Math.min(400, cur + delta));
-      applyWhole((ed) => { (ed.chain() as any).setFontSize(next + "px").run(); });
+      applyWhole((ed) => { ed.chain().setFontSize(`${next}px`).run(); });
       return;
     }
     const sel = getSavedSelection() ?? editor.state.selection;
@@ -110,7 +110,7 @@ export function RichToolbar({ editor, contentHtml = "", onApplyContent }: {
     if (from === to) {
       const cur = parseInt(editor.getAttributes("textStyle").fontSize ?? "14", 10);
       const next = Math.max(1, Math.min(400, cur + delta));
-      (editor.chain() as any).setFontSize(next + "px").run();
+      editor.chain().setFontSize(`${next}px`).run();
       return;
     }
     const tr = editor.state.tr;
@@ -119,7 +119,7 @@ export function RichToolbar({ editor, contentHtml = "", onApplyContent }: {
       const existing = node.marks.find((m) => m.type.name === "textStyle");
       const cur = parseInt(existing?.attrs.fontSize?.replace("px", "") ?? "14", 10);
       const next = Math.max(1, Math.min(400, cur + delta));
-      const merged = { ...(existing?.attrs ?? {}), fontSize: next + "px" };
+      const merged = { ...(existing?.attrs ?? {}), fontSize: `${next}px` };
       const mark = editor!.schema.marks.textStyle.create(merged);
       tr.addMark(Math.max(pos, from), Math.min(pos + node.nodeSize, to), mark);
     });
@@ -134,8 +134,8 @@ export function RichToolbar({ editor, contentHtml = "", onApplyContent }: {
         placeholder="Default"
         options={[{ label: "Default", value: "" }, ...FONT_FAMILIES]}
         onChange={(val) => execCmd((e) => {
-          if (val) (e.chain() as any).setFontFamily(val).run();
-          else (e.chain() as any).unsetFontFamily().run();
+          if (val) e.chain().setFontFamily(val).run();
+          else e.chain().unsetFontFamily().run();
         })}
         className="w-36"
         renderOption={(opt) => (
@@ -149,26 +149,26 @@ export function RichToolbar({ editor, contentHtml = "", onApplyContent }: {
         onHover={(val) => {
           if (!editor) return;
           const fontFamily = val || undefined;
-          if (fontFamily) (editor.chain() as any).setFontFamily(fontFamily).run();
-          else (editor.chain() as any).unsetFontFamily().run();
+          if (fontFamily) editor.chain().setFontFamily(fontFamily).run();
+          else editor.chain().unsetFontFamily().run();
         }}
         onHoverEnd={() => {
           if (!editor) return;
-          if (currentFontFamily) (editor.chain() as any).setFontFamily(currentFontFamily).run();
-          else (editor.chain() as any).unsetFontFamily().run();
+          if (currentFontFamily) editor.chain().setFontFamily(currentFontFamily).run();
+          else editor.chain().unsetFontFamily().run();
         }}
       />
 
       <FontSizeInput
         value={currentFontSize}
         onCommit={(val) => {
-          const size = val + "px";
+          const size = `${val}px`;
           if (editor) {
             const sel = getSavedSelection() ?? editor.state.selection;
             if (sel.from !== sel.to) applyMarkDirect(sel.from, sel.to, { fontSize: size });
-            else (editor.chain() as any).setFontSize(size).run();
+            else editor.chain().setFontSize(size).run();
           } else {
-            applyWhole((ed) => { (ed.chain() as any).setFontSize(size).run(); });
+            applyWhole((ed) => { ed.chain().setFontSize(size).run(); });
           }
         }}
         onStep={stepFontSize}
@@ -210,7 +210,7 @@ export function RichToolbar({ editor, contentHtml = "", onApplyContent }: {
             onChange={(val) => execCmd((e) => {
               const preset = HEADING_PRESETS.find((p) => p.value === val);
               if (!preset) return;
-              let c = e.chain() as any;
+              let c = e.chain();
               c = preset.fontSize ? c.setFontSize(preset.fontSize) : c.unsetFontSize();
               c = preset.bold ? c.setMark("bold") : c.unsetMark("bold");
               c.run();
@@ -237,8 +237,8 @@ export function RichToolbar({ editor, contentHtml = "", onApplyContent }: {
       <TextColorPicker
         color={editor?.getAttributes("textStyle").color ?? parseUniformStyle(contentHtml, "color") ?? null}
         onChange={(color) => execCmd((e) => {
-          if (color) (e.chain() as any).setColor(color).run();
-          else (e.chain() as any).unsetColor().run();
+          if (color) e.chain().setColor(color).run();
+          else e.chain().unsetColor().run();
         })}
       />
 

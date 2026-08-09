@@ -27,7 +27,7 @@ export async function apiFetch<T>(
     if (socketId) headers["x-socket-id"] = socketId;
   }
   const cookie = requestCookieHeader();
-  if (cookie) headers["cookie"] = cookie;
+  if (cookie) headers.cookie = cookie;
   const res = await fetch(`${env.VITE_API_URL}/api${path}`, {
     method,
     credentials: "include",

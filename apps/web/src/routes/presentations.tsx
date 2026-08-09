@@ -79,7 +79,9 @@ function PresentationsPage() {
   }
 
   function handleDeleteSelected() {
-    selected.forEach((id) => removePresentation({ id }));
+    selected.forEach((id) => {
+      void removePresentation({ id });
+    });
     setSelected(new Set());
   }
 

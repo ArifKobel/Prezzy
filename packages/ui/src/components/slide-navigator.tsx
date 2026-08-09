@@ -1,5 +1,5 @@
 import { cn } from "@Prezzy/ui/lib/utils";
-import * as React from "react";
+import type * as React from "react";
 
 function SlideNavigator({ className, children, ...props }: React.ComponentProps<"nav">) {
   return (

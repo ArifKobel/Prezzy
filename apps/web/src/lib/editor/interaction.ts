@@ -149,7 +149,7 @@ export function createInteraction(store: EditorStore) {
     if (el && isRichText(el)) store.startEditing(id);
   }
 
-  function escape() {
+  function escapeInteraction() {
     const state = store.getState();
     if (state.interaction.kind === "text") { store.stopEditing(); return; }
     if (session) { cancel(); return; }
@@ -163,7 +163,7 @@ export function createInteraction(store: EditorStore) {
     pointerUp,
     cancel,
     doubleClickOnElement,
-    escape,
+    escape: escapeInteraction,
     isDragging: () => session?.kind === "drag" && session.moved,
   };
 }

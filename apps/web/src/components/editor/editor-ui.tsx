@@ -135,7 +135,7 @@ export function PropNumberInput({ label, value, onChange, min, max }: {
 
   function commit(v: string) {
     const n = parseFloat(v);
-    if (!isNaN(n)) onChange(Math.round(clamp(n) * 100) / 100);
+    if (!Number.isNaN(n)) onChange(Math.round(clamp(n) * 100) / 100);
   }
 
   function stepBy(delta: number) {
@@ -149,7 +149,7 @@ export function PropNumberInput({ label, value, onChange, min, max }: {
       <span className="w-4 shrink-0 select-none font-sans text-[10px] text-muted-foreground/60">{label}</span>
       <input
         type="text" inputMode="numeric" value={draft}
-        onChange={(e) => setDraft(e.target.value.replace(/[^0-9.\-]/g, ""))}
+        onChange={(e) => setDraft(e.target.value.replace(/[^0-9.-]/g, ""))}
         onFocus={(e) => { setFocused(true); e.target.select(); }}
         onBlur={(e) => { setFocused(false); commit(e.target.value); }}
         onKeyDown={(e) => {

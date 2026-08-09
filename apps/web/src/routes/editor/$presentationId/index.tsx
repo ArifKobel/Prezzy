@@ -337,7 +337,7 @@ function EditorBody({
         y: slot.y,
         width: slot.width,
         height: slot.height,
-        props: slot.props as ElementProps | undefined,
+        props: slot.props,
       });
     }
     store.clearSelection();

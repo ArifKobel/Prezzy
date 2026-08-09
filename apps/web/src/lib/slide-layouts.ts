@@ -1,10 +1,12 @@
+import type { ElementProps, ElementType } from "@Prezzy/shared";
+
 export interface LayoutSlot {
-  type: "heading" | "text" | "image" | "shape" | "quiz" | "wordcloud" | "leaderboard" | "qrcode";
+  type: ElementType;
   x: number;
   y: number;
   width: number;
   height: number;
-  props?: Record<string, any>;
+  props?: ElementProps;
   role: string;
 }
 

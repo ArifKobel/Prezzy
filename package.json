@@ -10,6 +10,7 @@
     "dev": "turbo dev",
     "build": "turbo build",
     "check-types": "turbo check-types",
+    "lint": "biome check .",
     "test": "turbo test test:browser",
     "dev:web": "turbo -F web dev",
     "dev:api": "turbo -F api dev",
@@ -24,6 +25,7 @@
   },
   "devDependencies": {
     "@Prezzy/config": "workspace:*",
+    "@biomejs/biome": "^2.5.7",
     "turbo": "^2.8.12",
     "typescript": "^5"
   },

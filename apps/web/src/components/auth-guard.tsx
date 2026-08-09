@@ -12,8 +12,8 @@ export function AuthGuard({
   const { data: user } = useMe();
 
   if (user === undefined) {
-    return <>{loading}</>;
+    return loading;
   }
 
-  return user === null ? <>{unauthenticated}</> : <>{authenticated}</>;
+  return user === null ? unauthenticated : authenticated;
 }

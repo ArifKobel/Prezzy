@@ -114,7 +114,9 @@ export function duplicateSlide(doc: Y.Doc, slideId: string, createdAt = Date.now
 
 export function reorderSlides(doc: Y.Doc, slideIds: string[]): void {
   edit(doc, () => {
-    slideIds.forEach((id, index) => slidesOf(doc).get(id)?.set("order", index));
+    slideIds.forEach((id, index) => {
+      slidesOf(doc).get(id)?.set("order", index);
+    });
     renumberSlides(doc);
   });
 }
@@ -222,7 +224,9 @@ export function reorderElement(doc: Y.Doc, id: string, action: ReorderAction): v
     const reordered = entries.map(([entryId]) => entryId);
     reordered.splice(index, 1);
     reordered.splice(target, 0, id);
-    reordered.forEach((entryId, position) => elementsOf(doc).get(entryId)?.set("zIndex", position));
+    reordered.forEach((entryId, position) => {
+      elementsOf(doc).get(entryId)?.set("zIndex", position);
+    });
   });
 }
 

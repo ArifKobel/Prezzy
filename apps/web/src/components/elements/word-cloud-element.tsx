@@ -42,7 +42,7 @@ function layoutCloud(
 
   for (const { text, count } of words.slice(0, 50)) {
     const weight = maxCount > 1 ? count / maxCount : 1;
-    const fontSize = minFont + Math.pow(weight, 0.7) * (maxFont - minFont);
+    const fontSize = minFont + weight ** 0.7 * (maxFont - minFont);
     const h = hashStr(text);
     const color = palette[h % palette.length];
     const opacity = 0.55 + weight * 0.45;

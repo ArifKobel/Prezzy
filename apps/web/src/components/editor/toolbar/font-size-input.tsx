@@ -29,7 +29,7 @@ export function FontSizeInput({
 
   function commit(v: string) {
     const n = parseInt(v, 10);
-    if (!isNaN(n) && n >= 1) onCommit(String(n));
+    if (!Number.isNaN(n) && n >= 1) onCommit(String(n));
   }
 
   return (
@@ -46,7 +46,7 @@ export function FontSizeInput({
           const v = e.target.value.replace(/[^0-9]/g, "");
           setDraft(v);
           const n = parseInt(v, 10);
-          if (!isNaN(n) && n >= 1 && n <= 400) onCommit(String(n));
+          if (!Number.isNaN(n) && n >= 1 && n <= 400) onCommit(String(n));
         }}
         onFocus={() => { setFocused(true); setOpen(true); }}
         onBlur={(e) => { setFocused(false); commit(e.target.value); onBlurProp?.(); }}

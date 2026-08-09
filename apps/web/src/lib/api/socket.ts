@@ -27,7 +27,7 @@ export function useRealtime(room: string | null) {
     const invalidate = (...keys: unknown[][]) => {
       for (const key of keys) queryClient.invalidateQueries({ queryKey: key });
     };
-    const handlers: Record<string, (payload: any) => void> = {
+    const handlers: Record<string, (payload?: { slideId?: string; elementId?: string }) => void> = {
       "presentation.updated": () =>
         invalidate(["presentation"], ["presentations"], ["join"]),
       "slides.changed": () => invalidate(["slides"]),

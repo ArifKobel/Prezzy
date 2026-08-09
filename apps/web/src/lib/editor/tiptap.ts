@@ -4,6 +4,19 @@ import { Underline } from "@tiptap/extension-underline";
 import { Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 
+declare module "@tiptap/core" {
+  interface Commands<ReturnType> {
+    extendedTextStyle: {
+      setFontFamily: (fontFamily: string) => ReturnType;
+      unsetFontFamily: () => ReturnType;
+      setFontSize: (fontSize: string) => ReturnType;
+      unsetFontSize: () => ReturnType;
+      setColor: (color: string) => ReturnType;
+      unsetColor: () => ReturnType;
+    };
+  }
+}
+
 export const ExtendedTextStyle = TextStyle.extend({
   addAttributes() {
     return {
@@ -29,22 +42,21 @@ export const ExtendedTextStyle = TextStyle.extend({
     };
   },
   addCommands() {
-    type ChainArg = { chain: () => { setMark: (name: string, attrs: Record<string, string | null>) => { run: () => boolean } } };
     return {
-      ...(this.parent?.() ?? {}),
-      setFontFamily: (fontFamily: string) => ({ chain }: ChainArg) =>
+      ...this.parent?.(),
+      setFontFamily: (fontFamily: string) => ({ chain }) =>
         chain().setMark("textStyle", { fontFamily }).run(),
-      unsetFontFamily: () => ({ chain }: ChainArg) =>
+      unsetFontFamily: () => ({ chain }) =>
         chain().setMark("textStyle", { fontFamily: null }).run(),
-      setFontSize: (fontSize: string) => ({ chain }: ChainArg) =>
+      setFontSize: (fontSize: string) => ({ chain }) =>
         chain().setMark("textStyle", { fontSize }).run(),
-      unsetFontSize: () => ({ chain }: ChainArg) =>
+      unsetFontSize: () => ({ chain }) =>
         chain().setMark("textStyle", { fontSize: null }).run(),
-      setColor: (color: string) => ({ chain }: ChainArg) =>
+      setColor: (color: string) => ({ chain }) =>
         chain().setMark("textStyle", { color }).run(),
-      unsetColor: () => ({ chain }: ChainArg) =>
+      unsetColor: () => ({ chain }) =>
         chain().setMark("textStyle", { color: null }).run(),
-    } as any;
+    };
   },
 });
 

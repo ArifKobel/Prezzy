@@ -1,5 +1,5 @@
 import { createContext, useContext, useMemo, useSyncExternalStore } from "react";
-import { createInteraction } from "@/lib/editor/interaction";
+import type { createInteraction } from "@/lib/editor/interaction";
 import type { EditorState, EditorStore } from "@/lib/editor/store";
 
 export interface EditorContextValue {
