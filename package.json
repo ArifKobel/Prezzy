@@ -26,7 +26,7 @@
   "devDependencies": {
     "@Prezzy/config": "workspace:*",
     "@biomejs/biome": "^2.5.7",
-    "turbo": "^2.8.12",
+    "turbo": "^2.10.9",
     "typescript": "^5"
   },
   "packageManager": "pnpm@10.25.0"
