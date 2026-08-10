@@ -4,6 +4,10 @@
 
 Prezzy is a web app for building and presenting interactive slide decks. Slides are edited on a collaborative drag-and-drop canvas, and during a presentation the audience can join via QR code to answer live quizzes and word clouds from their phones.
 
+![The slide editor](.github/screenshot-editor.jpg)
+
+![Presenter mode with the audience join QR code](.github/screenshot-present.jpg)
+
 ## Features
 
 - Slide editor with text, images, shapes, layout presets, undo/redo and per-presentation themes (colors + fonts)
