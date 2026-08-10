@@ -43,7 +43,7 @@ function DashboardRoute() {
 
 function RedirectToHome() {
   const navigate = useNavigate();
-  navigate({ to: "/" });
+  navigate({ to: "/login" });
   return null;
 }
 

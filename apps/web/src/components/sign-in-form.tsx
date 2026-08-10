@@ -6,7 +6,7 @@ import z from "zod";
 import { useLogin } from "@/lib/api/auth";
 
 export default function SignInForm({ onSwitchToSignUp }: { onSwitchToSignUp: () => void }) {
-  const navigate = useNavigate({ from: "/" });
+  const navigate = useNavigate({ from: "/login" });
   const login = useLogin();
 
   const form = useForm({
@@ -30,7 +30,7 @@ export default function SignInForm({ onSwitchToSignUp }: { onSwitchToSignUp: () 
 
   return (
     <div>
-      <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">Welcome back</h1>
+      <h1 className="font-display text-2xl font-extrabold tracking-tight text-foreground">Welcome back<span className="text-primary">.</span></h1>
       <p className="mt-1.5 font-sans text-sm text-muted-foreground">Sign in to your workspace</p>
 
       <form
@@ -40,7 +40,7 @@ export default function SignInForm({ onSwitchToSignUp }: { onSwitchToSignUp: () 
         <form.Field name="email">
           {(field) => (
             <div className="space-y-1.5">
-              <label htmlFor={field.name} className="font-sans text-xs font-medium uppercase tracking-wider text-muted-foreground/70">Email</label>
+              <label htmlFor={field.name} className="font-sans text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/70">Email</label>
               <Input
                 id={field.name} name={field.name} type="email"
                 value={field.state.value} onBlur={field.handleBlur}
@@ -57,7 +57,7 @@ export default function SignInForm({ onSwitchToSignUp }: { onSwitchToSignUp: () 
         <form.Field name="password">
           {(field) => (
             <div className="space-y-1.5">
-              <label htmlFor={field.name} className="font-sans text-xs font-medium uppercase tracking-wider text-muted-foreground/70">Password</label>
+              <label htmlFor={field.name} className="font-sans text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/70">Password</label>
               <Input
                 id={field.name} name={field.name} type="password"
                 value={field.state.value} onBlur={field.handleBlur}
@@ -75,7 +75,7 @@ export default function SignInForm({ onSwitchToSignUp }: { onSwitchToSignUp: () 
           {({ canSubmit, isSubmitting }) => (
             <button
               type="submit" disabled={!canSubmit || isSubmitting}
-              className="w-full rounded-md bg-primary hover:bg-primary-dim px-4 py-2.5 font-sans text-sm font-medium text-primary-foreground transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-40"
+              className="w-full bg-primary px-4 py-2.5 font-sans text-xs font-bold text-primary-foreground transition-colors hover:bg-primary-dim disabled:opacity-40"
             >
               {isSubmitting ? "Signing in…" : "Sign In"}
             </button>
@@ -85,7 +85,7 @@ export default function SignInForm({ onSwitchToSignUp }: { onSwitchToSignUp: () 
 
       <p className="mt-6 text-center font-sans text-sm text-muted-foreground">
         Don't have an account?{" "}
-        <button onClick={onSwitchToSignUp} className="font-medium text-primary hover:underline">Sign up</button>
+        <button onClick={onSwitchToSignUp} className="font-semibold text-primary hover:underline">Sign up</button>
       </p>
     </div>
   );

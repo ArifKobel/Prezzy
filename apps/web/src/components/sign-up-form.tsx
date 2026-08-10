@@ -6,7 +6,7 @@ import z from "zod";
 import { useSignup } from "@/lib/api/auth";
 
 export default function SignUpForm({ onSwitchToSignIn }: { onSwitchToSignIn: () => void }) {
-  const navigate = useNavigate({ from: "/" });
+  const navigate = useNavigate({ from: "/login" });
   const signup = useSignup();
 
   const form = useForm({
@@ -31,7 +31,7 @@ export default function SignUpForm({ onSwitchToSignIn }: { onSwitchToSignIn: () 
 
   return (
     <div>
-      <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">Create account</h1>
+      <h1 className="font-display text-2xl font-extrabold tracking-tight text-foreground">Create account<span className="text-primary">.</span></h1>
       <p className="mt-1.5 font-sans text-sm text-muted-foreground">Start building beautiful presentations</p>
 
       <form
@@ -41,7 +41,7 @@ export default function SignUpForm({ onSwitchToSignIn }: { onSwitchToSignIn: () 
         <form.Field name="name">
           {(field) => (
             <div className="space-y-1.5">
-              <label htmlFor={field.name} className="font-sans text-xs font-medium uppercase tracking-wider text-muted-foreground/70">Name</label>
+              <label htmlFor={field.name} className="font-sans text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/70">Name</label>
               <Input
                 id={field.name} name={field.name}
                 value={field.state.value} onBlur={field.handleBlur}
@@ -58,7 +58,7 @@ export default function SignUpForm({ onSwitchToSignIn }: { onSwitchToSignIn: () 
         <form.Field name="email">
           {(field) => (
             <div className="space-y-1.5">
-              <label htmlFor={field.name} className="font-sans text-xs font-medium uppercase tracking-wider text-muted-foreground/70">Email</label>
+              <label htmlFor={field.name} className="font-sans text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/70">Email</label>
               <Input
                 id={field.name} name={field.name} type="email"
                 value={field.state.value} onBlur={field.handleBlur}
@@ -75,7 +75,7 @@ export default function SignUpForm({ onSwitchToSignIn }: { onSwitchToSignIn: () 
         <form.Field name="password">
           {(field) => (
             <div className="space-y-1.5">
-              <label htmlFor={field.name} className="font-sans text-xs font-medium uppercase tracking-wider text-muted-foreground/70">Password</label>
+              <label htmlFor={field.name} className="font-sans text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/70">Password</label>
               <Input
                 id={field.name} name={field.name} type="password"
                 value={field.state.value} onBlur={field.handleBlur}
@@ -93,7 +93,7 @@ export default function SignUpForm({ onSwitchToSignIn }: { onSwitchToSignIn: () 
           {({ canSubmit, isSubmitting }) => (
             <button
               type="submit" disabled={!canSubmit || isSubmitting}
-              className="w-full rounded-md bg-primary hover:bg-primary-dim px-4 py-2.5 font-sans text-sm font-medium text-primary-foreground transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-40"
+              className="w-full bg-primary px-4 py-2.5 font-sans text-xs font-bold text-primary-foreground transition-colors hover:bg-primary-dim disabled:opacity-40"
             >
               {isSubmitting ? "Creating account…" : "Sign Up"}
             </button>
@@ -103,7 +103,7 @@ export default function SignUpForm({ onSwitchToSignIn }: { onSwitchToSignIn: () 
 
       <p className="mt-6 text-center font-sans text-sm text-muted-foreground">
         Already have an account?{" "}
-        <button onClick={onSwitchToSignIn} className="font-medium text-primary hover:underline">Sign in</button>
+        <button onClick={onSwitchToSignIn} className="font-semibold text-primary hover:underline">Sign in</button>
       </p>
     </div>
   );

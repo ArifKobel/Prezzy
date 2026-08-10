@@ -1,55 +1,54 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
-import { useState } from "react";
-import SignInForm from "@/components/sign-in-form";
-import SignUpForm from "@/components/sign-up-form";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { ArrowRight } from "lucide-react";
 import { meQueryOptions } from "@/lib/api/auth";
 
 export const Route = createFileRoute("/")({
-  component: AuthPage,
+  component: LandingPage,
   loader: async ({ context: { queryClient } }) => {
     const user = await queryClient.ensureQueryData(meQueryOptions).catch(() => null);
     if (user) throw redirect({ to: "/dashboard" });
   },
 });
 
-function AuthPage() {
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
-
+function LandingPage() {
   return (
-    <div className="flex h-full bg-surface">
-      <div className="hidden w-[45%] flex-col justify-between bg-surface-container-low p-12 lg:flex">
-        <div>
-          <div className="flex items-center gap-2.5">
-            <img src="/logo.svg" alt="" className="size-7" />
-            <span className="font-display text-lg font-semibold tracking-tight text-foreground">Prezzy</span>
-          </div>
-        </div>
-        <div>
-          <h1 className="font-display text-[2.5rem] font-bold leading-[1.15] tracking-tight text-foreground">
-            Your Creative<br />
-            <span className="italic text-primary">Workshop</span>
+    <div className="flex h-full flex-col bg-surface">
+      <nav className="flex shrink-0 items-center justify-between border-b border-border px-8 py-4">
+        <span className="font-display text-lg font-extrabold tracking-tight text-foreground">
+          Prezzy<span className="text-primary">.</span>
+        </span>
+        <Link
+          to="/login"
+          className="font-sans text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground"
+        >
+          Sign in
+        </Link>
+      </nav>
+
+      <main className="flex flex-1 flex-col justify-center px-8">
+        <div className="mx-auto w-full max-w-[1180px]">
+          <h1 className="animate-in fade-in slide-in-from-bottom-2 fill-mode-both font-display text-[clamp(3.5rem,9vw,7.5rem)] font-extrabold leading-[0.95] tracking-tight text-foreground duration-500">
+            Your Creative
+            <br />
+            Workshop<span className="text-primary">.</span>
           </h1>
-          <p className="mt-4 max-w-sm font-sans text-sm leading-relaxed text-muted-foreground">
+          <p className="animate-in fade-in slide-in-from-bottom-2 fill-mode-both mt-8 max-w-md font-sans text-base leading-relaxed text-muted-foreground delay-150 duration-500">
             Craft presentations that tell stories. Beautiful slides, live audience interaction.
           </p>
+          <Link
+            to="/login"
+            className="animate-in fade-in slide-in-from-bottom-2 fill-mode-both mt-10 inline-flex items-center gap-2 bg-primary px-6 py-3 font-sans text-xs font-bold text-primary-foreground transition-colors delay-300 duration-500 hover:bg-primary-dim"
+          >
+            Start creating <ArrowRight className="size-3.5" />
+          </Link>
         </div>
-        <p className="font-sans text-[11px] text-muted-foreground/50">© 2026 Prezzy. All rights reserved.</p>
-      </div>
+      </main>
 
-      <div className="flex flex-1 items-center justify-center p-8">
-        <div className="w-full max-w-sm">
-          <div className="mb-8 lg:hidden flex items-center gap-2.5">
-            <img src="/logo.svg" alt="" className="size-7" />
-            <span className="font-display text-lg font-semibold tracking-tight text-foreground">Prezzy</span>
-          </div>
-
-          {mode === "signin" ? (
-            <SignInForm onSwitchToSignUp={() => setMode("signup")} />
-          ) : (
-            <SignUpForm onSwitchToSignIn={() => setMode("signin")} />
-          )}
-        </div>
-      </div>
+      <footer className="shrink-0 border-t border-border px-8 py-4">
+        <p className="font-sans text-[11px] text-muted-foreground/50">
+          © 2026 Prezzy. All rights reserved.
+        </p>
+      </footer>
     </div>
   );
 }
