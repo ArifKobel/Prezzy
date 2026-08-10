@@ -56,3 +56,19 @@ li:has(> p[style*="right"]) { text-align: right; }
   width: 1px !important;
   height: 20px !important;
 }
+
+/* Landing page */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes landing-progress {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+  }
+  @keyframes landing-grow {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+  }
+  @keyframes landing-pop {
+    from { opacity: 0; transform: scale(0.6) translateY(10px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+}
