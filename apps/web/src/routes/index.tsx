@@ -6,8 +6,28 @@ import { useEffect, useState } from "react";
 import { slideThemeStyle } from "@/components/slide-canvas";
 import { meQueryOptions } from "@/lib/api/auth";
 
+const APP_DESCRIPTION =
+  "Prezzy is a web app for building presentations and running them live. Your audience joins from their phones with a code or QR link to answer quizzes and word clouds in real time.";
+
 export const Route = createFileRoute("/")({
   component: LandingPage,
+  head: () => ({
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "SoftwareApplication",
+          name: "Prezzy",
+          applicationCategory: "BusinessApplication",
+          operatingSystem: "Web browser",
+          url: "https://prezzy.kobel.click/",
+          description: APP_DESCRIPTION,
+          offers: { "@type": "Offer", price: "0", priceCurrency: "EUR" },
+        }),
+      },
+    ],
+  }),
   loader: async ({ context: { queryClient } }) => {
     const user = await queryClient.ensureQueryData(meQueryOptions).catch(() => null);
     if (user) throw redirect({ to: "/dashboard" });

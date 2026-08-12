@@ -17,6 +17,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content:
           "Prezzy is a web app for building presentations and running them live. Your audience joins from their phones to answer quizzes and word clouds in real time.",
       },
+      { name: "application-name", content: "Prezzy" },
+      { property: "og:site_name", content: "Prezzy" },
+      { property: "og:title", content: "Prezzy" },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://prezzy.kobel.click/" },
+      {
+        property: "og:description",
+        content:
+          "Prezzy is a web app for building presentations and running them live. Your audience joins from their phones to answer quizzes and word clouds in real time.",
+      },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
