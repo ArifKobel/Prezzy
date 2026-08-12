@@ -1,5 +1,18 @@
-import { Body, Controller, Get, HttpCode, Patch, Post, Res, UseGuards } from "@nestjs/common";
-import type { Response } from "express";
+import { randomUUID } from "node:crypto";
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  NotFoundException,
+  Patch,
+  Post,
+  Query,
+  Req,
+  Res,
+  UseGuards,
+} from "@nestjs/common";
+import type { Request, Response } from "express";
 import { AuthGuard } from "@/auth/auth.guard";
 import { AuthService } from "@/auth/auth.service";
 import { CurrentUser } from "@/auth/current-user.decorator";
@@ -8,9 +21,13 @@ import { LoginDto } from "@/auth/dto/login.dto";
 import { SignupDto } from "@/auth/dto/signup.dto";
 import { UpdateProfileDto } from "@/auth/dto/update-profile.dto";
 import { OptionalAuthGuard } from "@/auth/optional-auth.guard";
+import { fetchGoogleProfile, googleAuthUrl } from "@/auth/google";
 import { clearSessionCookie, setSessionCookie } from "@/auth/session-cookie";
 import { toUser } from "@/auth/user.serializer";
+import { env } from "@/config/env";
 import type { User } from "@/shared";
+
+const OAUTH_STATE_COOKIE = "prezzy_oauth_state";
 
 @Controller("auth")
 export class AuthController {
@@ -29,6 +46,39 @@ export class AuthController {
     const user = await this.auth.login(dto);
     setSessionCookie(res, this.auth.createToken(user.id));
     return toUser(user);
+  }
+
+  @Get("google")
+  googleStart(@Res() res: Response): void {
+    if (!env.googleClientId) throw new NotFoundException();
+    const state = randomUUID();
+    res.cookie(OAUTH_STATE_COOKIE, state, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: env.publicUrl.startsWith("https"),
+      maxAge: 10 * 60 * 1000,
+      path: "/api/auth/google",
+    });
+    res.redirect(googleAuthUrl(state));
+  }
+
+  @Get("google/callback")
+  async googleCallback(
+    @Query("code") code: string | undefined,
+    @Query("state") state: string | undefined,
+    @Req() req: Request,
+    @Res() res: Response,
+  ): Promise<void> {
+    const expectedState = (req.cookies as Record<string, string>)[OAUTH_STATE_COOKIE];
+    res.clearCookie(OAUTH_STATE_COOKIE, { path: "/api/auth/google" });
+    try {
+      if (!code || !state || state !== expectedState) throw new Error("Invalid OAuth state");
+      const user = await this.auth.loginWithGoogle(await fetchGoogleProfile(code));
+      setSessionCookie(res, this.auth.createToken(user.id));
+      res.redirect(`${env.webOrigin}/dashboard`);
+    } catch {
+      res.redirect(`${env.webOrigin}/login?error=google`);
+    }
   }
 
   @Post("logout")

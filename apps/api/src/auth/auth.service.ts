@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { ConflictException, Inject, Injectable, UnauthorizedException } from "@nestjs/common";
 import { compare, hash } from "bcryptjs";
 import { eq } from "drizzle-orm";
@@ -34,6 +35,18 @@ export class AuthService {
     const valid = await compare(dto.password, user.passwordHash);
     if (!valid) throw new UnauthorizedException("Invalid email or password");
     return user;
+  }
+
+  async loginWithGoogle(profile: { email: string; name: string }): Promise<UserRow> {
+    const existing = await this.findByEmail(profile.email);
+    if (existing) return existing;
+    const passwordHash = await hash(randomUUID(), PASSWORD_SALT_ROUNDS);
+    const [created] = await this.db
+      .insert(users)
+      .values({ email: profile.email, name: profile.name, passwordHash })
+      .returning();
+    if (!created) throw new UnauthorizedException("Could not create account");
+    return created;
   }
 
   async updateProfile(userId: string, dto: UpdateProfileDto): Promise<UserRow> {

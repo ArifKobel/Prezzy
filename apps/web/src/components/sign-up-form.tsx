@@ -3,6 +3,7 @@ import { useForm } from "@tanstack/react-form";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import z from "zod";
+import GoogleSignInButton from "@/components/google-sign-in-button";
 import { useSignup } from "@/lib/api/auth";
 
 export default function SignUpForm({ onSwitchToSignIn }: { onSwitchToSignIn: () => void }) {
@@ -100,6 +101,8 @@ export default function SignUpForm({ onSwitchToSignIn }: { onSwitchToSignIn: () 
           )}
         </form.Subscribe>
       </form>
+
+      <GoogleSignInButton />
 
       <p className="mt-6 text-center font-sans text-sm text-muted-foreground">
         Already have an account?{" "}

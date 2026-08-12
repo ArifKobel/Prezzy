@@ -18,5 +18,7 @@ export const env = {
   webOrigin: process.env.WEB_ORIGIN ?? "http://localhost:3000",
   publicUrl: process.env.PUBLIC_URL ?? `http://localhost:${port}`,
   cookieDomain: process.env.COOKIE_DOMAIN,
+  googleClientId: process.env.GOOGLE_CLIENT_ID,
+  googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
   uploadDir: resolve(process.env.UPLOAD_DIR ?? "uploads"),
 };
