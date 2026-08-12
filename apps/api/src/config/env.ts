@@ -17,5 +17,6 @@ export const env = {
   port,
   webOrigin: process.env.WEB_ORIGIN ?? "http://localhost:3000",
   publicUrl: process.env.PUBLIC_URL ?? `http://localhost:${port}`,
+  cookieDomain: process.env.COOKIE_DOMAIN,
   uploadDir: resolve(process.env.UPLOAD_DIR ?? "uploads"),
 };

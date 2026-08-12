@@ -6,6 +6,7 @@ const cookieOptions: CookieOptions = {
   httpOnly: true,
   sameSite: "lax",
   secure: env.publicUrl.startsWith("https"),
+  domain: env.cookieDomain,
   path: "/",
 };
 
