@@ -1,6 +1,7 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import DemoButton from "@/components/demo-button";
 import SignInForm from "@/components/sign-in-form";
 import SignUpForm from "@/components/sign-up-form";
 import { meQueryOptions } from "@/lib/api/auth";
@@ -37,6 +38,12 @@ function AuthPage() {
           ) : (
             <SignUpForm onSwitchToSignIn={() => setMode("signin")} />
           )}
+          <p className="mt-4 text-center font-sans text-sm text-muted-foreground">
+            Just looking around?{" "}
+            <DemoButton className="font-semibold text-primary hover:underline disabled:opacity-40">
+              Try the demo
+            </DemoButton>
+          </p>
           <div className="mt-10 flex items-center justify-center gap-6 font-sans text-[11px] text-muted-foreground/50">
             <span>© 2026 Prezzy. All rights reserved.</span>
             <Link to="/privacy" className="transition-colors hover:text-foreground">Privacy</Link>

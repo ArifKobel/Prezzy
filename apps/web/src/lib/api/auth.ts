@@ -15,7 +15,7 @@ function useAuthMutation<TArgs>(path: string) {
   const queryClient = useQueryClient();
   const mutation = useMutation({
     mutationFn: (args: TArgs) => apiFetch<User | null>(path, { method: "POST", body: args }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["auth"] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["auth"], refetchType: "all" }),
   });
   return mutation.mutateAsync;
 }
@@ -30,6 +30,17 @@ export function useLogin() {
 
 export function useLogout() {
   return useAuthMutation<void>("/auth/logout");
+}
+
+export function useStartDemo() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () =>
+      apiFetch<{ user: User; presentationId: string }>("/auth/demo", { method: "POST" }),
+    onSuccess: ({ user }) => {
+      queryClient.setQueryData(meQueryOptions.queryKey, user);
+    },
+  });
 }
 
 export function useUpdateProfile() {

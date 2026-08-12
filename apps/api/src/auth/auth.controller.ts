@@ -13,6 +13,7 @@ import {
   UseGuards,
 } from "@nestjs/common";
 import type { Request, Response } from "express";
+import { SESSION_COOKIE } from "@/auth/auth.constants";
 import { AuthGuard } from "@/auth/auth.guard";
 import { AuthService } from "@/auth/auth.service";
 import { CurrentUser } from "@/auth/current-user.decorator";
@@ -46,6 +47,21 @@ export class AuthController {
     const user = await this.auth.login(dto);
     setSessionCookie(res, this.auth.createToken(user.id));
     return toUser(user);
+  }
+
+  @Post("demo")
+  @HttpCode(200)
+  async demo(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<{ user: User; presentationId: string }> {
+    const running = await this.auth.existingDemo(
+      (req.cookies as Record<string, string>)[SESSION_COOKIE],
+    );
+    if (running) return { user: toUser(running.user), presentationId: running.id };
+    const { user, presentationId } = await this.auth.createDemo();
+    setSessionCookie(res, this.auth.createToken(user.id));
+    return { user: toUser(user), presentationId };
   }
 
   @Get("google")
