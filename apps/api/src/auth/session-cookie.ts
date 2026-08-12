@@ -10,10 +10,17 @@ const cookieOptions: CookieOptions = {
   path: "/",
 };
 
+const clearHostOnlyCookie = (res: Response): void => {
+  if (!env.cookieDomain) return;
+  res.clearCookie(SESSION_COOKIE, { ...cookieOptions, domain: undefined });
+};
+
 export const setSessionCookie = (res: Response, token: string): void => {
+  clearHostOnlyCookie(res);
   res.cookie(SESSION_COOKIE, token, { ...cookieOptions, maxAge: SESSION_MAX_AGE_MS });
 };
 
 export const clearSessionCookie = (res: Response): void => {
+  clearHostOnlyCookie(res);
   res.clearCookie(SESSION_COOKIE, cookieOptions);
 };
