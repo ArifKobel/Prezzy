@@ -13,7 +13,9 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as PresentationsRouteImport } from './routes/presentations'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as EditorIndexRouteImport } from './routes/editor/index'
 import { Route as InteractIndexRouteImport } from './routes/interact/index'
 import { Route as EditorPresentationIdIndexRouteImport } from './routes/editor/$presentationId/index'
@@ -40,9 +42,19 @@ const PresentationsRoute = PresentationsRouteImport.update({
   path: '/presentations',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EditorIndexRoute = EditorIndexRouteImport.update({
@@ -79,7 +91,9 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
   '/presentations': typeof PresentationsRoute
+  '/privacy': typeof PrivacyRoute
   '/settings': typeof SettingsRoute
+  '/terms': typeof TermsRoute
   '/editor/': typeof EditorIndexRoute
   '/interact/': typeof InteractIndexRoute
   '/editor/$presentationId/': typeof EditorPresentationIdIndexRoute
@@ -91,7 +105,9 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
   '/presentations': typeof PresentationsRoute
+  '/privacy': typeof PrivacyRoute
   '/settings': typeof SettingsRoute
+  '/terms': typeof TermsRoute
   '/editor': typeof EditorIndexRoute
   '/interact': typeof InteractIndexRoute
   '/editor/$presentationId': typeof EditorPresentationIdIndexRoute
@@ -104,7 +120,9 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
   '/presentations': typeof PresentationsRoute
+  '/privacy': typeof PrivacyRoute
   '/settings': typeof SettingsRoute
+  '/terms': typeof TermsRoute
   '/editor/': typeof EditorIndexRoute
   '/interact/': typeof InteractIndexRoute
   '/editor/$presentationId/': typeof EditorPresentationIdIndexRoute
@@ -118,7 +136,9 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/login'
     | '/presentations'
+    | '/privacy'
     | '/settings'
+    | '/terms'
     | '/editor/'
     | '/interact/'
     | '/editor/$presentationId/'
@@ -130,7 +150,9 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/login'
     | '/presentations'
+    | '/privacy'
     | '/settings'
+    | '/terms'
     | '/editor'
     | '/interact'
     | '/editor/$presentationId'
@@ -142,7 +164,9 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/login'
     | '/presentations'
+    | '/privacy'
     | '/settings'
+    | '/terms'
     | '/editor/'
     | '/interact/'
     | '/editor/$presentationId/'
@@ -155,7 +179,9 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   LoginRoute: typeof LoginRoute
   PresentationsRoute: typeof PresentationsRoute
+  PrivacyRoute: typeof PrivacyRoute
   SettingsRoute: typeof SettingsRoute
+  TermsRoute: typeof TermsRoute
   EditorIndexRoute: typeof EditorIndexRoute
   InteractIndexRoute: typeof InteractIndexRoute
   EditorPresentationIdIndexRoute: typeof EditorPresentationIdIndexRoute
@@ -193,11 +219,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PresentationsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/settings': {
       id: '/settings'
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/editor/': {
@@ -243,7 +283,9 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   LoginRoute: LoginRoute,
   PresentationsRoute: PresentationsRoute,
+  PrivacyRoute: PrivacyRoute,
   SettingsRoute: SettingsRoute,
+  TermsRoute: TermsRoute,
   EditorIndexRoute: EditorIndexRoute,
   InteractIndexRoute: InteractIndexRoute,
   EditorPresentationIdIndexRoute: EditorPresentationIdIndexRoute,
