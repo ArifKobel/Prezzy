@@ -1,11 +1,14 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import SignInForm from "@/components/sign-in-form";
 import SignUpForm from "@/components/sign-up-form";
 import { meQueryOptions } from "@/lib/api/auth";
 
 export const Route = createFileRoute("/login")({
   component: AuthPage,
+  validateSearch: (search: Record<string, unknown>): { error?: string } =>
+    typeof search.error === "string" ? { error: search.error } : {},
   loader: async ({ context: { queryClient } }) => {
     const user = await queryClient.ensureQueryData(meQueryOptions).catch(() => null);
     if (user) throw redirect({ to: "/dashboard" });
@@ -14,6 +17,10 @@ export const Route = createFileRoute("/login")({
 
 function AuthPage() {
   const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const { error } = Route.useSearch();
+  useEffect(() => {
+    if (error === "google") toast.error("Google sign in failed");
+  }, [error]);
 
   return (
     <div className="flex h-full flex-col bg-surface">
@@ -30,9 +37,11 @@ function AuthPage() {
           ) : (
             <SignUpForm onSwitchToSignIn={() => setMode("signin")} />
           )}
-          <p className="mt-10 text-center font-sans text-[11px] text-muted-foreground/50">
-            © 2026 Prezzy. All rights reserved.
-          </p>
+          <div className="mt-10 flex items-center justify-center gap-6 font-sans text-[11px] text-muted-foreground/50">
+            <span>© 2026 Prezzy. All rights reserved.</span>
+            <Link to="/privacy" className="transition-colors hover:text-foreground">Privacy</Link>
+            <Link to="/terms" className="transition-colors hover:text-foreground">Terms</Link>
+          </div>
         </div>
       </main>
     </div>

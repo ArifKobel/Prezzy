@@ -270,7 +270,11 @@ function LandingPage() {
           <p className="font-sans text-[11px] text-muted-foreground/50">
             © 2026 Prezzy. All rights reserved.
           </p>
-          <p className="font-sans text-[11px] text-muted-foreground/50">MIT licensed</p>
+          <div className="flex items-center gap-6 font-sans text-[11px] text-muted-foreground/50">
+            <Link to="/privacy" className="transition-colors hover:text-foreground">Privacy</Link>
+            <Link to="/terms" className="transition-colors hover:text-foreground">Terms</Link>
+            <span>MIT licensed</span>
+          </div>
         </div>
       </footer>
     </div>
