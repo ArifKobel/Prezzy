@@ -1,5 +1,6 @@
 import { resolveSlideTheme } from "@Prezzy/shared/theme";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import DemoButton from "@/components/demo-button";
 import { ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { slideThemeStyle } from "@/components/slide-canvas";
@@ -212,6 +213,21 @@ function Stage() {
   );
 }
 
+const ABOUT_POINTS = [
+  {
+    title: "Build",
+    body: "A slide editor with layouts, themes, images, and shapes. Everyone editing a deck sees each other's changes as they happen.",
+  },
+  {
+    title: "Present",
+    body: "Run your deck full screen and share a join code or QR link. Your audience needs no account and no app install.",
+  },
+  {
+    title: "Interact",
+    body: "Live quizzes with scoring and leaderboards, plus word clouds that grow as answers come in from the room.",
+  },
+];
+
 function LandingPage() {
   return (
     <div className="flex min-h-svh flex-col overflow-x-hidden bg-surface">
@@ -237,8 +253,8 @@ function LandingPage() {
         </div>
       </nav>
 
-      <main className="flex flex-1 items-center">
-        <section className="mx-auto grid w-full max-w-[1500px] items-center gap-14 px-6 py-12 sm:px-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-20">
+      <main className="flex flex-1 flex-col">
+        <section className="mx-auto grid w-full max-w-[1500px] flex-1 items-center gap-14 px-6 py-12 sm:px-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-20">
           <div>
             <h1 className="animate-in fade-in slide-in-from-bottom-2 fill-mode-both font-display text-[clamp(3rem,4.5vw,5.2rem)] font-extrabold leading-[0.92] tracking-tight text-foreground duration-500">
               Slides that
@@ -249,18 +265,60 @@ function LandingPage() {
               Build decks together in real time, then hand your audience a QR code: live
               quizzes, word clouds and leaderboards, straight from their phones.
             </p>
-            <div className="animate-in fade-in slide-in-from-bottom-2 fill-mode-both mt-9 delay-300 duration-500">
+            <div className="animate-in fade-in slide-in-from-bottom-2 fill-mode-both mt-9 flex items-center gap-4 delay-300 duration-500">
               <Link
                 to="/login"
                 className="inline-flex items-center gap-2 bg-primary px-6 py-3 font-sans text-xs font-bold text-primary-foreground transition-colors hover:bg-primary-dim"
               >
                 Start creating <ArrowRight className="size-3.5" />
               </Link>
+              <DemoButton className="inline-flex items-center gap-2 border border-foreground/20 px-6 py-3 font-sans text-xs font-bold text-foreground transition-colors hover:border-primary hover:text-primary disabled:opacity-40">
+                Try the live demo
+              </DemoButton>
             </div>
           </div>
 
           <div className="animate-in fade-in slide-in-from-bottom-4 fill-mode-both delay-400 duration-700">
             <Stage />
+          </div>
+        </section>
+
+        <section className="border-t border-border px-6 py-20 sm:px-10">
+          <div className="mx-auto max-w-[1240px]">
+            <h2 className="font-display text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
+              What Prezzy is<span className="text-primary">.</span>
+            </h2>
+            <p className="mt-6 max-w-2xl font-sans text-base leading-relaxed text-muted-foreground">
+              Prezzy is a web app for building presentations and running them live. You write your
+              slides in an editor that syncs between everyone working on the same deck. When you
+              present, your audience joins from their phones with a short code or a QR link and
+              answers quizzes and word clouds while you talk, with the results appearing on your
+              slide in real time.
+            </p>
+
+            <div className="mt-14 grid gap-10 sm:grid-cols-3 sm:gap-12">
+              {ABOUT_POINTS.map((point) => (
+                <div key={point.title}>
+                  <h3 className="font-sans text-[11px] font-bold uppercase tracking-[0.1em] text-primary">
+                    {point.title}
+                  </h3>
+                  <p className="mt-3 font-sans text-sm leading-relaxed text-muted-foreground">
+                    {point.body}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            <p className="mt-14 max-w-2xl font-sans text-sm leading-relaxed text-muted-foreground">
+              Accounts are free. You can sign up with an email address and a password, or use Sign
+              in with Google, which Prezzy uses only to read your name and email address in order to
+              create your account. Prezzy never posts anything to your Google account and requests
+              no access to your other Google data. How we handle your data is described in our{" "}
+              <Link to="/privacy" className="font-semibold text-primary hover:underline">
+                privacy policy
+              </Link>
+              .
+            </p>
           </div>
         </section>
       </main>
