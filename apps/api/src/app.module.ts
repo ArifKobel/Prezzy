@@ -7,6 +7,8 @@ import { ElementsModule } from "@/elements/elements.module";
 import { EventsModule } from "@/events/events.module";
 import { FilesModule } from "@/files/files.module";
 import { InteractModule } from "@/interact/interact.module";
+import { McpModule } from "@/mcp/mcp.module";
+import { OAuthModule } from "@/oauth/oauth.module";
 import { PresenceModule } from "@/presence/presence.module";
 import { PresentationsModule } from "@/presentations/presentations.module";
 import { SlidesModule } from "@/slides/slides.module";
@@ -24,6 +26,8 @@ import { SlidesModule } from "@/slides/slides.module";
     ElementsModule,
     InteractModule,
     FilesModule,
+    OAuthModule,
+    McpModule,
   ],
 })
 export class AppModule {}
