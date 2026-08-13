@@ -17,6 +17,8 @@ export const env = {
   port,
   webOrigin: process.env.WEB_ORIGIN ?? "http://localhost:3000",
   publicUrl: process.env.PUBLIC_URL ?? `http://localhost:${port}`,
+  oauthCookieSecret: process.env.OAUTH_COOKIE_SECRET ?? required("JWT_SECRET"),
+  oauthJwks: process.env.OAUTH_JWKS ? JSON.parse(process.env.OAUTH_JWKS) : undefined,
   cookieDomain: process.env.COOKIE_DOMAIN,
   googleClientId: process.env.GOOGLE_CLIENT_ID,
   googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,

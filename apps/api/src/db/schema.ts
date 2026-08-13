@@ -75,6 +75,21 @@ export const presentationDocs = pgTable("presentation_docs", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+export const oauthArtifacts = pgTable(
+  "oauth_artifacts",
+  {
+    model: text("model").notNull(),
+    id: text("id").notNull(),
+    payload: jsonb("payload").$type<Record<string, unknown>>().notNull(),
+    grantId: text("grant_id"),
+    userCode: text("user_code"),
+    uid: text("uid"),
+    consumedAt: timestamp("consumed_at", { withTimezone: true }),
+    expiresAt: timestamp("expires_at", { withTimezone: true }),
+  },
+  (table) => [unique("oauth_artifacts_model_id_key").on(table.model, table.id)],
+);
+
 export const participants = pgTable(
   "participants",
   {
