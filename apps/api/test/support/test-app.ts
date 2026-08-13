@@ -1,12 +1,11 @@
-import { type INestApplication, ValidationPipe } from "@nestjs/common";
+import type { INestApplication } from "@nestjs/common";
 import { Test } from "@nestjs/testing";
-import cookieParser from "cookie-parser";
 import { AppModule } from "@/app.module";
 import { SESSION_COOKIE } from "@/auth/auth.constants";
 import { AuthService } from "@/auth/auth.service";
+import { configureApp } from "@/bootstrap";
 import { DRIZZLE } from "@/db/db.constants";
 import type { Database } from "@/db/db.types";
-import { socketIdContext } from "@/events/socket-id-context";
 
 export const createTestApp = async (db: Database): Promise<INestApplication> => {
   const moduleRef = await Test.createTestingModule({ imports: [AppModule] })
@@ -15,10 +14,7 @@ export const createTestApp = async (db: Database): Promise<INestApplication> => 
     .compile();
 
   const app = moduleRef.createNestApplication({ logger: false });
-  app.setGlobalPrefix("api");
-  app.use(cookieParser());
-  app.use(socketIdContext);
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+  configureApp(app);
   await app.init();
   return app;
 };

@@ -4,7 +4,7 @@ import type { Socket } from "socket.io-client";
 import * as awarenessProtocol from "y-protocols/awareness";
 import * as syncProtocol from "y-protocols/sync";
 import type * as Y from "yjs";
-import { REMOTE_ORIGIN } from "@/lib/editor/doc";
+import { REMOTE_ORIGIN } from "@Prezzy/editor-doc";
 
 export type ProviderStatus = "connecting" | "synced" | "offline" | "denied";
 

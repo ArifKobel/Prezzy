@@ -1,3 +1,4 @@
+import { elementsOf, metaOf, slidesOf } from "@Prezzy/editor-doc/doc";
 import * as Y from "yjs";
 import type { PresentationRow, SlideElementRow, SlideRow } from "@/db/schema";
 import type { ElementProps, ElementType, PresentationTheme } from "@/shared";
@@ -29,10 +30,6 @@ export interface DocContent {
   slides: DocSlide[];
   elements: DocElement[];
 }
-
-const metaOf = (doc: Y.Doc) => doc.getMap<unknown>("meta");
-const slidesOf = (doc: Y.Doc) => doc.getMap<Y.Map<unknown>>("slides");
-const elementsOf = (doc: Y.Doc) => doc.getMap<Y.Map<unknown>>("elements");
 
 export function hydrateDoc(
   doc: Y.Doc,

@@ -30,7 +30,26 @@ The editor does not talk to REST endpoints. Each presentation is a Yjs document:
 
 The server persists the document as an update blob and, debounced, materializes it back into ordinary `slides` and `slide_elements` rows. Presenter mode, the audience views and the dashboard read those rows over plain REST, so they stay decoupled from the CRDT. Decks that existed before a document was ever opened are hydrated from their rows on first connect.
 
-The editor core (`apps/web/src/lib/editor`) is plain TypeScript with no React in it: document schema, commands, an interaction state machine and a selection store, each with unit tests. React binds to it through a thin `useSyncExternalStore` layer.
+The shared editor document and commands live in `packages/editor-doc`. The web editor and server-side automation use the same Yjs operations. React binds to them through the interaction state machine and selection store in `apps/web/src/lib/editor`.
+
+## MCP
+
+The API exposes a stateless MCP 2026-07-28 Streamable HTTP endpoint at `/api/mcp`. It uses OAuth 2.1 bearer tokens and publishes RFC 9728 protected resource metadata at `/.well-known/oauth-protected-resource/api/mcp`.
+
+The `slide_preview` tool renders a slide through the real web renderer and returns a PNG to the model. Production API images must include Playwright Chromium (`pnpm exec playwright install chromium`).
+
+Prefer semantic `slide_add` layouts (`title`, `bullets`, `cards-grid`, `stats-row`, `compare-2col`, `quote`) or atomic `slide_set_content` over repeated element calls. Manual geometry is measured as percentages of the 960x540, 16:9 slide. Text supports native `fontSize`, `bold`, `align`, and `textColor` props. Element colors can reference `bg`, `surface`, `text`, `muted`, `heading`, or `accent` theme tokens.
+
+Configure the public URL and a separate cookie-signing secret in `apps/api/.env`:
+
+```env
+PUBLIC_URL=https://prezzy.example
+OAUTH_COOKIE_SECRET=replace-with-a-long-random-secret
+```
+
+Prezzy hosts its own OAuth 2.1 authorization server at `/api/oauth`. It uses the existing Prezzy login, requires PKCE, and supports Client ID Metadata Documents. The write scope exposes both reading and editing tools.
+
+`OAUTH_JWKS` must contain a persistent private JSON Web Key Set in production. Generate it once with `pnpm -F api oauth:keygen`, store the JSON output as a secret, and keep it stable across deployments. If omitted locally, `oidc-provider` creates development-only keys.
 
 ## Setup
 
@@ -49,6 +68,7 @@ Environment files: `apps/api/.env` (database url, jwt secret, port, web origin) 
 apps/web              frontend (routes, editor, presenter, audience views)
 apps/api              nestjs api (rest, yjs collab gateway, drizzle schema)
 packages/shared       types shared between web and api
+packages/editor-doc   shared Yjs document and editing commands
 packages/ui           shared UI components
 packages/env          typed env handling
 packages/config       shared tsconfig

@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { Inject, Injectable, Logger } from "@nestjs/common";
 import { and, asc, eq, inArray, notInArray, sql } from "drizzle-orm";
 import * as awarenessProtocol from "y-protocols/awareness";
@@ -112,6 +112,16 @@ export class DocRegistryService {
   async docFor(presentationId: string): Promise<Y.Doc | null> {
     const entry = await this.entryFor(presentationId);
     return entry ? entry.doc : null;
+  }
+
+  async withDoc<T>(presentationId: string, fn: (doc: Y.Doc) => T | Promise<T>): Promise<T> {
+    const leaseId = `action:${randomUUID()}`;
+    const doc = await this.connect(presentationId, leaseId);
+    try {
+      return await fn(doc);
+    } finally {
+      await this.disconnect(presentationId, leaseId);
+    }
   }
 
   async disconnect(presentationId: string, socketId: string): Promise<void> {

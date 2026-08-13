@@ -1,19 +1,24 @@
 import { describe, expect, it } from "vitest";
 import * as Y from "yjs";
 import {
+  LOCAL_ORIGIN,
   addElement,
   addSlide,
+  createDoc,
   duplicateSlide,
+  elementsOfSlide,
+  loadDoc,
   moveElements,
   removeElements,
   removeSlide,
   reorderElement,
   reorderSlides,
+  replaceSlideElements,
   setGeometry,
   setProps,
   setTheme,
-} from "@/lib/editor/commands";
-import { LOCAL_ORIGIN, createDoc, elementsOfSlide, loadDoc, snapshot } from "@/lib/editor/doc";
+  snapshot,
+} from "./index";
 
 function undoManager(doc: Y.Doc) {
   return new Y.UndoManager(
@@ -72,6 +77,7 @@ describe("undo and redo", () => {
     ["clear a prop", (doc) => setProps(doc, "e1", { content: null as never })],
     ["add element", (doc) => addElement(doc, { slideId: "s1", type: "shape", x: 1, y: 1, width: 5, height: 5 })],
     ["remove elements", (doc) => removeElements(doc, ["e1", "e2"])],
+    ["replace slide elements", (doc) => replaceSlideElements(doc, "s1", [{ type: "text", x: 1, y: 2, width: 30, height: 10 }])],
     ["reorder element", (doc) => reorderElement(doc, "e1", "front")],
     ["add slide", (doc) => addSlide(doc, "s1")],
     ["remove slide", (doc) => removeSlide(doc, "s1")],
@@ -126,6 +132,15 @@ describe("z-index stays a permutation", () => {
     expect(zIndices(doc, "s1")).toEqual([0, 1, 2]);
   });
 
+  it("inserts at a clamped slide-local position", () => {
+    const doc = seed();
+    const back = addElement(doc, { slideId: "s1", type: "shape", x: 0, y: 0, width: 1, height: 1, zIndex: -5 });
+    expect(elementsOfSlide(doc, "s1").map((element) => element.id)).toEqual([back, "e1", "e2", "e3"]);
+    const front = addElement(doc, { slideId: "s1", type: "shape", x: 0, y: 0, width: 1, height: 1, zIndex: 99 });
+    expect(elementsOfSlide(doc, "s1").at(-1)?.id).toBe(front);
+    expect(zIndices(doc, "s2")).toEqual([0]);
+  });
+
   it("moves the element to the intended position", () => {
     const doc = seed();
     reorderElement(doc, "e1", "front");
@@ -171,6 +186,18 @@ describe("slide order stays unique and contiguous", () => {
 });
 
 describe("structural integrity", () => {
+  it("replaces one slide atomically and preserves another slide", () => {
+    const doc = seed();
+    const ids = replaceSlideElements(doc, "s1", [
+      { type: "heading", x: 1, y: 2, width: 30, height: 10, props: { content: "<p>New</p>", fontSize: 42 } },
+      { type: "shape", x: 2, y: 20, width: 40, height: 20, props: { color: "accent" } },
+    ]);
+    expect(elementsOfSlide(doc, "s1").map((element) => element.id)).toEqual(ids);
+    expect(zIndices(doc, "s1")).toEqual([0, 1]);
+    expect(elementsOfSlide(doc, "s1")[0]?.props).toMatchObject({ content: "<p>New</p>", fontSize: 42 });
+    expect(elementsOfSlide(doc, "s2").map((element) => element.id)).toEqual(["e4"]);
+  });
+
   it("removing a slide removes its elements and only those", () => {
     const doc = seed();
     removeSlide(doc, "s1");
@@ -190,9 +217,10 @@ describe("structural integrity", () => {
   it("editing a duplicate does not touch the original", () => {
     const doc = seed();
     const copyId = duplicateSlide(doc, "s1", 50);
-    const copy = elementsOfSlide(doc, copyId)[0];
+    const [copy] = elementsOfSlide(doc, copyId);
+    if (!copy) throw new Error("expected a duplicated element");
     setProps(doc, copy.id, { content: "<p>changed</p>" });
-    expect(elementsOfSlide(doc, "s1")[0].props?.content).toBe("<p>A</p>");
+    expect(elementsOfSlide(doc, "s1")[0]?.props?.content).toBe("<p>A</p>");
   });
 
   it("commands on a missing element are a no-op, not a throw", () => {

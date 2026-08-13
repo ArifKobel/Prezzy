@@ -1,4 +1,5 @@
 import type { ElementProps, ResolvedSlideTheme } from "@Prezzy/shared";
+import { themeColorValue } from "@/lib/theme-tokens";
 
 export const QUIZ_OPTION_LABELS = ["A", "B", "C", "D", "E", "F"];
 
@@ -148,9 +149,9 @@ export function resolveElementStyle(
 ): ElementStyle {
   const el = getElementStyle(props);
   return {
-    accentColor: el.accentColor || theme?.accent,
-    backgroundColor: el.backgroundColor,
-    textColor: el.textColor || theme?.text,
+    accentColor: themeColorValue(el.accentColor, theme) || theme?.accent,
+    backgroundColor: themeColorValue(el.backgroundColor, theme),
+    textColor: themeColorValue(el.textColor, theme) || theme?.text,
   };
 }
 

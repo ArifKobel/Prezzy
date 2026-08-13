@@ -44,6 +44,9 @@ export type ElementType =
 
 export interface ElementProps {
   content?: string;
+  fontSize?: number;
+  bold?: boolean;
+  align?: "left" | "center" | "right";
   src?: string;
   color?: string;
   objectFit?: string;

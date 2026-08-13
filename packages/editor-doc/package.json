@@ -1,0 +1,53 @@
+{
+  "name": "@Prezzy/editor-doc",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "commands": [
+        "dist/commands.d.ts"
+      ],
+      "doc": [
+        "dist/doc.d.ts"
+      ]
+    }
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./commands": {
+      "types": "./dist/commands.d.ts",
+      "import": "./dist/commands.js",
+      "require": "./dist/commands.cjs"
+    },
+    "./doc": {
+      "types": "./dist/doc.d.ts",
+      "import": "./dist/doc.js",
+      "require": "./dist/doc.cjs"
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "check-types": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@Prezzy/shared": "workspace:*",
+    "yjs": "^13.6.32"
+  },
+  "devDependencies": {
+    "@Prezzy/config": "workspace:*",
+    "@types/node": "^22.10.2",
+    "tsup": "^8.5.0",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
+  }
+}

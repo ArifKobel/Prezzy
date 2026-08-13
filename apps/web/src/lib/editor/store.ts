@@ -1,13 +1,7 @@
 import type { ElementProps, PresentationTheme, Slide, SlideElement } from "@Prezzy/shared";
 import * as Y from "yjs";
-import * as cmd from "@/lib/editor/commands";
-import {
-  type DocSnapshot,
-  LOCAL_ORIGIN,
-  createDoc,
-  loadDoc,
-  snapshot,
-} from "@/lib/editor/doc";
+import * as cmd from "@Prezzy/editor-doc";
+import { type DocSnapshot, LOCAL_ORIGIN, createDoc, loadDoc, snapshot } from "@Prezzy/editor-doc";
 
 export interface Rect { x: number; y: number; w: number; h: number }
 export interface SnapLines { vLines: number[]; hLines: number[] }

@@ -18,6 +18,8 @@ import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as EditorIndexRouteImport } from './routes/editor/index'
 import { Route as InteractIndexRouteImport } from './routes/interact/index'
+import { Route as McpPreviewRouteImport } from './routes/mcp/preview'
+import { Route as OauthAuthorizeRouteImport } from './routes/oauth/authorize'
 import { Route as EditorPresentationIdIndexRouteImport } from './routes/editor/$presentationId/index'
 import { Route as InteractSessionCodeIndexRouteImport } from './routes/interact/$sessionCode/index'
 import { Route as PresentPresentationIdIndexRouteImport } from './routes/present/$presentationId/index'
@@ -67,6 +69,16 @@ const InteractIndexRoute = InteractIndexRouteImport.update({
   path: '/interact/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const McpPreviewRoute = McpPreviewRouteImport.update({
+  id: '/mcp/preview',
+  path: '/mcp/preview',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OauthAuthorizeRoute = OauthAuthorizeRouteImport.update({
+  id: '/oauth/authorize',
+  path: '/oauth/authorize',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EditorPresentationIdIndexRoute =
   EditorPresentationIdIndexRouteImport.update({
     id: '/editor/$presentationId/',
@@ -94,6 +106,8 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof PrivacyRoute
   '/settings': typeof SettingsRoute
   '/terms': typeof TermsRoute
+  '/mcp/preview': typeof McpPreviewRoute
+  '/oauth/authorize': typeof OauthAuthorizeRoute
   '/editor/': typeof EditorIndexRoute
   '/interact/': typeof InteractIndexRoute
   '/editor/$presentationId/': typeof EditorPresentationIdIndexRoute
@@ -108,6 +122,8 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/settings': typeof SettingsRoute
   '/terms': typeof TermsRoute
+  '/mcp/preview': typeof McpPreviewRoute
+  '/oauth/authorize': typeof OauthAuthorizeRoute
   '/editor': typeof EditorIndexRoute
   '/interact': typeof InteractIndexRoute
   '/editor/$presentationId': typeof EditorPresentationIdIndexRoute
@@ -123,6 +139,8 @@ export interface FileRoutesById {
   '/privacy': typeof PrivacyRoute
   '/settings': typeof SettingsRoute
   '/terms': typeof TermsRoute
+  '/mcp/preview': typeof McpPreviewRoute
+  '/oauth/authorize': typeof OauthAuthorizeRoute
   '/editor/': typeof EditorIndexRoute
   '/interact/': typeof InteractIndexRoute
   '/editor/$presentationId/': typeof EditorPresentationIdIndexRoute
@@ -139,6 +157,8 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/settings'
     | '/terms'
+    | '/mcp/preview'
+    | '/oauth/authorize'
     | '/editor/'
     | '/interact/'
     | '/editor/$presentationId/'
@@ -153,6 +173,8 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/settings'
     | '/terms'
+    | '/mcp/preview'
+    | '/oauth/authorize'
     | '/editor'
     | '/interact'
     | '/editor/$presentationId'
@@ -167,6 +189,8 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/settings'
     | '/terms'
+    | '/mcp/preview'
+    | '/oauth/authorize'
     | '/editor/'
     | '/interact/'
     | '/editor/$presentationId/'
@@ -182,6 +206,8 @@ export interface RootRouteChildren {
   PrivacyRoute: typeof PrivacyRoute
   SettingsRoute: typeof SettingsRoute
   TermsRoute: typeof TermsRoute
+  McpPreviewRoute: typeof McpPreviewRoute
+  OauthAuthorizeRoute: typeof OauthAuthorizeRoute
   EditorIndexRoute: typeof EditorIndexRoute
   InteractIndexRoute: typeof InteractIndexRoute
   EditorPresentationIdIndexRoute: typeof EditorPresentationIdIndexRoute
@@ -254,6 +280,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InteractIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/mcp/preview': {
+      id: '/mcp/preview'
+      path: '/mcp/preview'
+      fullPath: '/mcp/preview'
+      preLoaderRoute: typeof McpPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/oauth/authorize': {
+      id: '/oauth/authorize'
+      path: '/oauth/authorize'
+      fullPath: '/oauth/authorize'
+      preLoaderRoute: typeof OauthAuthorizeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/editor/$presentationId/': {
       id: '/editor/$presentationId/'
       path: '/editor/$presentationId'
@@ -286,6 +326,8 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacyRoute: PrivacyRoute,
   SettingsRoute: SettingsRoute,
   TermsRoute: TermsRoute,
+  McpPreviewRoute: McpPreviewRoute,
+  OauthAuthorizeRoute: OauthAuthorizeRoute,
   EditorIndexRoute: EditorIndexRoute,
   InteractIndexRoute: InteractIndexRoute,
   EditorPresentationIdIndexRoute: EditorPresentationIdIndexRoute,

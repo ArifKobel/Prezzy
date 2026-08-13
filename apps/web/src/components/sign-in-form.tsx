@@ -6,7 +6,15 @@ import z from "zod";
 import GoogleSignInButton from "@/components/google-sign-in-button";
 import { useLogin } from "@/lib/api/auth";
 
-export default function SignInForm({ onSwitchToSignUp }: { onSwitchToSignUp: () => void }) {
+export default function SignInForm({
+  onSwitchToSignUp,
+  onSuccess,
+  hideGoogle = false,
+}: {
+  onSwitchToSignUp: () => void;
+  onSuccess?: () => void;
+  hideGoogle?: boolean;
+}) {
   const navigate = useNavigate({ from: "/login" });
   const login = useLogin();
 
@@ -15,7 +23,8 @@ export default function SignInForm({ onSwitchToSignUp }: { onSwitchToSignUp: () 
     onSubmit: async ({ value }) => {
       try {
         await login({ email: value.email, password: value.password });
-        navigate({ to: "/dashboard" });
+        if (onSuccess) onSuccess();
+        else navigate({ to: "/dashboard" });
         toast.success("Welcome back");
       } catch (error) {
         toast.error(error instanceof Error ? error.message : "Sign in failed");
@@ -84,7 +93,7 @@ export default function SignInForm({ onSwitchToSignUp }: { onSwitchToSignUp: () 
         </form.Subscribe>
       </form>
 
-      <GoogleSignInButton />
+      {hideGoogle ? null : <GoogleSignInButton />}
 
       <p className="mt-6 text-center font-sans text-sm text-muted-foreground">
         Don't have an account?{" "}

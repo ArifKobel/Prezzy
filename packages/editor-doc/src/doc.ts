@@ -26,6 +26,37 @@ export const metaOf = (doc: Y.Doc) => doc.getMap<unknown>("meta");
 export const slidesOf = (doc: Y.Doc) => doc.getMap<YSlide>("slides");
 export const elementsOf = (doc: Y.Doc) => doc.getMap<YElement>("elements");
 
+export function orderedSlideEntries(doc: Y.Doc): Array<[string, YSlide]> {
+  return [...slidesOf(doc).entries()].sort(
+    (a, b) =>
+      ((a[1].get("order") as number) ?? 0) - ((b[1].get("order") as number) ?? 0) ||
+      ((a[1].get("createdAt") as number) ?? 0) - ((b[1].get("createdAt") as number) ?? 0),
+  );
+}
+
+export const slideIds = (doc: Y.Doc): string[] => orderedSlideEntries(doc).map(([id]) => id);
+
+export const hasSlide = (doc: Y.Doc, slideId: string): boolean => slidesOf(doc).has(slideId);
+export const hasElement = (doc: Y.Doc, elementId: string): boolean => elementsOf(doc).has(elementId);
+
+const toSlideElement = (id: string, value: YElement): SlideElement => ({
+  id,
+  slideId: value.get("slideId") as string,
+  type: value.get("type") as ElementType,
+  x: value.get("x") as number,
+  y: value.get("y") as number,
+  width: value.get("width") as number,
+  height: value.get("height") as number,
+  zIndex: (value.get("zIndex") as number | null) ?? null,
+  props: propsFromY(value.get("props") as Y.Map<unknown> | undefined),
+  createdAt: (value.get("createdAt") as number) ?? 0,
+});
+
+export function elementAt(doc: Y.Doc, elementId: string): SlideElement | undefined {
+  const value = elementsOf(doc).get(elementId);
+  return value ? toSlideElement(elementId, value) : undefined;
+}
+
 export function loadDoc(
   doc: Y.Doc,
   input: { title: string; theme: PresentationTheme | null; slides: Slide[]; elements: SlideElement[] },
@@ -62,22 +93,9 @@ export function snapshot(doc: Y.Doc): DocSnapshot {
   slides.sort((a, b) => a.order - b.order || a.createdAt - b.createdAt);
 
   const elements: SlideElement[] = [];
-  for (const [id, value] of elementsOf(doc).entries()) {
-    elements.push({
-      id,
-      slideId: value.get("slideId") as string,
-      type: value.get("type") as ElementType,
-      x: value.get("x") as number,
-      y: value.get("y") as number,
-      width: value.get("width") as number,
-      height: value.get("height") as number,
-      zIndex: (value.get("zIndex") as number | null) ?? null,
-      props: propsFromY(value.get("props") as Y.Map<unknown> | undefined),
-      createdAt: (value.get("createdAt") as number) ?? 0,
-    });
-  }
+  for (const [id, value] of elementsOf(doc).entries()) elements.push(toSlideElement(id, value));
   elements.sort(
-    (a, b) => (a.zIndex ?? 0) - (b.zIndex ?? 0) || a.createdAt - b.createdAt,
+    (a, b) => a.slideId.localeCompare(b.slideId) || (a.zIndex ?? 0) - (b.zIndex ?? 0) || a.createdAt - b.createdAt,
   );
 
   return {
@@ -89,7 +107,7 @@ export function snapshot(doc: Y.Doc): DocSnapshot {
 }
 
 export function elementsOfSlide(doc: Y.Doc, slideId: string): SlideElement[] {
-  return snapshot(doc).elements.filter((el) => el.slideId === slideId);
+  return snapshot(doc).elements.filter((element) => element.slideId === slideId);
 }
 
 export function slideToY(slide: Slide): YSlide {
