@@ -8,17 +8,23 @@ import { meQueryOptions } from "@/lib/api/auth";
 
 export const Route = createFileRoute("/login")({
   component: AuthPage,
-  validateSearch: (search: Record<string, unknown>): { error?: string } =>
-    typeof search.error === "string" ? { error: search.error } : {},
-  loader: async ({ context: { queryClient } }) => {
+  validateSearch: (search: Record<string, unknown>): { error?: string; oauth?: string } => ({
+    ...(typeof search.error === "string" ? { error: search.error } : {}),
+    ...(typeof search.oauth === "string" ? { oauth: search.oauth } : {}),
+  }),
+  loaderDeps: ({ search }) => ({ oauth: search.oauth }),
+  loader: async ({ context: { queryClient }, deps }) => {
     const user = await queryClient.ensureQueryData(meQueryOptions).catch(() => null);
-    if (user) throw redirect({ to: "/dashboard" });
+    if (user && !deps.oauth) throw redirect({ to: "/dashboard" });
   },
 });
 
 function AuthPage() {
   const [mode, setMode] = useState<"signin" | "signup">("signin");
-  const { error } = Route.useSearch();
+  const { error, oauth } = Route.useSearch();
+  const continueOAuth = () => {
+    if (oauth) window.location.assign(`/oauth/authorize?uid=${encodeURIComponent(oauth)}`);
+  };
   useEffect(() => {
     if (error === "google") toast.error("Google sign in failed");
   }, [error]);
@@ -34,9 +40,17 @@ function AuthPage() {
       <main className="flex flex-1 items-center justify-center overflow-y-auto px-8 py-10">
         <div className="w-full max-w-sm">
           {mode === "signin" ? (
-            <SignInForm onSwitchToSignUp={() => setMode("signup")} />
+            <SignInForm
+              onSwitchToSignUp={() => setMode("signup")}
+              onSuccess={oauth ? continueOAuth : undefined}
+              hideGoogle={Boolean(oauth)}
+            />
           ) : (
-            <SignUpForm onSwitchToSignIn={() => setMode("signin")} />
+            <SignUpForm
+              onSwitchToSignIn={() => setMode("signin")}
+              onSuccess={oauth ? continueOAuth : undefined}
+              hideGoogle={Boolean(oauth)}
+            />
           )}
           <p className="mt-4 text-center font-sans text-sm text-muted-foreground">
             Just looking around?{" "}
