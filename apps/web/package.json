@@ -86,7 +86,7 @@
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^5.1.4",
     "@vitest/browser": "3.2.4",
-    "jsdom": "^28.1.0",
+    "jsdom": "^30.0.1",
     "playwright": "^1.62.1",
     "typescript": "^5.7.2",
     "vite": "^7.3.1",
