@@ -4,6 +4,7 @@ import { eq } from "drizzle-orm";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import * as awarenessProtocol from "y-protocols/awareness";
 import * as Y from "yjs";
+import { setTitle as setSharedTitle } from "@Prezzy/editor-doc";
 import { DocRegistryService } from "@/collab/doc-registry.service";
 import { readDoc } from "@/collab/doc-schema";
 import { presentationDocs, presentations, slideElements, slides } from "@/db/schema";
@@ -88,6 +89,27 @@ describe("hydration", () => {
 });
 
 describe("materialization", () => {
+  it("leases, mutates, and persists a closed doc", async () => {
+    await registry.withDoc(fixture.presentationId, (doc: Y.Doc) => setSharedTitle(doc, "Agent edit"));
+
+    const [presentation] = await database.db
+      .select()
+      .from(presentations)
+      .where(eq(presentations.id, fixture.presentationId));
+    expect(presentation.title).toBe("Agent edit");
+    expect(await registry.docFor(fixture.presentationId)).toBeNull();
+  });
+
+  it("releases its lease when a mutation fails", async () => {
+    await expect(
+      registry.withDoc(fixture.presentationId, () => {
+        throw new Error("failed edit");
+      }),
+    ).rejects.toThrow("failed edit");
+
+    expect(await registry.docFor(fixture.presentationId)).toBeNull();
+  });
+
   it("writes doc edits back to rows and stores the doc state", async () => {
     const elementId = randomUUID();
     const doc = await registry.connect(fixture.presentationId, "s1");
