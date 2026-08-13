@@ -4,7 +4,7 @@ WORKDIR /app
 ENV CI=true
 COPY . .
 RUN pnpm install --frozen-lockfile
-RUN pnpm --filter api build
+RUN pnpm turbo build --filter=api
 RUN pnpm --filter api --prod deploy --legacy /prod/api
 
 FROM node:22-alpine AS runtime
