@@ -1,7 +1,18 @@
 import { QrCode } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
+import { useSyncExternalStore } from "react";
 import { usePresentation } from "@/lib/api/presentations";
 import type { ElementStyle } from "@/lib/quiz-constants";
+
+const noopSubscribe = () => () => {};
+
+function useOrigin() {
+  return useSyncExternalStore(
+    noopSubscribe,
+    () => window.location.origin,
+    () => "",
+  );
+}
 
 export function QRCodeElement({
   presentationId,
@@ -13,10 +24,9 @@ export function QRCodeElement({
   style?: ElementStyle;
 }) {
   const { data: presentation } = usePresentation(presentationId ?? null);
+  const origin = useOrigin();
   const joinCode = presentation?.joinCode ?? null;
-  const joinUrl = joinCode
-    ? `${typeof window !== "undefined" ? window.location.origin : ""}/interact/${joinCode}`
-    : null;
+  const joinUrl = joinCode && origin ? `${origin}/interact/${joinCode}` : null;
 
   const isLive = !!presentationId && !!joinUrl;
   const text = style?.textColor || "#1b1e22";
@@ -49,7 +59,7 @@ export function QRCodeElement({
             className="text-[0.75em] [font-family:var(--slide-font-body)]"
             style={{ color: text, opacity: 0.65 }}
           >
-            {typeof window !== "undefined" ? window.location.host : ""}/interact
+            {origin.replace(/^https?:\/\//, "")}/interact
           </p>
           <p
             className="text-[1.3em] font-bold tracking-[0.25em] [font-family:var(--slide-font-heading)]"
