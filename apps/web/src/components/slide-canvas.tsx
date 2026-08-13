@@ -7,7 +7,7 @@ import type {
 } from "@Prezzy/shared";
 import { resolveSlideTheme } from "@Prezzy/shared/theme";
 import { cn } from "@Prezzy/ui/lib/utils";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { LiveQuizElement, type QuizPhase } from "@/components/live-quiz";
 import { resolveElementStyle } from "@/lib/quiz-constants";
 import { TextElement } from "@/components/elements/text-element";
@@ -34,6 +34,8 @@ export const TEXT_CLS =
   `[&_p]:text-sm ${LIST_CLS}`;
 
 const SCALED_TYPES = new Set(["quiz", "wordcloud", "leaderboard", "qrcode"]);
+
+const useFitEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
 
 export function interactiveFontSize(el: Pick<SlideElement, "type" | "width" | "height">): number | undefined {
   if (!SCALED_TYPES.has(el.type)) return undefined;
@@ -144,16 +146,20 @@ export function SlideCanvas({
   slideBg,
 }: SlideCanvasProps) {
   const outerRef = useRef<HTMLDivElement>(null);
-  const [fitScale, setFitScale] = useState(1);
+  const [fitScale, setFitScale] = useState<number | null>(null);
   const resolved = useMemo(() => resolveSlideTheme(theme, slideBg), [theme, slideBg]);
 
-  useEffect(() => {
+  useFitEffect(() => {
     if (!scaleToFit) return;
     const el = outerRef.current;
     if (!el) return;
+    const apply = (width: number, height: number) =>
+      setFitScale(Math.min(width / DESIGN_W, height / DESIGN_H));
+    const rect = el.getBoundingClientRect();
+    apply(rect.width, rect.height);
     const ro = new ResizeObserver(([entry]) => {
       const { width, height } = entry.contentRect;
-      setFitScale(Math.min(width / DESIGN_W, height / DESIGN_H));
+      apply(width, height);
     });
     ro.observe(el);
     return () => ro.disconnect();
@@ -269,8 +275,9 @@ export function SlideCanvas({
         style={{
           width: DESIGN_W,
           height: DESIGN_H,
-          transform: `scale(${fitScale})`,
+          transform: `scale(${fitScale ?? 1})`,
           transformOrigin: "center",
+          visibility: fitScale === null ? "hidden" : undefined,
           flexShrink: 0,
           ...themeVars,
         }}
