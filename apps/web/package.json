@@ -15,6 +15,7 @@
     "start": "node .output/server/index.mjs"
   },
   "dependencies": {
+    "@Prezzy/editor-doc": "workspace:*",
     "@Prezzy/env": "workspace:*",
     "@Prezzy/shared": "workspace:*",
     "@Prezzy/ui": "workspace:*",
