@@ -10,6 +10,7 @@ import { cn } from "@Prezzy/ui/lib/utils";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { LiveQuizElement, type QuizPhase } from "@/components/live-quiz";
 import { resolveElementStyle } from "@/lib/quiz-constants";
+import { themeColorVar } from "@/lib/theme-tokens";
 import { TextElement } from "@/components/elements/text-element";
 import { ImageElement } from "@/components/elements/image-element";
 import { ShapeElement } from "@/components/elements/shape-element";
@@ -27,11 +28,11 @@ const LIST_CLS = "[&_ul]:list-disc [&_ul]:list-inside [&_ol]:list-decimal [&_ol]
 
 export const HEADING_CLS =
   "h-full w-full overflow-hidden max-w-none leading-snug [font-family:var(--slide-font-heading)] [color:var(--slide-heading)] " +
-  `[&_h1]:font-bold [&_h2]:font-bold [&_h3]:font-bold [&_p]:text-xl ${LIST_CLS}`;
+  `[--element-font-size:20px] [&_h1]:font-bold [&_h2]:font-bold [&_h3]:font-bold [&_p]:[font-size:var(--element-font-size)] ${LIST_CLS}`;
 
 export const TEXT_CLS =
   "h-full w-full overflow-hidden max-w-none leading-normal [font-family:var(--slide-font-body)] [color:var(--slide-text)] " +
-  `[&_p]:text-sm ${LIST_CLS}`;
+  `[--element-font-size:14px] [&_p]:[font-size:var(--element-font-size)] ${LIST_CLS}`;
 
 const SCALED_TYPES = new Set(["quiz", "wordcloud", "leaderboard", "qrcode"]);
 
@@ -181,6 +182,8 @@ export function SlideCanvas({
         return (
           <div
             key={el.id}
+            data-slide-element-id={el.id}
+            data-slide-element-type={el.type}
             className="absolute"
             style={{
               left: `${el.x}%`,
@@ -198,7 +201,7 @@ export function SlideCanvas({
               <TextElement
                 isHeading={isHeading}
                 content={content}
-                opacity={el.props?.opacity}
+                props={el.props}
                 showPlaceholder={showPlaceholders}
               />
             )}
@@ -215,7 +218,7 @@ export function SlideCanvas({
             {el.type === "shape" && (
               <ShapeElement
                 shapeType={el.props?.shapeType}
-                color={el.props?.color}
+                color={themeColorVar(el.props?.color)}
                 borderRadius={el.props?.borderRadius}
                 opacity={el.props?.opacity}
               />

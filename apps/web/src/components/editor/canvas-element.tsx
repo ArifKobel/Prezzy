@@ -11,6 +11,7 @@ import { QuizElement, WordCloudElement, LeaderboardElement, QRCodeElement, inter
 import { RichTextElement } from "@/components/editor/rich-text-element";
 import { ElementContextMenu } from "@/components/editor/element-context-menu";
 import { resolveElementStyle } from "@/lib/quiz-constants";
+import { themeColorVar } from "@/lib/theme-tokens";
 import type { EditorInstance } from "@/lib/editor/editor-state";
 
 export function CanvasElement({
@@ -96,6 +97,7 @@ export function CanvasElement({
             const rot = rotationOverride ?? el.props?.rotation;
             return rot ? `rotate(${rot}deg)` : undefined;
           })(),
+          zIndex: el.zIndex ?? 0,
           fontSize: interactiveFontSize({ type: el.type, width: liveW, height: liveH }),
         }}
         onPointerDown={(e: React.PointerEvent<HTMLElement>) => onPointerDown(e as React.PointerEvent<HTMLDivElement>, el)}
@@ -127,7 +129,7 @@ export function CanvasElement({
               <TextElement
                 isHeading={el.type === "heading"}
                 content={liveContent}
-                opacity={el.props?.opacity}
+                props={el.props}
                 showPlaceholder
               />
             )
@@ -181,7 +183,7 @@ export function CanvasElement({
           {el.type === "shape" && (
             <ShapeElement
               shapeType={el.props?.shapeType}
-              color={el.props?.color}
+              color={themeColorVar(el.props?.color)}
               borderRadius={el.props?.borderRadius}
               opacity={el.props?.opacity}
             />
