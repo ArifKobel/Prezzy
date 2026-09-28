@@ -41,7 +41,7 @@
   },
   "dependencies": {
     "@Prezzy/shared": "workspace:*",
-    "yjs": "^13.6.32"
+    "yjs": "^13.6.33"
   },
   "devDependencies": {
     "@Prezzy/config": "workspace:*",
